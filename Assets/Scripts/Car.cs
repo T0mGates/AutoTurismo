@@ -17,12 +17,16 @@ public class Car : Purchasable
 
     public override Sprite GetSprite(){
         string imageName = name.Replace(" ", "") + "_Car";
-        Debug.Log("Looking for image: " + imageName);
         return Resources.Load<Sprite>("Images/" + imageName);
     }
 
-    public string GetPrintName(){
+    public override string GetPrintName(){
         return Cars.brandToString[brand] == "" ?  name : Cars.brandToString[brand] + " " + name;
+    }
+
+    public override string GetInfoBlurb()
+    {
+        return "Make/Model: " + GetPrintName() + "\nType: " + GetPrintType() + "\nClass: " + GetPrintClasses();
     }
 
     public string GetPrintClasses(){
@@ -75,6 +79,8 @@ public static class Cars
     private static List<Car>                                cars {get; set;}
     // Will match unique name to car
     private static Dictionary<string, Car>                  nameToCar {get; set;}
+    // Will match type to list of cars who are that type
+    private static Dictionary<CarType, List<Car>>           typeToCars {get; set;}
     // Will match class to list of cars who are that class
     private static Dictionary<CarClass, List<Car>>          classToCars {get; set;}
     // Will match brand to list of cars who are that brand
@@ -83,10 +89,14 @@ public static class Cars
     static Cars(){
         cars         = new List<Car>();
         nameToCar    = new Dictionary<string, Car>();
+        typeToCars   = new Dictionary<CarType, List<Car>>();
         classToCars  = new Dictionary<CarClass, List<Car>>();
         brandToCars  = new Dictionary<CarBrand, List<Car>>();
 
         // Init our dicts with empty lists
+        foreach(CarType carType in Enum.GetValues(typeof(CarType))){
+            typeToCars[carType] = new List<Car>();
+        }
         foreach(CarClass carClass in Enum.GetValues(typeof(CarClass))){
             classToCars[carClass] = new List<Car>();
         }
@@ -107,6 +117,7 @@ public static class Cars
 
     public static void AddNewCar(Car carToAdd)
     {
+        CarType         carType                         = carToAdd.type;
         List<CarClass>  carClasses                      = carToAdd.classes;
         CarBrand        carBrand                        = carToAdd.brand;
         string          carName                         = carToAdd.name;
@@ -119,6 +130,10 @@ public static class Cars
             classToCars[carClass].Add(carToAdd);
         }
 
+        // For the car type
+        // Add the car to the list
+        typeToCars[carType].Add(carToAdd);
+
         // For the car brand
         // Add the car to the list
         brandToCars[carBrand].Add(carToAdd);
@@ -126,6 +141,10 @@ public static class Cars
 
     public static Car GetCar(string carName){
         return nameToCar[carName];
+    }
+
+    public static List<Car> GetCarsWithType(CarType carType){
+        return typeToCars[carType];
     }
 
     public static List<Car> GetCarsWithBrand(CarBrand carBrand){
@@ -144,11 +163,13 @@ public static class Cars
         GranTurismo,
         Prototype,
         Club,
-        Truck
+        Truck,
+        None
     }
 
     public static Dictionary<CarType, string> typeToString = new Dictionary<CarType, string>
     {
+        {CarType.None,                      ""},
         {CarType.OpenWheeler,               "Open Wheeler"},
         {CarType.Touring,                   "Touring"},
         {CarType.Sportscar,                 "Sportscar"},

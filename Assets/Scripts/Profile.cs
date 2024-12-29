@@ -1,53 +1,137 @@
+using System;
 using System.Collections.Generic;
 
 using UnityEngine;
 
 public class Profile
 {
-    private string          driverName;
-    private int             money;
-    private int             experience;
-    private int             maxExperience;
-    private int             level;
-    private List<Dealer>    unlockedDealers;
-    private List<Car>       ownedCars;
+    private string                              driverName;
+    private int                                 money;
+    private int                                 experience;
+    private int                                 maxExperience;
+    private int                                 level;
+    private Dictionary<Type, List<Dealer>>      unlockedDealersDict;
+    private Dictionary<Type, List<Purchasable>> ownedProductsDict;
 
     public Profile(string driverNameParam){
-        unlockedDealers = new List<Dealer>();
-        ownedCars       = new List<Car>();
+        // Initialize our dealers dict
+        unlockedDealersDict = new Dictionary<Type, List<Dealer>>();
+        foreach(Type dealerType in Dealers.dealerTypes){
+            unlockedDealersDict[dealerType] = new List<Dealer>();
+        }
+
+        // Initialize our owned products dict
+        ownedProductsDict = new Dictionary<Type, List<Purchasable>>();
+        foreach(Type productType in Purchasable.productTypes){
+            ownedProductsDict[productType] = new List<Purchasable>();
+        }
 
         // Base values
-        driverName      = driverNameParam;
-        money           = 20000;
-        experience      = 0;
-        level           = 1;
+        driverName          = driverNameParam;
+
+        SetBaseValues();
+    }
+
+    private void SetBaseValues(){
+        money               = 20000;
+        experience          = 0;
+        level               = 1;
         SetMaxExperienceBasedOnLevel();
 
         // Base unlocks
-        UnlockDealer(Dealers.GetDealer(Dealers.VEE_NAME));
-        UnlockDealer(Dealers.GetDealer(Dealers.VOLKSWAGEN_NAME));
-        UnlockDealer(Dealers.GetDealer(Dealers.COPA_CLASSIC_B_NAME));
+        UnlockDealer(Dealers.GetDealer(Dealers.VEE_NAME,                    typeof(CarDealer)));
+        UnlockDealer(Dealers.GetDealer(Dealers.VOLKSWAGEN_NAME,             typeof(CarDealer)));
+        UnlockDealer(Dealers.GetDealer(Dealers.COPA_CLASSIC_B_NAME,         typeof(CarDealer)));
+        UnlockDealer(Dealers.GetDealer(Dealers.VEE_NAME,                    typeof(EntryPassDealer)));
+        UnlockDealer(Dealers.GetDealer(Dealers.VOLKSWAGEN_NAME,             typeof(EntryPassDealer)));
+        UnlockDealer(Dealers.GetDealer(Dealers.COPA_CLASSIC_B_NAME,         typeof(EntryPassDealer)));
+
+        Event raceEvent = Event.GenerateNewRaceEvent(
+            "Sunday Cup - Copa Classic B",
+            Tracks.Country.Brazil,
+            EventSeriesManager.SeriesTier.Rookie,
+            Event.EventDuration.Mini,
+            new List<Cars.CarType>(),
+            new List<Cars.CarClass>() { {Cars.CarClass.CopaClassicB} },
+            new List<Cars.CarBrand>(),
+            new List<string>(),
+            25,
+            1500,
+            true
+        );
+        Event raceEventTwo = Event.GenerateNewRaceEvent(
+            "Saturday Cup - Copa Classic B",
+            Tracks.Country.Brazil,
+            EventSeriesManager.SeriesTier.Amateur,
+            Event.EventDuration.Long,
+            new List<Cars.CarType>(),
+            new List<Cars.CarClass>() { {Cars.CarClass.CopaClassicB} },
+            new List<Cars.CarBrand>(),
+            new List<string>(),
+            30,
+            1750,
+            false
+        );
+
+        Event raceEventVee = Event.GenerateNewRaceEvent(
+            "Sunday Cup - Formula Vee",
+            Tracks.Country.Brazil,
+            EventSeriesManager.SeriesTier.Novice,
+            Event.EventDuration.Mini,
+            new List<Cars.CarType>(),
+            new List<Cars.CarClass>() { {Cars.CarClass.FormulaVeeBrasil} },
+            new List<Cars.CarBrand>(),
+            new List<string>(),
+            25,
+            1500,
+            true
+        );
+        Event raceEventVeeTwo = Event.GenerateNewRaceEvent(
+            "Saturday Cup - Formula Vee",
+            Tracks.Country.Brazil,
+            EventSeriesManager.SeriesTier.Amateur,
+            Event.EventDuration.Long,
+            new List<Cars.CarType>(),
+            new List<Cars.CarClass>() { {Cars.CarClass.FormulaVeeBrasil} },
+            new List<Cars.CarBrand>(),
+            new List<string>(),
+            30,
+            1750,
+            false
+        );
+
+        EventSeries newSeries = new EventSeries("Copa Classic B for Dummies", EventSeriesManager.SeriesTier.Rookie, new List<Event>() { {raceEvent}, {raceEventTwo} });
+        EventSeries newSeriesTwo = new EventSeries("Formula Vee for Dummies", EventSeriesManager.SeriesTier.Novice, new List<Event>() { {raceEventVee}, {raceEventVeeTwo} });
+
+        EventSeriesManager.AddNewSeries(Tracks.Country.Brazil, newSeries);
+        EventSeriesManager.AddNewSeries(Tracks.Country.Brazil, newSeriesTwo);
+        EventSeriesManager.AddNewSeries(Tracks.Country.Brazil, newSeriesTwo);
+        EventSeriesManager.AddNewSeries(Tracks.Country.Brazil, newSeries);
     }
 
-    public List<Car> GetOwnedCars(){
-        return ownedCars;
+    public List<Purchasable> GetOwnedProducts(Type productType){
+        return ownedProductsDict[productType];
     }
 
     public void UnlockDealer(Dealer dealerToAdd){
-        unlockedDealers.Add(dealerToAdd);
+        foreach(Type dealerType in Dealers.dealerTypes){
+            if(dealerType == dealerToAdd.GetType()){
+                unlockedDealersDict[dealerType].Add(dealerToAdd);
+            }
+        }
     }
 
-    public void AddNewCar(Car carToAdd){
-        ownedCars.Add(carToAdd);
+    public void AddNewProduct(Purchasable toAdd){
+        ownedProductsDict[toAdd.GetType()].Add(toAdd);
     }
 
-    public void RemoveOwnedCar(Car carToRemove){
-        ownedCars.Remove(carToRemove);
+    public void RemoveOwnedProduct(Purchasable toRemove){
+        ownedProductsDict[toRemove.GetType()].Remove(toRemove);
     }
 
-    public bool OwnsCar(Car carToCheck){
-        foreach(Car car in ownedCars){
-            if(car.Equals(carToCheck)){
+    public bool OwnsProduct(Purchasable toCheck){
+        foreach(Purchasable product in ownedProductsDict[toCheck.GetType()]){
+            if(product.Equals(toCheck)){
                 return true;
             }
         }
@@ -66,8 +150,8 @@ public class Profile
         return false;
     }
 
-    public List<Dealer> GetUnlockedDealers(){
-        return unlockedDealers;
+    public List<Dealer> GetUnlockedDealers(Type dealerType){
+        return unlockedDealersDict[dealerType];
     }
 
     public int GetCurrentExperience(){

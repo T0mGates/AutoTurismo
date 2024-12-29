@@ -1,7 +1,11 @@
-using System.Net.Http.Headers;
 using UnityEngine;
+using System;
+using System.Collections.Generic;
 
 public abstract class Purchasable{
+    // DEVS: change the contents of this list to add new types of purchasable items
+    public static   List<Type>        productTypes   = new List<Type>() { typeof(Car), typeof(EntryPass) } ;
+
     public int      price;
     public int      sellPrice;
     public string   name;
@@ -19,6 +23,9 @@ public abstract class Purchasable{
     }
 
     public abstract Sprite GetSprite();
+
+    public abstract string GetPrintName();
+    public abstract string GetInfoBlurb();
 
     public string GetPrintPrice(){
         return "$" + price.ToString("n0");

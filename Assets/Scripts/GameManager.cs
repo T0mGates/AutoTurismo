@@ -17,7 +17,7 @@ public class GameManager : MonoBehaviour
       IOManager.SetJsonDir(PATH_TO_JSONS);
       RaceResult result = IOManager.ReadInNewResult();
       for(int j = 0; j < result.Drivers.Count; j++){
-        Driver driver = result.Drivers[j];
+        ResultDriver driver = result.Drivers[j];
         if(driver.IsPlayer){
             // Found player
             Debug.Log("Found player: " + driver.DriverLongName + ", driving a " + driver.CarName + " to P" + driver.FinishingPosition.ToString());
@@ -36,35 +36,45 @@ public class GameManager : MonoBehaviour
       curProfile = new Profile(profileName);
     }
 
-    public void BuyCar(Car car, Dealer dealer){
+    public void BuyProduct(Purchasable product, Dealer dealer){
       // Check if we have enough
-      if(CanAfford(car, dealer)){
-        curProfile.LoseMoney(car.price);
+      if(CanAfford(product, dealer)){
+        curProfile.LoseMoney(product.price);
         // Add the car to our owned cars and update the UI
-        curProfile.AddNewCar(car);
+        curProfile.AddNewProduct(product);
         menuManager.UpdateMainUI();
         // Refresh the dealer page
-        menuManager.Dealer(dealer.name);
+        menuManager.Dealer(dealer);
 
-        // Pop up notification of the new acquisition
-        menuManager.Notification("New Car Obtained!", "Congratulations!\nYou've bought a brand new car!\n\n\nMake/Model: " + car.GetPrintName() + "\nType: " + car.GetPrintType() + "\nClass: " + car.GetPrintClasses(), car.GetSprite());
+        // Popup a notification depending on the type of the newly acquired product
+        if(product is Car car){
+          menuManager.Notification("New Car Obtained!", "You've bought a brand new car!\n\n" + car.GetInfoBlurb(), car.GetSprite());
+        }
+        else if(product is EntryPass entryPass){
+          menuManager.Notification("New Entry Pass Obtained!", "You've bought an entry pass!\n\n" + entryPass.GetInfoBlurb(), entryPass.GetSprite());
+        }
       }
     }
 
-    public void SellCar(Car car, int sellPrice){
+    public void SellProduct(Purchasable product, int sellPrice){
       curProfile.GainMoney(sellPrice);
       // Remove the car from our owned cars and update the UI
-      curProfile.RemoveOwnedCar(car);
+      curProfile.RemoveOwnedProduct(product);
       menuManager.UpdateMainUI();
-      // Refresh the garage page
-      menuManager.Garage();
+      // Refresh the garage/entrypass page, depending on the product type
+      if(product is Car){
+        menuManager.Garage();
+      }
+      else if(product is EntryPass){
+        menuManager.EntryPasses();
+      }
     }
 
     // Can you afford this car from this dealer (are there specials on, etc)
-    public bool CanAfford(Car car, Dealer dealer){
+    public bool CanAfford(Purchasable product, Dealer dealer){
       int curMoney  = curProfile.GetMoney();
 
-      if(curMoney >= car.price){
+      if(curMoney >= product.price){
         return true;
       }
       return false;

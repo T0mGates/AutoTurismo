@@ -5,6 +5,8 @@ using TMPro;
 using UnityEngine.UI;
 using System.Globalization;
 using System;
+using Unity.VisualScripting;
+using UnityEngine.TextCore.Text;
 
 
 public class MenuManager : MonoBehaviour
@@ -18,6 +20,10 @@ public class MenuManager : MonoBehaviour
     public GameObject   dealerMenu;
     public GameObject   garageMenu;
     public GameObject   notificationMenu;
+    public GameObject   shopMenu;
+    public GameObject   inventoryMenu;
+    public GameObject   racingMenu;
+    public GameObject   countrySeriesMenu;
 
     [Header("Player Info")]
     public Slider       expSlider;
@@ -41,6 +47,10 @@ public class MenuManager : MonoBehaviour
     private Color transparentRed            = new Color(1.0f, 0.75f, 0.75f, 0.85f);
     private Color transparentBlue           = new Color(0.75f, 0.75f, 1.0f, 0.85f);
 
+    [Header("Country")]
+    public GameObject   countrySeriesPrefab;
+    public Transform    countrySeriesContentTransform;
+
     void Start(){
         gameManager = GameObject.FindWithTag("GameManager").GetComponent<GameManager>();
 
@@ -58,6 +68,10 @@ public class MenuManager : MonoBehaviour
         dealerMenu.SetActive(false);
         garageMenu.SetActive(false);
         notificationMenu.SetActive(false);
+        shopMenu.SetActive(false);
+        inventoryMenu.SetActive(false);
+        racingMenu.SetActive(false);
+        countrySeriesMenu.SetActive(false);
 
         // Destroy objects
         foreach(Transform child in dealershipContentTransform)
@@ -69,6 +83,10 @@ public class MenuManager : MonoBehaviour
             Destroy(child.gameObject);
         }
         foreach(Transform child in garageContentTransform)
+        {
+            Destroy(child.gameObject);
+        }
+        foreach(Transform child in countrySeriesContentTransform)
         {
             Destroy(child.gameObject);
         }
@@ -118,28 +136,73 @@ public class MenuManager : MonoBehaviour
         levelText.text  = "Level: " + gameManager.curProfile.GetLevel().ToString();
     }
 
-    public void Dealership(){
+    public void Dealership(Type dealerType){
         TurnAllOff();
         navigationMenu.SetActive(true);
         dealershipMenu.SetActive(true);
-        PopulateDealership();
+        PopulateDealership(dealerType);
     }
 
-    public void Dealer(string dealerName){
+    public void CarDealership(){
+        Dealership(typeof(CarDealer));
+    }
+
+    public void EntryPassDealership(){
+        Dealership(typeof(EntryPassDealer));
+    }
+
+    public void Dealer(Dealer dealer){
         TurnAllOff();
         navigationMenu.SetActive(true);
         dealerMenu.SetActive(true);
-        PopulateDealer(dealerName);
+        PopulateDealer(dealer);
     }
 
     public void Garage(){
         TurnAllOff();
         navigationMenu.SetActive(true);
         garageMenu.SetActive(true);
-        PopulateGarage();
+        PopulateGarage(typeof(Car));
     }
 
-    public void GotNewCar(Car car){
+    public void EntryPasses(){
+        TurnAllOff();
+        navigationMenu.SetActive(true);
+        garageMenu.SetActive(true);
+        PopulateGarage(typeof(EntryPass));
+    }
+
+    public void Shop(){
+        TurnAllOff();
+        navigationMenu.SetActive(true);
+        shopMenu.SetActive(true);
+    }
+
+    public void Inventory(){
+        TurnAllOff();
+        navigationMenu.SetActive(true);
+        inventoryMenu.SetActive(true);
+    }
+
+    public void Racing(){
+        TurnAllOff();
+        navigationMenu.SetActive(true);
+        racingMenu.SetActive(true);
+    }
+
+    public void CountrySeries(string countryName){
+        foreach(Tracks.Country country in Enum.GetValues(typeof(Tracks.Country))){
+            // Look if the string representation of the enum is the given country name
+            if(country.ToString() == countryName.Replace(" ", "")){
+                TurnAllOff();
+                navigationMenu.SetActive(true);
+                countrySeriesMenu.SetActive(true);
+                PopulateCountrySeries(country);
+            }
+        }
+    }
+
+    public void Series(EventSeries series){
 
     }
 
@@ -177,14 +240,18 @@ public class MenuManager : MonoBehaviour
         }
     }
 
-    private void PopulateDealership(){
+    private void PopulateDealership(Type dealerType){
+        const string TITLE_TEXT_NAME    = "DealershipTxt";
         const string BG_IMAGE_NAME      = "DealerBtn/BG";
         const string DEALER_TEXT_NAME   = "DealerTxt";
         const string DEALER_BTN_NAME    = "DealerBtn";
 
-        GameObject      newObj;
-        List<Dealer>    dealers =  gameManager.curProfile.GetUnlockedDealers();
+        dealershipMenu.gameObject.transform.Find(TITLE_TEXT_NAME).GetComponent<TextMeshProUGUI>().text         = typeof(CarDealer).IsAssignableFrom(dealerType) ? "Choose a Car Dealer" : typeof(EntryPassDealer).IsAssignableFrom(dealerType) ? "Choose an Entry Pass Dealer" : "Unknown Dealership";
 
+        GameObject      newObj;
+        List<Dealer>    dealers =  gameManager.curProfile.GetUnlockedDealers(dealerType);
+
+        // For every dealer, make a small interactable button
         for(int i = 0; i < dealers.Count; i++){
             Dealer dealer   = dealers[i];
             newObj          = (GameObject)Instantiate(dealerObjPrefab, dealershipContentTransform);
@@ -192,125 +259,123 @@ public class MenuManager : MonoBehaviour
             newObj.transform.Find(DEALER_TEXT_NAME).GetComponent<TextMeshProUGUI>().text        = dealer.name;
 
             newObj.transform.Find(DEALER_BTN_NAME).GetComponent<Button>().onClick.RemoveAllListeners();
-            newObj.transform.Find(DEALER_BTN_NAME).GetComponent<Button>().onClick.AddListener(() => { Dealer(dealer.name); });
+            newObj.transform.Find(DEALER_BTN_NAME).GetComponent<Button>().onClick.AddListener(() => { Dealer(dealer); });
         }
     }
 
-    private void PopulateDealer(string dealerName){
-        const string CAR_IMAGE_NAME     = "CarImg";
-        const string CAR_TEXT_NAME      = "CarNameTxt";
-        const string CAR_CLASSES_NAME   = "CarClassesTxt";
-        const string CAR_TYPE_NAME      = "CarTypeTxt";
+    private void PopulateDealer(Dealer dealer){
+        const string PRODUCT_IMAGE_NAME = "ProductImg";
+        const string NAME_TEXT_NAME     = "ProductNameTxt";
+        const string CLASSES_TEXT_NAME  = "ProductClassesTxt";
+        const string TYPE_TEXT_NAME     = "ProductTypeTxt";
         const string BUY_BTN_NAME       = "PriceBuy/BuyBtn";
         const string BUY_BTN_TEXT_NAME  = "PriceBuy/BuyBtn/BuyTxt";
         const string PRICE_TEXT_NAME    = "PriceBuy/PriceTxt";
 
         const string DEALER_TEXT_NAME   = "DealerTxt";
+        const string BACK_BTN_NAME      = "BackBtn";
 
-        GameObject  newObj;
-        Dealer      dealer              = Dealers.GetDealer(dealerName);
-        List<Car>   cars                = dealer.cars;
+        GameObject          newObj;
+        List<Purchasable>   products            = dealer.products;
 
         // Set dealer title
         dealerMenu.transform.Find(DEALER_TEXT_NAME).GetComponent<TextMeshProUGUI>().text        = dealer.name;
+        // Set onclick for the back button, depending on what kind of dealer this is
+        if(dealer       is CarDealer){
+            dealerMenu.transform.Find(BACK_BTN_NAME).GetComponent<Button>().onClick.RemoveAllListeners();
+            dealerMenu.transform.Find(BACK_BTN_NAME).GetComponent<Button>().onClick.AddListener(() => { CarDealership(); });
+        }
+        else if(dealer  is EntryPassDealer){
+            dealerMenu.transform.Find(BACK_BTN_NAME).GetComponent<Button>().onClick.RemoveAllListeners();
+            dealerMenu.transform.Find(BACK_BTN_NAME).GetComponent<Button>().onClick.AddListener(() => { EntryPassDealership(); });
+        }
 
-        for(int i = 0; i < cars.Count; i++){
-            Car car         = cars[i];
+        foreach(Purchasable product in products){
+            bool owned                                                                          = false;
             newObj                                                                              = (GameObject)Instantiate(dealerCarPrefab, dealerContentTransform);
 
             // Set BG to green for now
             newObj.GetComponent<Image>().color                                                  = transparentGreen;
 
             // Change the image
-            newObj.transform.Find(CAR_IMAGE_NAME).GetComponent<Image>().sprite                  = car.GetSprite();
+            newObj.transform.Find(PRODUCT_IMAGE_NAME).GetComponent<Image>().sprite              = product.GetSprite();
 
-            // Change the car name
-            newObj.transform.Find(CAR_TEXT_NAME).GetComponent<TextMeshProUGUI>().text           = car.GetPrintName();
+            // Change the product name
+            newObj.transform.Find(NAME_TEXT_NAME).GetComponent<TextMeshProUGUI>().text          = product.GetPrintName();
 
-            // Change the car class(es)
+            if(product is Car car){
+                // Change the class(es) if it exists
+                newObj.transform.Find(CLASSES_TEXT_NAME).GetComponent<TextMeshProUGUI>().text   = car.GetPrintClasses();
 
-            newObj.transform.Find(CAR_CLASSES_NAME).GetComponent<TextMeshProUGUI>().text        = car.GetPrintClasses();
+                // Change the type if it exists
+                newObj.transform.Find(TYPE_TEXT_NAME).GetComponent<TextMeshProUGUI>().text      = car.GetPrintType();
 
-            // Change the car type
-            newObj.transform.Find(CAR_TYPE_NAME).GetComponent<TextMeshProUGUI>().text           = car.GetPrintType();
+                owned                                                                           = gameManager.curProfile.OwnsProduct(car);
+            }
+            else if(product is EntryPass entryPass){
+                // Change the class(es) if it exists
+                newObj.transform.Find(CLASSES_TEXT_NAME).GetComponent<TextMeshProUGUI>().text   = entryPass.GetPrintClasses();
+
+                // Change the type if it exists
+                newObj.transform.Find(TYPE_TEXT_NAME).GetComponent<TextMeshProUGUI>().text      = entryPass.GetPrintType();
+
+                owned                                                                           = gameManager.curProfile.OwnsProduct(entryPass);
+            }
+            else{
+                // Set classes to null since this item doesn't implement it
+                newObj.transform.Find(CLASSES_TEXT_NAME).GetComponent<TextMeshProUGUI>().text   = "";
+
+                // Set type to null since this item doesn't implement it
+                newObj.transform.Find(TYPE_TEXT_NAME).GetComponent<TextMeshProUGUI>().text      = "";
+            }
 
             // Change the buy button onclick action
-            // If we own the car, disable the button
+            // If we own the product, disable the button
             Button buyBtn = newObj.transform.Find(BUY_BTN_NAME).GetComponent<Button>();
-            if(gameManager.curProfile.OwnsCar(car)){
+            if(owned){
                 buyBtn.interactable = false;
                 newObj.transform.Find(BUY_BTN_TEXT_NAME).GetComponent<TextMeshProUGUI>().text   = "Owned";
                 newObj.GetComponent<Image>().color                                              = transparentBlue;
             }
-            // If we don't own the car and can't afford it, change BG to red
-            else if(!gameManager.CanAfford(car, dealer)){
+            // If we don't own the product and can't afford it, change BG to red
+            else if(!gameManager.CanAfford(product, dealer)){
                 newObj.GetComponent<Image>().color                                              = transparentRed;
             }
 
             buyBtn.onClick.RemoveAllListeners();
-            buyBtn.onClick.AddListener(() => { ConfirmPurchasablePopup(car, dealer); });
+            buyBtn.onClick.AddListener(() => { ConfirmPurchasablePopup(product, dealer); });
 
             // Change the price (text)
-            newObj.transform.Find(PRICE_TEXT_NAME).GetComponent<TextMeshProUGUI>().text         = car.GetPrintPrice();
+            newObj.transform.Find(PRICE_TEXT_NAME).GetComponent<TextMeshProUGUI>().text         = product.GetPrintPrice();
         }
     }
 
-    // Dealer is only needed for a 'buy', so if it is null, this will be treated as a 'selling' transaction
-    private void ConfirmPurchasablePopup(Purchasable purchasable, Dealer dealer){
-        // Either buying or selling
-        bool isBuying               = dealer != null;
+    private void PopulateGarage(Type productType){
+        const string        PRODUCT_IMAGE_NAME = "ProductImg";
+        const string        NAME_TEXT_NAME     = "ProductNameTxt";
+        const string        CLASSES_TEXT_NAME  = "ProductClassesTxt";
+        const string        TYPE_TEXT_NAME     = "ProductTypeTxt";
+        const string        SELL_BTN_NAME      = "PriceSell/SellBtn";
+        const string        PRICE_TEXT_NAME    = "PriceSell/PriceTxt";
 
-        const string BUY_BTN_NAME   = "PurchaseConfirmation/YesBtn";
-        string bodyTextAddon        = "";
+        const string        TITLE_TEXT_NAME    = "TitleTxt";
+        //const string        BACK_BTN_NAME      = "BackBtn";
 
-        BlockButtons();
+        GameObject          newObj;
+        List<Purchasable>   products           = gameManager.curProfile.GetOwnedProducts(productType);
 
-        // Set the onclick event of the buy button on the notification screen
-        if(purchasable is Car){
-            Car car = (Car) purchasable;
-
-            // Buy/sell the car and clear the notification
-            notificationMenu.transform.Find(BUY_BTN_NAME).GetComponent<Button>().onClick.RemoveAllListeners();
-            if(isBuying){
-                notificationMenu.transform.Find(BUY_BTN_NAME).GetComponent<Button>().onClick.AddListener(() => { gameManager.BuyCar(car, dealer); });
-            }
-            else{
-                // Selling
-                notificationMenu.transform.Find(BUY_BTN_NAME).GetComponent<Button>().onClick.AddListener(() => { gameManager.SellCar(car, car.sellPrice); });
-            }
-
-            bodyTextAddon += "\n\nMake/Model: " + car.GetPrintName() + "\nType: " + car.GetPrintType() + "\nClass: " + car.GetPrintClasses();
+        // Change the title depending on what the product type is
+        if(typeof(EntryPass).IsAssignableFrom(productType)){
+            garageMenu.transform.Find(TITLE_TEXT_NAME).GetComponent<TextMeshProUGUI>().text     = "Owned Entry Passes";
         }
-
-        string bodyText             = "";
-        string remainingBalance     = "";
-
-        if(isBuying){
-            remainingBalance        = "$" + (gameManager.curProfile.GetMoney() - purchasable.price).ToString("n0");
-            bodyText                = "Are you sure you want to buy a " + purchasable.name + " for " + purchasable.GetPrintPrice() + "?\n\nBalance after transaction: " + remainingBalance + bodyTextAddon;
+        else if(typeof(Car).IsAssignableFrom(productType)){
+            garageMenu.transform.Find(TITLE_TEXT_NAME).GetComponent<TextMeshProUGUI>().text     = "Owned Cars";
         }
         else{
-            // Selling
-            remainingBalance        = "$" + (gameManager.curProfile.GetMoney() + purchasable.sellPrice).ToString("n0");
-            bodyText = "Are you sure you want to sell a " + purchasable.name + " for " + purchasable.GetSellPrice() + "?\n\nBalance after transaction: " + remainingBalance + bodyTextAddon;
+            garageMenu.transform.Find(TITLE_TEXT_NAME).GetComponent<TextMeshProUGUI>().text     = "Unknown";
         }
 
-        Notification("Confirm Transaction", bodyText, purchasable.GetSprite(), true);
-    }
-
-    private void PopulateGarage(){
-        const string CAR_IMAGE_NAME     = "CarImg";
-        const string CAR_TEXT_NAME      = "CarNameTxt";
-        const string CAR_CLASSES_NAME   = "CarClassesTxt";
-        const string CAR_TYPE_NAME      = "CarTypeTxt";
-        const string SELL_BTN_NAME      = "PriceSell/SellBtn";
-        const string PRICE_TEXT_NAME    = "PriceSell/PriceTxt";
-
-        GameObject  newObj;
-        List<Car>   cars                = gameManager.curProfile.GetOwnedCars();
-
-        for(int i = 0; i < cars.Count; i++){
-            Car car         = cars[i];
+        foreach(Purchasable product in products){
 
             newObj                                                                              = (GameObject)Instantiate(garageCarPrefab, garageContentTransform);
 
@@ -318,30 +383,113 @@ public class MenuManager : MonoBehaviour
             newObj.GetComponent<Image>().color                                                  = transparentBlue;
 
             // Change the image
-            newObj.transform.Find(CAR_IMAGE_NAME).GetComponent<Image>().sprite                  = car.GetSprite();
+            newObj.transform.Find(PRODUCT_IMAGE_NAME).GetComponent<Image>().sprite              = product.GetSprite();
 
             // Change the car name
-            newObj.transform.Find(CAR_TEXT_NAME).GetComponent<TextMeshProUGUI>().text           = car.GetPrintName();
+            newObj.transform.Find(NAME_TEXT_NAME).GetComponent<TextMeshProUGUI>().text          = product.GetPrintName();
 
-            // Change the car class(es)
-            newObj.transform.Find(CAR_CLASSES_NAME).GetComponent<TextMeshProUGUI>().text        = car.GetPrintClasses();
-
-            // Change the car type
-            newObj.transform.Find(CAR_TYPE_NAME).GetComponent<TextMeshProUGUI>().text           = car.GetPrintType();
+            if(product is Car car){
+                // Change the car class(es)
+                newObj.transform.Find(CLASSES_TEXT_NAME).GetComponent<TextMeshProUGUI>().text   = car.GetPrintClasses();
+                // Change the car type
+                newObj.transform.Find(TYPE_TEXT_NAME).GetComponent<TextMeshProUGUI>().text      = car.GetPrintType();
+            }
+            else if(product is EntryPass entryPass){
+                // Change the pass class(es)
+                newObj.transform.Find(CLASSES_TEXT_NAME).GetComponent<TextMeshProUGUI>().text   = entryPass.GetPrintClasses();
+                // Change the pass type
+                newObj.transform.Find(TYPE_TEXT_NAME).GetComponent<TextMeshProUGUI>().text      = entryPass.GetPrintType();
+            }
 
             // Change the sell button onclick action
             // If we only own one car, disable the button
             Button sellBtn = newObj.transform.Find(SELL_BTN_NAME).GetComponent<Button>();
-            if(1 == cars.Count){
+            if(1 == products.Count){
                 sellBtn.interactable = false;
                 newObj.GetComponent<Image>().color                                              = transparentRed;
             }
 
             sellBtn.onClick.RemoveAllListeners();
-            sellBtn.onClick.AddListener(() => { ConfirmPurchasablePopup(car, null); });
+            sellBtn.onClick.AddListener(() => { ConfirmPurchasablePopup(product, null); });
 
             // Change the price (text)
-            newObj.transform.Find(PRICE_TEXT_NAME).GetComponent<TextMeshProUGUI>().text         = car.GetSellPrice();
+            newObj.transform.Find(PRICE_TEXT_NAME).GetComponent<TextMeshProUGUI>().text         = product.GetSellPrice();
         }
+    }
+
+    private void PopulateCountrySeries(Tracks.Country country){
+        const string        COUNTRY_TEXT_NAME   = "CountrySeriesTxt";
+
+        // These are for the prefab
+        const string        SERIES_TITLE_NAME   = "SeriesNameTxt";
+        const string        SERIES_TIER_NAME    = "SeriesTierTxt";
+        const string        VIEW_BTN_NAME       = "ViewBtn";
+
+        // These will be put before and after the series tier text
+        const string        SERIES_TIER_PREFIX  = "Only for ";
+        const string        SERIES_TIER_SUFFIX  = " Drivers";
+        // Don't forget image later on
+
+        GameObject          newObj;
+        List<EventSeries>   seriesList          = EventSeriesManager.GetCountrySeries(country);
+
+        // Change the title depending on what the country type is
+        countrySeriesMenu.transform.Find(COUNTRY_TEXT_NAME).GetComponent<TextMeshProUGUI>().text     = Tracks.countryToString[country];
+
+        foreach(EventSeries series in seriesList){
+
+            newObj                                                                              = (GameObject)Instantiate(countrySeriesPrefab, countrySeriesContentTransform);
+
+            //TODO: Change the image
+            //newObj.transform.Find(PRODUCT_IMAGE_NAME).GetComponent<Image>().sprite              = product.GetSprite();
+
+            // Change the series name
+            newObj.transform.Find(SERIES_TITLE_NAME).GetComponent<TextMeshProUGUI>().text       = series.name;
+
+            // Change the tier text
+            newObj.transform.Find(SERIES_TIER_NAME).GetComponent<TextMeshProUGUI>().text        = SERIES_TIER_PREFIX + EventSeriesManager.tierToString[series.seriesTier] + SERIES_TIER_SUFFIX;
+
+            // Change the view button onclick action
+            Button viewBtn = newObj.transform.Find(VIEW_BTN_NAME).GetComponent<Button>();
+
+            viewBtn.onClick.RemoveAllListeners();
+            viewBtn.onClick.AddListener(() => { Series(series); });
+        }
+    }
+
+    // Dealer is only needed for a 'buy', so if it is null, this will be treated as a 'selling' transaction
+    private void ConfirmPurchasablePopup(Purchasable product, Dealer dealer){
+        // Either buying or selling
+        bool isBuying               = dealer != null;
+
+        const string BUY_BTN_NAME   = "PurchaseConfirmation/YesBtn";
+
+        BlockButtons();
+
+        // Set the onclick event of the buy button on the notification screen
+        // Buy/sell the product and clear the notification
+        notificationMenu.transform.Find(BUY_BTN_NAME).GetComponent<Button>().onClick.RemoveAllListeners();
+        if(isBuying){
+            notificationMenu.transform.Find(BUY_BTN_NAME).GetComponent<Button>().onClick.AddListener(() => { gameManager.BuyProduct(product, dealer); });
+        }
+        else{
+            // Selling
+            notificationMenu.transform.Find(BUY_BTN_NAME).GetComponent<Button>().onClick.AddListener(() => { gameManager.SellProduct(product, product.sellPrice); });
+        }
+
+        string bodyText             = "";
+        string remainingBalance     = "";
+
+        if(isBuying){
+            remainingBalance        = "$" + (gameManager.curProfile.GetMoney() - product.price).ToString("n0");
+            bodyText                = "Are you sure you want to buy a " + product.GetPrintName() + " for " + product.GetPrintPrice() + "?\nBalance after transaction: " + remainingBalance + "\n" + product.GetInfoBlurb();
+        }
+        else{
+            // Selling
+            remainingBalance        = "$" + (gameManager.curProfile.GetMoney() + product.sellPrice).ToString("n0");
+            bodyText = "Are you sure you want to sell a " + product.GetPrintName() + " for " + product.GetSellPrice() + "?\nBalance after transaction: " + remainingBalance + "\n" + product.GetInfoBlurb();
+        }
+
+        Notification("Confirm Transaction", bodyText, product.GetSprite(), true);
     }
 }

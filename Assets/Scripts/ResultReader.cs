@@ -10,24 +10,24 @@ public class RaceResult
     public string SessionLengthType { get; set; }
     public int TotalNumberOfLaps { get; set; }
     public string SessionRunDuration { get; set; }
-    public Track TrackInfo { get; set; }
-    public List<Driver> Drivers { get; set; }
+    public ResultTrack TrackInfo { get; set; }
+    public List<ResultDriver> Drivers { get; set; }
     public string FuelConsumptionInformation { get; set; }
 }
 
-public class Track
+public class ResultTrack
 {
     public string TrackName { get; set; }
     public string TrackLayoutName { get; set; }
-    public LayoutLength LayoutLength { get; set; }
+    public ResultLayoutLength LayoutLength { get; set; }
 }
 
-public class LayoutLength
+public class ResultLayoutLength
 {
     public float InMeters { get; set; }
 }
 
-public class Driver
+public class ResultDriver
 {
 
     public string ClassName { get; set; }
@@ -44,8 +44,8 @@ public class Driver
     public float TotalDistance { get; set; }
     public string GapToPlayerRelative { get; set; }
     public int LapsDifferenceToPlayer { get; set; }
-    public TopSpeed TopSpeed { get; set; }
-    public Lap[] Laps { get; set; }
+    public ResultTopSpeed TopSpeed { get; set; }
+    public ResultLap[] Laps { get; set; }
     public bool IsPlayer { get; set; }
     public bool Finished { get; set; }
     public string FinishStatus { get; set; }
@@ -54,12 +54,12 @@ public class Driver
     public string GapToPlayerByTiming { get; set; }
 }
 
-public class TopSpeed
+public class ResultTopSpeed
 {
     public float InMs { get; set; }
 }
 
-public class Lap
+public class ResultLap
 {
     public bool IsPitLap { get; set; }
     public int LapNumber { get; set; }
