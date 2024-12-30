@@ -71,3 +71,9 @@ public class ResultLap
     public string Sector2 { get; set; }
     public string Sector3 { get; set; }
 }
+
+public enum FinishStatus
+    {
+        Finished,
+        Dnf
+    }

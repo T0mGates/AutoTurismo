@@ -1,5 +1,7 @@
 using System.IO;
 using Newtonsoft.Json;
+using UnityEditor;
+using UnityEngine;
 
 public static class IOManager
 {
@@ -11,14 +13,16 @@ public static class IOManager
 
     static public RaceResult ReadInNewResult(){
 
-        string[] filedata = Directory.GetFiles(PathToJsonDir);
+        string[] fileData = Directory.GetFiles(PathToJsonDir);
 
-        // Displaying the file names one by one
-        foreach (string i in filedata)
+        // Displaying the file paths one by one
+        foreach (string filePath in fileData)
         {
-            if(i.Contains(".json")){
-              RaceResult result = JsonConvert.DeserializeObject<RaceResult>(File.ReadAllText(i));
-              // TODO clear the json file
+            if(filePath.Contains(".json")){
+              RaceResult result = JsonConvert.DeserializeObject<RaceResult>(File.ReadAllText(filePath));
+              // Delete the json file since this function is 'while trued' until it does not find a json file
+              Debug.Log("Deleting file found at: " + filePath);
+              FileUtil.DeleteFileOrDirectory(filePath);
               return result;
             }
         }

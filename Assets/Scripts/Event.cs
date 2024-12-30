@@ -124,33 +124,38 @@ public class Event
     public EventDuration        eventDuration;
     public EventSeries          parentEventSeries;
 
-    public int                  bonusFame;
-    public int                  bonusMoney;
-
     public List<Cars.CarType>   typeWhitelist;
     public List<Cars.CarClass>  classWhitelist;
     public List<Cars.CarBrand>  brandWhitelist;
     public List<string>         nameWhitelist;
+
+    private int                 topFameReward;
+    private int                 topMoneyReward;
+    private int                 finishPosition;
+    private int                 gridSize;
+    private bool                completed;
 
     private List<EventEntry>    eventEntries;
 
     public Event(
                 string nameParam, EventType eventTypeParam, EventDuration eventDurationParam, EventSeries parentEventSeriesParam,
                 List<Cars.CarType> allowedTypes, List<Cars.CarClass> allowedClasses, List<Cars.CarBrand> allowedBrands, List<string> allowedNames,
-                int bonusFameParam, int bonusMoneyParam
+                int topFameRewardParam, int topMoneyRewardParam
                 ){
         name                = nameParam;
         eventType           = eventTypeParam;
         eventDuration       = eventDurationParam;
         parentEventSeries   = parentEventSeriesParam;
 
-        bonusFame           = bonusFameParam;
-        bonusMoney          = bonusMoneyParam;
+        topFameReward       = topFameRewardParam;
+        topMoneyReward      = topMoneyRewardParam;
 
         typeWhitelist       = allowedTypes;
         classWhitelist      = allowedClasses;
         brandWhitelist      = allowedBrands;
         nameWhitelist       = allowedNames;
+        completed           = false;
+        gridSize            = -1;
 
         // Will be filled in by newly instantiated event entries
         eventEntries        = new List<EventEntry>();
@@ -162,8 +167,21 @@ public class Event
         int nextUpIndex = eventEntries.IndexOf(eventEntryParam) + 1;
 
         if(nextUpIndex >= eventEntries.Count){
-            // TODO: Event is complete!
             Debug.Log("Event: " + name + " is complete!");
+            // Depending on the event type, calculate final position
+            switch(eventType){
+                case EventType.Race:
+                    finishPosition = eventEntryParam.playerResult.FinishingPositionInClass;
+                    break;
+                case EventType.Championship:
+                    // TODO championship points and whatnot
+                    break;
+
+                default:
+                    Debug.LogError("Event type: " + eventTypeToString[eventType] + " has not been implemented yet!");
+                    break;
+            }
+            completed = true;
         }
         else{
             eventEntries[nextUpIndex].nextUp = true;
@@ -171,11 +189,41 @@ public class Event
     }
 
     public void AddNewEventEntry(EventEntry entryToAdd){
-        eventEntries.Add(entryToAdd);
         // If this is the first event, make it the next up to race
-        if(1 == eventEntries.Count){
+        if(0 == eventEntries.Count){
             entryToAdd.nextUp = true;
         }
+
+        // Need to figure out gridSize of the whole 'event'
+        // If it is still the default (first event entry to be added)
+        if(-1 == gridSize){
+            gridSize = entryToAdd.gridSize;
+        }
+        else{
+            // If this is a championship, make the lowest grid sized eventEntry the total gridSize for all entries (and for this event in general)
+            switch(eventType){
+                case EventType.Championship:
+                    // Assume current gridSize is the lowest, so just check this one
+                    if(entryToAdd.gridSize < gridSize){
+                        // If it is a new low, edit the other event entries within this event to match this one (since a championship needs the same amount of drivers in every race)
+                        gridSize = entryToAdd.gridSize;
+                        foreach(EventEntry entry in eventEntries){
+                            entry.gridSize = gridSize;
+                        }
+                    }
+                    break;
+
+                default:
+                    Debug.LogError("Event type: " + eventTypeToString[eventType] + " has not been implemented yet!");
+                    break;
+            }
+        }
+
+        eventEntries.Add(entryToAdd);
+    }
+
+    public bool GetCompletedStatus(){
+        return completed;
     }
 
     public int GetEventEntryPosition(EventEntry eventEntryToCheck){
@@ -184,19 +232,22 @@ public class Event
     }
 
     // Returns a string that includes details on all the whitelists for this event
-    public string getPrintWhitelist(){
-        string toReturn = "";
+    public string GetPrintWhitelist(){
+        const string OR_SEPARATOR   = " OR";
+        const string AND_SEPARATOR  = "\nAND\n";
+
+        string toReturn             = "";
 
         // Car Names
         if(nameWhitelist.Count > 0){
             toReturn += "Car Names:";
         }
         foreach(string carName in nameWhitelist){
-            toReturn += " " + carName + ",";
+            toReturn += " " + carName + OR_SEPARATOR;
         }
         // Remove the trailing comma, add new line
         if(nameWhitelist.Count > 0){
-            toReturn = toReturn.Substring(0, toReturn.Length - 1) + "\n";
+            toReturn = toReturn.Substring(0, toReturn.Length - OR_SEPARATOR.Length) + AND_SEPARATOR;
         }
 
         // Car Types
@@ -204,11 +255,11 @@ public class Event
             toReturn += "Car Types:";
         }
         foreach(Cars.CarType carType in typeWhitelist){
-            toReturn += " " + Cars.typeToString[carType] + ",";
+            toReturn += " " + Cars.typeToString[carType] + OR_SEPARATOR;
         }
         // Remove the trailing comma, add new line
         if(typeWhitelist.Count > 0){
-            toReturn = toReturn.Substring(0, toReturn.Length - 1) + "\n";
+            toReturn = toReturn.Substring(0, toReturn.Length - OR_SEPARATOR.Length) + AND_SEPARATOR;
         }
 
         // Car Classes
@@ -216,11 +267,11 @@ public class Event
             toReturn += "Car Classes:";
         }
         foreach(Cars.CarClass carClass in classWhitelist){
-            toReturn += " " + Cars.classToString[carClass] + ",";
+            toReturn += " " + Cars.classToString[carClass] + OR_SEPARATOR;
         }
         // Remove the trailing comma, add new line
         if(classWhitelist.Count > 0){
-            toReturn = toReturn.Substring(0, toReturn.Length - 1) + "\n";
+            toReturn = toReturn.Substring(0, toReturn.Length - OR_SEPARATOR.Length) + AND_SEPARATOR;
         }
 
         // Car Brands
@@ -228,18 +279,63 @@ public class Event
             toReturn += "Car Brands:";
         }
         foreach(Cars.CarBrand carBrand in brandWhitelist){
-            toReturn += " " + Cars.brandToString[carBrand] + ",";
+            toReturn += " " + Cars.brandToString[carBrand] + OR_SEPARATOR;
         }
         // Remove the trailing comma, add new line
         if(brandWhitelist.Count > 0){
-            toReturn = toReturn.Substring(0, toReturn.Length - 1) + "\n";
+            toReturn = toReturn.Substring(0, toReturn.Length - OR_SEPARATOR.Length) + AND_SEPARATOR;
         }
 
+        // If our string is not empty, remove the trailing 'AND_SEPARATOR'
+        if(toReturn.Length >= AND_SEPARATOR.Length){
+             toReturn = toReturn.Substring(0, toReturn.Length - AND_SEPARATOR.Length);
+        }
         return toReturn;
     }
 
-    public string getPrintMoneyReward(){
-        return "$" + bonusMoney.ToString("n0");
+    public string GetRewardInfo(){
+        return
+            "You have finished the "    + GetPrintEventType()       + " event: " + name + "!" +
+            "\n\nSeries Tier: "         + EventSeriesManager.tierToString[parentEventSeries.seriesTier] +
+            "\nTop Reward: "            + GetPrintTopMoneyReward()  + " and " + GetPrintTopFameReward() +
+            "\n\nGrid Size: "           + gridSize.ToString()       +
+            "\nYour Result: P"          + finishPosition.ToString() + " = " + ((int)(FinishPositionMultiplier()*100)).ToString() + "% of the Top Reward" +
+            "\n\nTotal Rewards = "      + GetPrintMoneyReward()     + " and " + GetPrintFameReward();
+    }
+
+    public float FinishPositionMultiplier(){
+        if(finishPosition == 0){
+            return 0;
+        }
+        if(finishPosition > gridSize){
+            Debug.LogError("Detected that a finish position was greater than the given grid size.");
+            return 0;
+        }
+        return Mathf.Round(((float)(gridSize-finishPosition + 1))/(float)gridSize * 100f) / 100f;
+    }
+
+    public int GetMoneyReward(){
+        return Mathf.CeilToInt(topMoneyReward * FinishPositionMultiplier());
+    }
+    public string GetPrintTopMoneyReward(){
+        return "$" + topMoneyReward.ToString("n0");
+    }
+    public string GetPrintMoneyReward(){
+        return "$" + GetMoneyReward().ToString("n0");
+    }
+
+    public string GetPrintTopFameReward(){
+        return topFameReward.ToString("n0") + " Fame";
+    }
+    public string GetPrintFameReward(){
+        return GetFameReward().ToString("n0") + " Fame";
+    }
+    public int GetFameReward(){
+        return Mathf.CeilToInt(topFameReward * FinishPositionMultiplier());
+    }
+
+    public string GetPrintEventType(){
+        return eventDurationToString[eventDuration] + " " + eventTypeToString[eventType];
     }
 
     public List<EventEntry> GetEventEntries(){
@@ -249,7 +345,7 @@ public class Event
     public static Event GenerateNewEvent(
                 string eventName, EventType eventType, EventDuration duration, EventSeries parentEventSeriesParam, List<Tracks.Country> allowedCountries,
                 List<Cars.CarType> allowedTypes, List<Cars.CarClass> allowedClasses, List<Cars.CarBrand> allowedBrands, List<string> allowedNames,
-                int bonusFame, int bonusMoney, bool useLaps = true, List<Track> blacklistedTracks = null
+                int topFameReward, int topMoneyReward, bool useLaps = true, List<Track> blacklistedTracks = null
                 ){
         // First pick the track depending on the tier and country
         EventSeriesManager.SeriesTier   tier            = parentEventSeriesParam.seriesTier;
@@ -342,7 +438,7 @@ public class Event
             }
         }
 
-        Event newEvent = new Event(eventName, eventType, duration, parentEventSeriesParam, allowedTypes, allowedClasses, allowedBrands, allowedNames, bonusFame, bonusMoney);
+        Event newEvent = new Event(eventName, eventType, duration, parentEventSeriesParam, allowedTypes, allowedClasses, allowedBrands, allowedNames, topFameReward, topMoneyReward);
 
         // For each track, make an event entry
         foreach(Track track in tracksToUse){
@@ -447,6 +543,7 @@ public class EventEntry
     // Will be filled in once the event entry is done
     public List<ResultDriver>   driverResults;
     public ResultDriver         playerResult;
+    public Car                  playerCar;
 
     public EventEntry(Track trackParam, int gridSizeParam, Event parentEventParam, int minsParam = -1, int lapsParam = -1){
         track           = trackParam;
@@ -462,8 +559,9 @@ public class EventEntry
         parentEvent.AddNewEventEntry(this);
     }
 
-    public void CompleteEventEntry(List<ResultDriver> driverResultsParam){
+    public void CompleteEventEntry(List<ResultDriver> driverResultsParam, Car playerCarParam){
         Debug.Log("EventEntry complete!");
+        playerCar   = playerCarParam;
         attempted   = true;
         nextUp      = false;
 
@@ -477,8 +575,69 @@ public class EventEntry
             }
         }
 
-        // Notify the Event that this entry is done
+        // Notify the Event that this entry is done, return whether this finished up that event
         parentEvent.EventEntryCompleted(this);
+    }
+
+    public int GetFameReward(){
+        // Get some sort of fame reward just for racing
+        return Mathf.CeilToInt((GetDistanceFameBonus() + GetFinishStatusFameBonus()) * GetSeriesTierRewardMultiplier());
+    }
+    public int GetDistanceFameBonus(){
+        return (int) (playerResult.TotalDistance / 500);
+    }
+    public int GetFinishStatusFameBonus(){
+        // Finished the race
+        if(playerResult.FinishStatus == FinishStatus.Finished.ToString()){
+            return 50;
+        }
+        if(playerResult.FinishStatus == FinishStatus.Dnf.ToString()){
+            return 0;
+        }
+        Debug.LogError("Detected unknown finish status: " + playerResult.FinishStatus);
+        return 25;
+    }
+
+    public int GetMoneyReward(){
+        // Get some sort of money reward just for racing
+        return Mathf.CeilToInt((GetDistanceMoneyBonus() + GetFinishStatusMoneyBonus()) * GetSeriesTierRewardMultiplier());
+    }
+    public int GetDistanceMoneyBonus(){
+        return (int) (playerResult.TotalDistance / 50);
+    }
+    public int GetFinishStatusMoneyBonus(){
+        // Finished the race
+        if(playerResult.FinishStatus == FinishStatus.Finished.ToString()){
+            return 500;
+        }
+        if(playerResult.FinishStatus == FinishStatus.Dnf.ToString()){
+            return 0;
+        }
+        Debug.LogError("Detected unknown finish status: " + playerResult.FinishStatus);
+        return 250;
+
+    }
+    public float GetSeriesTierRewardMultiplier(){
+        // 2 decimal places
+        return Mathf.Round(((int)parentEvent.parentEventSeries.seriesTier) / 8.0f * 100f) / 100f + 1.0f;
+    }
+
+    public string GetRewardInfo(){
+        return
+            "Player's Finish Status: " + playerResult.FinishStatus + " = $" +
+                GetFinishStatusMoneyBonus().ToString("n0") + " and " + GetFinishStatusFameBonus().ToString("n0") + " Fame" +
+            "\nDistance (KM) Traveled: " + playerResult.TotalDistance / 1000 + " = $" +
+                GetDistanceMoneyBonus().ToString("n0") + " and " + GetDistanceFameBonus().ToString("n0") + " Fame"+
+            "\n\nSeries Tier: " + EventSeriesManager.tierToString[parentEvent.parentEventSeries.seriesTier] + " = " +
+                GetSeriesTierRewardMultiplier().ToString("n2") + "x Multiplier" +
+            "\n\nTotal Rewards = $" + GetMoneyReward().ToString("n0") + " and " + GetFameReward().ToString("n0") + " Fame";
+    }
+
+    public string GetResults(){
+        return "You started: P"     + playerResult.InitialPositionInClass.ToString() +
+                "\nYou finished: P" + playerResult.FinishingPositionInClass.ToString() +
+                "\nOn this track: " + track.GetPrintName() +
+                "\nDriving the: "   + playerCar.GetPrintName();
     }
 
     public static EventEntry GenerateNewEventEntry(Track track, Event.EventDuration duration, EventSeriesManager.SeriesTier tier, Event parentEventParam, bool useLaps){

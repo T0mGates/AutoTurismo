@@ -1,0 +1,152 @@
+{
+  "SessionRunTime": "2024-12-26T21:42:21.5954012-05:00",
+  "SessionType": "Race",
+  "WasGreen": true,
+  "Simulator": "AMS 2",
+  "SessionLengthType": "Laps",
+  "TotalNumberOfLaps": 1,
+  "SessionLength": "00:00:00",
+  "SessionRunDuration": "00:07:09.4939998",
+  "TrackInfo": {
+    "TrackName": "Adelaide",
+    "TrackLayoutName": "Adelaide",
+    "LayoutLength": {
+      "InMeters": 3228.195556640625
+    }
+  },
+  "Drivers": [
+    {
+      "ClassName": "F-3",
+      "ClassId": "F-3",
+      "DriverId": "GatesF-3",
+      "DriverLongName": "Gates",
+      "FinishingPosition": 14,
+      "FinishingPositionInClass": 14,
+      "AveragePosition": 2147483647.0,
+      "InitialPosition": 0,
+      "InitialPositionInClass": 0,
+      "CarName": "Dallara F301",
+      "TotalLaps": 0,
+      "TotalDistance": 3228.195556640625,
+      "GapToPlayerRelative": "00:00:00",
+      "LapsDifferenceToPlayer": 0,
+      "TopSpeed": {
+        "InMs": 0.06353748589754105
+      },
+      "Laps": [],
+      "IsPlayer": true,
+      "Finished": true,
+      "FinishStatus": "Dnf",
+      "Rating": 0.0,
+      "RatingRelativeToPlayer": 0.0,
+      "GapToPlayerByTiming": "00:00:00"
+    },
+    {
+      "ClassName": "F-3",
+      "ClassId": "F-3",
+      "DriverId": "Marcio JamirezF-3",
+      "DriverLongName": "Marcio Jamirez",
+      "FinishingPosition": 11,
+      "FinishingPositionInClass": 11,
+      "AveragePosition": 11.0,
+      "InitialPosition": 11,
+      "InitialPositionInClass": 11,
+      "CarName": "Dallara F301",
+      "TotalLaps": 1,
+      "TotalDistance": 3228.195556640625,
+      "GapToPlayerRelative": "-00:01:25.3740000",
+      "LapsDifferenceToPlayer": -1,
+      "TopSpeed": {
+        "InMs": 66.64466094970703
+      },
+      "Laps": [
+        {
+          "IsPitLap": false,
+          "LapNumber": 1,
+          "IsValid": false,
+          "LapStartPosition": 11,
+          "LapStartPositionClass": 11,
+          "LapTime": "00:01:35.0569305",
+          "Sector1": "00:00:34.5155487",
+          "Sector2": "00:00:34.2824096",
+          "Sector3": "00:00:26.2589721"
+        }
+      ],
+      "IsPlayer": false,
+      "Finished": true,
+      "FinishStatus": "Finished",
+      "Rating": 0.0,
+      "RatingRelativeToPlayer": 0.0,
+      "GapToPlayerByTiming": "-00:01:25.3740000"
+    },
+    {
+      "ClassName": "F-3",
+      "ClassId": "F-3",
+      "DriverId": "Karl AndersonF-3",
+      "DriverLongName": "Karl Anderson",
+      "FinishingPosition": 12,
+      "FinishingPositionInClass": 12,
+      "AveragePosition": 12.0,
+      "InitialPosition": 13,
+      "InitialPositionInClass": 13,
+      "CarName": "Dallara F301",
+      "TotalLaps": 1,
+      "TotalDistance": 3228.195556640625,
+      "GapToPlayerRelative": "-00:01:25.3270000",
+      "LapsDifferenceToPlayer": -1,
+      "TopSpeed": {
+        "InMs": 66.45276641845703
+      },
+      "Laps": [
+        {
+          "IsPitLap": false,
+          "LapNumber": 1,
+          "IsValid": false,
+          "LapStartPosition": 13,
+          "LapStartPositionClass": 13,
+          "LapTime": "00:01:35.3918609",
+          "Sector1": "00:00:34.8626403",
+          "Sector2": "00:00:34.2794647",
+          "Sector3": "00:00:26.2497558"
+        }
+      ],
+      "IsPlayer": false,
+      "Finished": true,
+      "FinishStatus": "Finished",
+      "Rating": 0.0,
+      "RatingRelativeToPlayer": 0.0,
+      "GapToPlayerByTiming": "-00:01:25.3270000"
+    }
+  ],
+  "IsMultiClass": false,
+  "SessionGuid": "835e3a5c-9777-42bf-b528-7f153afbc284",
+  "PitStops": [
+    {
+      "EntryLapNumber": 1,
+      "OverallDuration": "00:00:00.8420000",
+      "StallDuration": "00:00:00.7790000",
+      "WasDriverThrough": false,
+      "FuelTaken": {
+        "InLiters": 0.0
+      },
+      "NewFrontCompound": "",
+      "NewRearCompound": "",
+      "IsFrontTyresChanged": false,
+      "IsRearTyresChanged": false
+    },
+    {
+      "EntryLapNumber": 0,
+      "OverallDuration": "00:00:07.0850000",
+      "StallDuration": "00:00:07.0540000",
+      "WasDriverThrough": false,
+      "FuelTaken": {
+        "InLiters": 0.0
+      },
+      "NewFrontCompound": "",
+      "NewRearCompound": "",
+      "IsFrontTyresChanged": false,
+      "IsRearTyresChanged": false
+    }
+  ],
+  "FuelConsumptionInformation": null
+}

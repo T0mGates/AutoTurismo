@@ -118,43 +118,11 @@ public static class EntryPasses
             brandToEntryPasses[carBrand] = new List<EntryPass>();
         }
 
-        // Init, add ALL of the game's entry passes here
-        // For now, simply add passes for each tier, for each car brand, car class and car type
-        foreach(EventSeriesManager.SeriesTier passTier in Enum.GetValues(typeof(EventSeriesManager.SeriesTier))){
-
-                foreach(Cars.CarType carType in Enum.GetValues(typeof(Cars.CarType))){
-                    AddNewEntryPass(new EntryPass(
-                        Cars.typeToString[carType] + EventSeriesManager.tierToString[passTier],
-                        carType,
-                        Cars.CarClass.None,
-                        Cars.CarBrand.None,
-                        passTier,
-                        TYPE_BASE_COST + (TYPE_COST_PER_TIER * (int)passTier)));
-                }
-
-                foreach(Cars.CarClass carClass in Enum.GetValues(typeof(Cars.CarClass))){
-                    AddNewEntryPass(new EntryPass(
-                        Cars.classToString[carClass] + EventSeriesManager.tierToString[passTier],
-                        Cars.CarType.None,
-                        carClass,
-                        Cars.CarBrand.None,
-                        passTier,
-                        CLASS_BASE_COST + (CLASS_COST_PER_TIER * (int)passTier)));
-                }
-
-                foreach(Cars.CarBrand carBrand in Enum.GetValues(typeof(Cars.CarBrand))){
-                    AddNewEntryPass(new EntryPass(
-                        Cars.brandToString[carBrand] + EventSeriesManager.tierToString[passTier],
-                        Cars.CarType.None,
-                        Cars.CarClass.None,
-                        carBrand,
-                        passTier,
-                        BRAND_BASE_COST + (BRAND_COST_PER_TIER * (int)passTier)));
-                }
-        }
+        InitializeEntryPasses();
     }
 
     public static List<EntryPass> FilterEntryPasses(List<EntryPass> entryPasses, EventSeriesManager.SeriesTier tier){
+
         List<EntryPass> filteredPasses = new List<EntryPass>();
 
         // Filter the given entry passes by their series tier
@@ -204,5 +172,41 @@ public static class EntryPasses
 
     public static List<EntryPass> GetPassesWithClass(Cars.CarClass carClass){
         return classToEntryPasses[carClass];
+    }
+
+    private static void InitializeEntryPasses(){
+        // Init, add ALL of the game's entry passes here
+        // For now, simply add passes for each tier, for each car brand, car class and car type
+        foreach(EventSeriesManager.SeriesTier passTier in Enum.GetValues(typeof(EventSeriesManager.SeriesTier))){
+            foreach(Cars.CarType carType in Enum.GetValues(typeof(Cars.CarType))){
+                AddNewEntryPass(new EntryPass(
+                    Cars.typeToString[carType] + EventSeriesManager.tierToString[passTier],
+                    carType,
+                    Cars.CarClass.None,
+                    Cars.CarBrand.None,
+                    passTier,
+                    TYPE_BASE_COST + (TYPE_COST_PER_TIER * (int)passTier)));
+            }
+
+            foreach(Cars.CarClass carClass in Enum.GetValues(typeof(Cars.CarClass))){
+                AddNewEntryPass(new EntryPass(
+                    Cars.classToString[carClass] + EventSeriesManager.tierToString[passTier],
+                    Cars.CarType.None,
+                    carClass,
+                    Cars.CarBrand.None,
+                    passTier,
+                    CLASS_BASE_COST + (CLASS_COST_PER_TIER * (int)passTier)));
+            }
+
+            foreach(Cars.CarBrand carBrand in Enum.GetValues(typeof(Cars.CarBrand))){
+                AddNewEntryPass(new EntryPass(
+                    Cars.brandToString[carBrand] + EventSeriesManager.tierToString[passTier],
+                    Cars.CarType.None,
+                    Cars.CarClass.None,
+                    carBrand,
+                    passTier,
+                    BRAND_BASE_COST + (BRAND_COST_PER_TIER * (int)passTier)));
+            }
+        }
     }
 }

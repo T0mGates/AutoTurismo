@@ -8,8 +8,8 @@ public class Profile
 {
     private string                              driverName;
     private int                                 money;
-    private int                                 experience;
-    private int                                 maxExperience;
+    private int                                 fame;
+    private int                                 maxFame;
     private int                                 level;
     private Dictionary<Type, List<Dealer>>      unlockedDealersDict;
     private Dictionary<Type, List<Purchasable>> ownedProductsDict;
@@ -34,11 +34,14 @@ public class Profile
     }
 
     private void SetBaseValues(){
-        money               = 20000;
-        experience          = 0;
+        money               = 50000;
+        fame                = 0;
         level               = 1;
-        SetMaxExperienceBasedOnLevel();
+        SetMaxFameBasedOnLevel();
+        BaseUnlocks();
+    }
 
+    public void BaseUnlocks(){
         // Base unlocks (DEALERS)
         UnlockDealer(Dealers.GetDealer(Dealers.VEE_NAME,                    typeof(CarDealer)));
         UnlockDealer(Dealers.GetDealer(Dealers.VOLKSWAGEN_NAME,             typeof(CarDealer)));
@@ -61,8 +64,8 @@ public class Profile
             new List<Cars.CarClass>() { {Cars.CarClass.CopaClassicB} },
             new List<Cars.CarBrand>(),
             new List<string>(),
-            25,
-            1500,
+            1400,
+            30000,
             useLaps:true
         );
         Event.GenerateNewEvent(
@@ -80,14 +83,14 @@ public class Profile
             false
         );
         Event.GenerateNewEvent(
-            "Sunday Cup - Copa Classic B",
+            "Sunday Cup - Copa Classic B vs Formula Vee",
             Event.EventType.Championship,
-            Event.EventDuration.Average,
+            Event.EventDuration.Mini,
             newSeriesCopa,
             new List<Tracks.Country>() {{Tracks.Country.Brazil}},
-            new List<Cars.CarType>() { {Cars.CarType.Sportscar} },
-            new List<Cars.CarClass>() { {Cars.CarClass.CopaClassicB} },
-            new List<Cars.CarBrand>() { {Cars.CarBrand.Chevrolet} },
+            new List<Cars.CarType>() { },
+            new List<Cars.CarClass>() { {Cars.CarClass.CopaClassicB}, {Cars.CarClass.FormulaVeeBrasil} },
+            new List<Cars.CarBrand>() { {Cars.CarBrand.Chevrolet}, {Cars.CarBrand.Volkswagen} },
             new List<string>(),
             150,
             3500,
@@ -154,11 +157,11 @@ public class Profile
     }
 
     // Returns bool of whether we leveled up or not
-    public bool GainExperience(int gainedExperience){
-        // Gain exp
-        experience += gainedExperience;
-        // If we have enough exp to level up, level up
-        if(experience >= maxExperience){
+    public bool GainFame(int gainedFame){
+        // Gain fame
+        fame += gainedFame;
+        // If we have enough fame to level up, level up
+        if(fame >= maxFame){
             LevelUp();
             return true;
         }
@@ -169,12 +172,12 @@ public class Profile
         return unlockedDealersDict[dealerType];
     }
 
-    public int GetCurrentExperience(){
-        return experience;
+    public int GetCurrentFame(){
+        return fame;
     }
 
-    public int GetMaxExperience(){
-        return maxExperience;
+    public int GetMaxFame(){
+        return maxFame;
     }
 
     public void LoseMoney(int toLose){
@@ -188,6 +191,10 @@ public class Profile
         money += toGain;
     }
 
+    public string GetPrintMoney(){
+        return "$" + GetMoney().ToString("n0");
+    }
+
     public int GetMoney(){
         return money;
     }
@@ -196,6 +203,7 @@ public class Profile
         return level;
     }
 
+    // Used to detect which cars are legal for an event
     public List<Car> GetOwnedCarsFiltered(
         List<string> carNames, List<Cars.CarType> carTypes, List<Cars.CarClass> carClasses, List<Cars.CarBrand> carBrands
     ){
@@ -203,6 +211,7 @@ public class Profile
         return Cars.FilterCars(GetOwnedProducts(typeof(Car)).OfType<Car>().ToList(), carNames, carTypes, carClasses, carBrands);
     }
 
+    // Used to detect which cars are both for an event and also if we have a valid entry pass for the car
     public List<Car> GetOwnedCarsThatCanRaceEvent(
         List<string> carNames, List<Cars.CarType> carTypes, List<Cars.CarClass> carClasses, List<Cars.CarBrand> carBrands, EventSeriesManager.SeriesTier seriesTier
     ){
@@ -225,13 +234,13 @@ public class Profile
         return toReturn;
     }
 
-    private void SetMaxExperienceBasedOnLevel(){
-        maxExperience = 100 * level;
+    private void SetMaxFameBasedOnLevel(){
+        maxFame = 100 * level;
     }
 
     private void LevelUp(){
-        experience -= maxExperience;
+        fame -= maxFame;
         ++level;
-        SetMaxExperienceBasedOnLevel();
+        SetMaxFameBasedOnLevel();
     }
 }

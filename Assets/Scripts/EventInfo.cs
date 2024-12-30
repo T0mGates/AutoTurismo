@@ -19,6 +19,10 @@ public class Track
         grade       = gradeParam;
         country     = countryParam;
     }
+
+    public string GetPrintName(){
+        return name + " " + layout;
+    }
 }
 
 public static class Tracks

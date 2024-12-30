@@ -104,15 +104,7 @@ public static class Cars
             brandToCars[carBrand] = new List<Car>();
         }
 
-        // Init, add ALL of the game's cars here
-        AddNewCar(new Car(VEE_2011_NAME,            CarType.OpenWheeler,    new List<CarClass> {CarClass.FormulaVeeBrasil},     CarBrand.Volkswagen,        6000));
-        AddNewCar(new Car(VEE_FIN_NAME,             CarType.OpenWheeler,    new List<CarClass> {CarClass.FormulaVeeBrasil},     CarBrand.Volkswagen,        7500));
-        AddNewCar(new Car(COPA_B_CHEVETTE_NAME,     CarType.Touring,        new List<CarClass> {CarClass.CopaClassicB},         CarBrand.Chevrolet,         6500));
-        AddNewCar(new Car(COPA_B_COOPER_NAME,       CarType.Touring,        new List<CarClass> {CarClass.CopaClassicB},         CarBrand.Mini,              7000));
-        AddNewCar(new Car(COPA_B_GOL_NAME,          CarType.Touring,        new List<CarClass> {CarClass.CopaClassicB},         CarBrand.Volkswagen,        7500));
-        AddNewCar(new Car(COPA_B_GTE_NAME,          CarType.Touring,        new List<CarClass> {CarClass.CopaClassicB},         CarBrand.Puma,              8000));
-        AddNewCar(new Car(COPA_B_PASSAT_NAME,       CarType.Touring,        new List<CarClass> {CarClass.CopaClassicB},         CarBrand.Volkswagen,        8500));
-        AddNewCar(new Car(COPA_B_UNO_NAME,          CarType.Touring,        new List<CarClass> {CarClass.CopaClassicB},         CarBrand.Fiat,              9000));
+        InitializeCars();
     }
 
     public static void AddNewCar(Car carToAdd)
@@ -143,45 +135,43 @@ public static class Cars
         // Returns a list of cars that are in 'toFilter' and who's name/type/class/brand matches one of the given params
         List<Car> filteredCars  = new List<Car>();
         foreach(Car car in toFilter){
-            // addCar is used to save time
-            bool addCar         = false;
+            // Needs to work with all 4 'categories' (type, class, brand, name), and it is an 'or' inside categories (ie, needs to match any of the classes within carClasses)
+            // If list is empty, set to True
+            bool validName          = 0 == carNames.Count;
+            bool validType          = 0 == carTypes.Count;
+            bool validClass         = 0 == carClasses.Count;
+            bool validBrand         = 0 == carBrands.Count;
 
             foreach(string carName in carNames){
                 if(car.name == carName){
                     filteredCars.Add(car);
-                    addCar      = true;
+                    validName      = true;
                     break;
                 }
             }
 
-            if(!addCar){
-                foreach(CarType carType in carTypes){
-                    if(car.type == carType){
-                        addCar  = true;
-                        break;
-                    }
+            foreach(CarType carType in carTypes){
+                if(car.type == carType){
+                    validType  = true;
+                    break;
                 }
             }
 
-            if(!addCar){
-                foreach(CarClass carClass in carClasses){
-                    if(car.classes.Contains(carClass)){
-                        addCar  = true;
-                        break;
-                    }
+            foreach(CarClass carClass in carClasses){
+                if(car.classes.Contains(carClass)){
+                    validClass  = true;
+                    break;
                 }
             }
 
-            if(!addCar){
-                foreach(CarBrand carBrand in carBrands){
-                    if(car.brand == carBrand){
-                        addCar  = true;
-                        break;
-                    }
+            foreach(CarBrand carBrand in carBrands){
+                if(car.brand == carBrand){
+                    validBrand  = true;
+                    break;
                 }
             }
 
-            if(addCar){
+            if(validName && validType && validClass && validBrand){
                 filteredCars.Add(car);
             }
         }
@@ -264,4 +254,16 @@ public static class Cars
         {CarBrand.Puma,             "Puma"},
         {CarBrand.Volkswagen,       "Volkswagen"},
     };
+
+    private static void InitializeCars(){
+        // Init, add ALL of the game's cars here
+        AddNewCar(new Car(VEE_2011_NAME,            CarType.OpenWheeler,    new List<CarClass> {CarClass.FormulaVeeBrasil},     CarBrand.Volkswagen,        6000));
+        AddNewCar(new Car(VEE_FIN_NAME,             CarType.OpenWheeler,    new List<CarClass> {CarClass.FormulaVeeBrasil},     CarBrand.Volkswagen,        7500));
+        AddNewCar(new Car(COPA_B_CHEVETTE_NAME,     CarType.Touring,        new List<CarClass> {CarClass.CopaClassicB},         CarBrand.Chevrolet,         6500));
+        AddNewCar(new Car(COPA_B_COOPER_NAME,       CarType.Touring,        new List<CarClass> {CarClass.CopaClassicB},         CarBrand.Mini,              7000));
+        AddNewCar(new Car(COPA_B_GOL_NAME,          CarType.Touring,        new List<CarClass> {CarClass.CopaClassicB},         CarBrand.Volkswagen,        7500));
+        AddNewCar(new Car(COPA_B_GTE_NAME,          CarType.Touring,        new List<CarClass> {CarClass.CopaClassicB},         CarBrand.Puma,              8000));
+        AddNewCar(new Car(COPA_B_PASSAT_NAME,       CarType.Touring,        new List<CarClass> {CarClass.CopaClassicB},         CarBrand.Volkswagen,        8500));
+        AddNewCar(new Car(COPA_B_UNO_NAME,          CarType.Touring,        new List<CarClass> {CarClass.CopaClassicB},         CarBrand.Fiat,              9000));
+    }
 }

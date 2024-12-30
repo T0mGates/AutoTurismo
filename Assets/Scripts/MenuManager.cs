@@ -4,7 +4,9 @@ using TMPro;
 using UnityEngine.UI;
 using System;
 using System.Linq;
-using Unity.VisualScripting;
+using System.Collections;
+using System.Drawing.Text;
+using UnityEngine.AI;
 
 
 public class MenuManager : MonoBehaviour
@@ -26,11 +28,13 @@ public class MenuManager : MonoBehaviour
     public GameObject   eventEntryMenu;
     public GameObject   chooseCarMenu;
     public GameObject   eventEntryRaceMenu;
+    public GameObject   eventEntryCompleteMenu;
+    public GameObject   earnRewardMenu;
 
     [Header("Player Info")]
-    public Slider       expSlider;
+    public Slider       fameSlider;
     public TMP_Text     moneyText;
-    public TMP_Text     expText;
+    public TMP_Text     fameText;
     public TMP_Text     levelText;
 
     [Header("Dealership")]
@@ -92,6 +96,8 @@ public class MenuManager : MonoBehaviour
         eventEntryMenu.SetActive(false);
         chooseCarMenu.SetActive(false);
         eventEntryRaceMenu.SetActive(false);
+        eventEntryCompleteMenu.SetActive(false);
+        earnRewardMenu.SetActive(false);
 
         // Destroy objects
         foreach(Transform child in dealershipContentTransform)
@@ -127,25 +133,32 @@ public class MenuManager : MonoBehaviour
         }
     }
 
-    public void BlockButtons(){
+    public void BlockNavButtons(){
         // Called to disable buttons in the nav bar
         foreach(Button btn in navigationMenu.GetComponentsInChildren<Button>()){
             btn.interactable = false;
         }
     }
 
+    public void ActivateNavButtons(){
+        // Reactivate the buttons
+        foreach(Button btn in navigationMenu.GetComponentsInChildren<Button>()){
+            btn.interactable = true;
+        }
+    }
+
     public void Home(bool newPlayer = false){
-        introMenu.SetActive(false);
+        TurnAllOff();
         mainMenu.SetActive(true);
         navigationMenu.SetActive(true);
         newPlayerMenu.SetActive(newPlayer);
 
         if(newPlayer){
-            BlockButtons();
+            BlockNavButtons();
         }
         else{
             // Re-activate buttons
-            ClearNotification();
+            ActivateNavButtons();
             UpdateMainUI();
         }
     }
@@ -164,11 +177,11 @@ public class MenuManager : MonoBehaviour
     }
 
     public void UpdateMainUI(){
-        expSlider.value = 0 == gameManager.curProfile.GetCurrentExperience() ? 0 : (float)gameManager.curProfile.GetCurrentExperience() / (float)gameManager.curProfile.GetMaxExperience();
+        fameSlider.value    = 0 == gameManager.curProfile.GetCurrentFame() ? 0 : (float)gameManager.curProfile.GetCurrentFame() / (float)gameManager.curProfile.GetMaxFame();
         // Format as a number with 0 decimals
-        moneyText.text  = gameManager.curProfile.GetMoney().ToString("n0");
-        expText.text    = gameManager.curProfile.GetCurrentExperience().ToString() + " / " + gameManager.curProfile.GetMaxExperience().ToString();
-        levelText.text  = "Level: " + gameManager.curProfile.GetLevel().ToString();
+        moneyText.text      = gameManager.curProfile.GetPrintMoney();
+        fameText.text       = gameManager.curProfile.GetCurrentFame().ToString("n0") + " / " + gameManager.curProfile.GetMaxFame().ToString("n0");
+        levelText.text      = "Level: " + gameManager.curProfile.GetLevel().ToString("n0");
     }
 
     public void Dealership(Type dealerType){
@@ -269,7 +282,187 @@ public class MenuManager : MonoBehaviour
         PopulateChooseCar(eventEntry);
     }
 
-    public void Notification(string title, string bodyText, Sprite rewardSprite = null, bool isAConfirmation = false){
+    public void CompleteEventEntry(EventEntry eventEntry){
+        const string TITLE_TEXT_NAME        = "TitleTxt";
+        const string BODY_TEXT_NAME         = "BodyTxt";
+        const string REWARD_IMG_NAME        = "RewardImg";
+
+        const string NEXT_BTN_NAME          = "NextBtn";
+
+        TurnAllOff();
+        navigationMenu.SetActive(true);
+        // Block nav buttons
+        BlockNavButtons();
+        // Cover the background with the menu
+        mainMenu.SetActive(true);
+
+
+        eventEntryCompleteMenu.transform.Find(TITLE_TEXT_NAME).GetComponent<TextMeshProUGUI>().text     = "Event Entry Complete";
+        eventEntryCompleteMenu.transform.Find(BODY_TEXT_NAME).GetComponent<TextMeshProUGUI>().text      = eventEntry.GetResults();
+
+        eventEntryCompleteMenu.transform.Find(REWARD_IMG_NAME).GetComponent<Image>().sprite             = eventEntry.playerCar.GetSprite();
+
+        List<dynamic[]> queuedRewards                                                                    = new List<dynamic[]>();
+        // If the whole event is finished, queue up the event rewards after the event entry rewards
+        if(eventEntry.parentEvent.GetCompletedStatus()){
+            dynamic[] eventParams = { "Event Rewards", eventEntry.parentEvent.GetRewardInfo(), eventEntry.parentEvent.GetFameReward(), eventEntry.parentEvent.GetMoneyReward() };
+            queuedRewards.Add(eventParams);
+        }
+
+
+        // Set next btn on click action
+        Button nextBtn                                                                                  = eventEntryCompleteMenu.transform.Find(NEXT_BTN_NAME).GetComponent<Button>();
+        nextBtn.onClick.RemoveAllListeners();
+        nextBtn.onClick.AddListener(() => {
+            // Earn reward notification
+            EarnReward("Event Entry Rewards", eventEntry.GetRewardInfo(), eventEntry.GetFameReward(), eventEntry.GetMoneyReward(), queuedRewards);
+        });
+
+        eventEntryCompleteMenu.SetActive(true);
+    }
+
+    public void EarnReward(string title, string bodyText, int fameReward, int moneyReward, List<dynamic[]> queuedRewards = null){
+        // queuedRewards is a list of arrays of 2 strings, 2 ints each (matching this function's parameters). This will queue up those rewards consecutively one after another
+
+        const string TITLE_TEXT_NAME        = "TitleTxt";
+        const string BODY_TEXT_NAME         = "BodyTxt";
+        const string REWARD_IMG_NAME        = "RewardImg";
+
+        const string CLAIM_BTN_NAME         = "ClaimRewardsBtn";
+        const string CLAIM_BTN_TEXT_NAME    = "ClaimRewardsBtn/ClaimRewardsTxt";
+
+        Button nextBtn                      = earnRewardMenu.transform.Find(CLAIM_BTN_NAME).GetComponent<Button>();
+        TextMeshProUGUI nextBtnTxt          = earnRewardMenu.transform.Find(CLAIM_BTN_TEXT_NAME).GetComponent<TextMeshProUGUI>();
+
+            // Inner animation function
+            IEnumerator EarnRewardAnimation(string title, string bodyText, int fameReward, int moneyReward){
+                nextBtn.onClick.RemoveAllListeners();
+                // If we have any queued rewards, simply call this function again with 1 less queued reward (so, go through the list one by one)
+                if(queuedRewards.Count > 0){
+                    dynamic[] rewardParams = queuedRewards[0];
+                    // If it is not a 4 string array, just ignore it all and go back to home, since it's ... a bug... not supposed to happen
+                    if(rewardParams.Length != 4){
+                        Debug.LogError("Queued reward was found to have " + rewardParams.Length.ToString() + ", but 4 params are expected. Skipping the reward.");
+                        nextBtn.onClick.AddListener(()  => {
+                            // On click, go back to home menu
+                            Home();
+                        });
+                    }
+                    else{
+                        queuedRewards.RemoveAt(0);
+                        // Now can safely call this function again
+                        nextBtn.onClick.AddListener(()  => {
+                            // On click, earn reward notification
+                            EarnReward(rewardParams[0], rewardParams[1], rewardParams[2], rewardParams[3], queuedRewards);
+                        });
+                    }
+                }
+                else{
+                    nextBtn.onClick.AddListener(()  => {
+                        // On click, go back to home menu
+                        Home();
+                    });
+                }
+
+                // Hide the button until animations are done playing, change text to 'Clear'
+                nextBtn.gameObject.SetActive(false);
+                nextBtnTxt.text             = "Clear";
+
+                // Start the 'animation'
+                int oldLevel    = gameManager.curProfile.GetLevel();
+                int gained      = 0;
+                float curDelay  = 0.025f;
+                bool reachedMax = false;
+                bool doneFame   = false;
+
+                // Can tweak these
+                float decrease  = 0.0005f;
+                float minimum   = 0.0005f;
+                int curIncrease = 1;
+                int maxIncrease = 6;
+
+                while(gained < Mathf.Max(fameReward, moneyReward)){
+                    // Fame
+                    if(!doneFame){
+                        if(gained < fameReward ){
+                            gameManager.curProfile.GainFame(1);
+                        }
+                        else{
+                            doneFame = true;
+                            curIncrease++;
+                        }
+                    }
+
+                    // Money
+                    if(gained < moneyReward){
+                        if(gained + curIncrease >= moneyReward){
+                            curIncrease = moneyReward - gained;
+                        }
+                        gameManager.curProfile.GainMoney(curIncrease);
+                    }
+
+                    gained += curIncrease;
+                    UpdateMainUI();
+                    yield return new WaitForSeconds(curDelay);
+                    // Gets faster and faster, but down to a limit
+                    if(!reachedMax){
+                        curDelay -= decrease;
+                    }
+                    else{
+                        // Increase money gain rate if we have reached max speed
+                        if(doneFame){
+                            curIncrease = maxIncrease;
+                        }
+                    }
+
+                    if(curDelay <= minimum && !reachedMax){
+                        Debug.Log("reached MAX");
+                        reachedMax = true;
+                    }
+                }
+
+                int newLevel    = gameManager.curProfile.GetLevel();
+
+                if(newLevel > oldLevel){
+                    // Level up notification
+                }
+
+                nextBtn.gameObject.SetActive(true);
+
+            }
+
+        TurnAllOff();
+        navigationMenu.SetActive(true);
+        // Block nav buttons
+        BlockNavButtons();
+        // Cover the background with the menu
+        mainMenu.SetActive(true);
+
+        // Set text to claim, since it was set to something else beforehand
+        nextBtnTxt.text                                                                         = "Claim";
+
+        earnRewardMenu.transform.Find(TITLE_TEXT_NAME).GetComponent<TextMeshProUGUI>().text     = title;
+        earnRewardMenu.transform.Find(BODY_TEXT_NAME).GetComponent<TextMeshProUGUI>().text      = bodyText;
+
+        // eventEntryCompleteMenu.transform.Find(REWARD_IMG_NAME).GetComponent<Image>().sprite             = eventEntry.playerCar.GetSprite();
+
+        // Set next btn on click action
+        nextBtn.onClick.RemoveAllListeners();
+        nextBtn.onClick.AddListener(() => {
+            // On click, start the animation
+            StartCoroutine(EarnRewardAnimation(title, bodyText, fameReward, moneyReward));
+            });
+
+        earnRewardMenu.SetActive(true);
+    }
+
+    public enum NotificationType
+    {
+        Normal,
+        PurchaseConfirmation
+    }
+
+    public void Notification(string title, string bodyText, Sprite rewardSprite = null, NotificationType notificationType = NotificationType.Normal){
         const string TITLE_TEXT_NAME        = "TitleTxt";
         const string BODY_TEXT_NAME         = "NotificationTxt";
         const string REWARD_IMG_NAME        = "RewardImg";
@@ -281,7 +474,7 @@ public class MenuManager : MonoBehaviour
         mainMenu.SetActive(true);
 
         // Block navigation buttons
-        BlockButtons();
+        BlockNavButtons();
 
         notificationMenu.transform.Find(TITLE_TEXT_NAME).GetComponent<TextMeshProUGUI>().text   = title;
         notificationMenu.transform.Find(BODY_TEXT_NAME).GetComponent<TextMeshProUGUI>().text    = bodyText;
@@ -294,8 +487,8 @@ public class MenuManager : MonoBehaviour
             notificationMenu.transform.Find(REWARD_IMG_NAME).gameObject.SetActive(false);
         }
 
-        notificationMenu.transform.Find(NORMAL_NOTI_NAME).gameObject.SetActive(!isAConfirmation);
-        notificationMenu.transform.Find(CONFIRMATION_NAME).gameObject.SetActive(isAConfirmation);
+        notificationMenu.transform.Find(NORMAL_NOTI_NAME).gameObject.SetActive(notificationType == NotificationType.Normal);
+        notificationMenu.transform.Find(CONFIRMATION_NAME).gameObject.SetActive(notificationType == NotificationType.PurchaseConfirmation);
 
         notificationMenu.SetActive(true);
     }
@@ -304,10 +497,7 @@ public class MenuManager : MonoBehaviour
         notificationMenu.SetActive(false);
         mainMenu.SetActive(false);
 
-        // Reactivate the buttons
-        foreach(Button btn in navigationMenu.GetComponentsInChildren<Button>()){
-            btn.interactable = true;
-        }
+        ActivateNavButtons();
     }
 
     private void PopulateDealership(Type dealerType){
@@ -566,16 +756,16 @@ public class MenuManager : MonoBehaviour
             newObj.transform.Find(EVENT_TITLE_NAME).GetComponent<TextMeshProUGUI>().text        = seriesEvent.name;
 
             // Change the event type text
-            newObj.transform.Find(EVENT_TYPE_NAME).GetComponent<TextMeshProUGUI>().text         = Event.eventDurationToString[seriesEvent.eventDuration] + " " + Event.eventTypeToString[seriesEvent.eventType];
+            newObj.transform.Find(EVENT_TYPE_NAME).GetComponent<TextMeshProUGUI>().text         = seriesEvent.GetPrintEventType();
 
             // Change the money reward text
-            newObj.transform.Find(MONEY_TEXT_NAME).GetComponent<TextMeshProUGUI>().text         = seriesEvent.getPrintMoneyReward();
+            newObj.transform.Find(MONEY_TEXT_NAME).GetComponent<TextMeshProUGUI>().text         = seriesEvent.GetPrintTopMoneyReward();
 
             // Change the fame reward text
-            newObj.transform.Find(FAME_TEXT_NAME).GetComponent<TextMeshProUGUI>().text          = seriesEvent.bonusFame.ToString() + " Fame";
+            newObj.transform.Find(FAME_TEXT_NAME).GetComponent<TextMeshProUGUI>().text          = seriesEvent.GetPrintTopFameReward();
 
             // Change the whitelist text
-            newObj.transform.Find(WHITELIST_TEXT_NAME).GetComponent<TextMeshProUGUI>().text     = seriesEvent.getPrintWhitelist();
+            newObj.transform.Find(WHITELIST_TEXT_NAME).GetComponent<TextMeshProUGUI>().text     = seriesEvent.GetPrintWhitelist();
 
             // Now do the inner event entries for this event, after locating the eventContentTransform found in the newly made prefab
             Transform eventContentTransform                                                     = newObj.transform.Find(EVENT_CONTENT_TRANSFORM_NAME).GetComponent<Transform>();
@@ -642,6 +832,7 @@ public class MenuManager : MonoBehaviour
         const string                    NAME_TEXT_NAME          = "CarNameTxt";
         const string                    CLASSES_TEXT_NAME       = "CarClassesTxt";
         const string                    TYPE_TEXT_NAME          = "CarTypeTxt";
+        const string                    NO_CAR_OBJ_NAME         = "NoCarObj";
         const string                    NO_CAR_TEXT_NAME        = "NoCarTxt";
         const string                    CHOOSE_BTN_NAME         = "ChooseBtn";
 
@@ -667,10 +858,10 @@ public class MenuManager : MonoBehaviour
         // These are the cars that you own that fit in this event, that you do have an entry pass for
         List<Car>           legalRaceableOwnedCars          = gameManager.curProfile.GetOwnedCarsThatCanRaceEvent(allowedCarNames, allowedCarTypes, allowedCarClasses, allowedCarBrands, seriesTier);
 
-        GameObject          noCarObj            = chooseCarMenu.transform.Find(NO_CAR_TEXT_NAME).gameObject;
+        GameObject          noCarObj                        = chooseCarMenu.transform.Find(NO_CAR_OBJ_NAME).gameObject;
         // If we don't have any valid cars, alert the user in some way
         if(0 == legalOwnedCars.Count){
-            noCarObj.GetComponent<TextMeshProUGUI>().text = "You don't own any cars that you can race in this event!\nNeed a car that fits any of these criterias:\n\n" + eventEntry.parentEvent.getPrintWhitelist();
+            noCarObj.gameObject.transform.Find(NO_CAR_TEXT_NAME).GetComponent<TextMeshProUGUI>().text = eventEntry.parentEvent.GetPrintWhitelist();
             noCarObj.SetActive(true);
         }
         else{
@@ -741,13 +932,13 @@ public class MenuManager : MonoBehaviour
 
         // Change all the text
         menuToEdit.transform.Find(ENTRY_TITLE_NAME).GetComponent<TextMeshProUGUI>().text        = eventEntry.parentEvent.name;
-        menuToEdit.transform.Find(ENTRY_NUM_TEXT_NAME).GetComponent<TextMeshProUGUI>().text     = "Race "               + eventEntry.parentEvent.GetEventEntryPosition(eventEntry).ToString() + " of " + eventEntry.parentEvent.GetEventEntries().Count.ToString();
-        menuToEdit.transform.Find(TRACK_TEXT_NAME).GetComponent<TextMeshProUGUI>().text         = "Name: "              + eventEntry.track.name + " " + eventEntry.track.layout;
-        menuToEdit.transform.Find(COUNTRY_TEXT_NAME).GetComponent<TextMeshProUGUI>().text       = "Country: "           + Tracks.countryToString[eventEntry.track.country];
-        menuToEdit.transform.Find(GRADE_TEXT_NAME).GetComponent<TextMeshProUGUI>().text         = "Grade: "             + Tracks.gradeToString[eventEntry.track.grade];
-        menuToEdit.transform.Find(GRID_SIZE_TEXT_NAME).GetComponent<TextMeshProUGUI>().text     = "Grid Size: "         + eventEntry.gridSize.ToString();
-        menuToEdit.transform.Find(LAPS_MINS_TEXT_NAME).GetComponent<TextMeshProUGUI>().text     = eventEntry.laps != -1 ? "Laps: " + eventEntry.laps.ToString() : "Mins: " + eventEntry.mins.ToString();
-        menuToEdit.transform.Find(WHITELIST_TEXT_NAME).GetComponent<TextMeshProUGUI>().text     = "Entry Pass Tier: "   + eventEntry.parentEvent.parentEventSeries.seriesTier.ToString() + "\n\n" + eventEntry.parentEvent.getPrintWhitelist();
+        menuToEdit.transform.Find(ENTRY_NUM_TEXT_NAME).GetComponent<TextMeshProUGUI>().text     = "Race "                           + eventEntry.parentEvent.GetEventEntryPosition(eventEntry).ToString() + " of " + eventEntry.parentEvent.GetEventEntries().Count.ToString();
+        menuToEdit.transform.Find(TRACK_TEXT_NAME).GetComponent<TextMeshProUGUI>().text         = "Name: "                          + eventEntry.track.GetPrintName();
+        menuToEdit.transform.Find(COUNTRY_TEXT_NAME).GetComponent<TextMeshProUGUI>().text       = "Country: "                       + Tracks.countryToString[eventEntry.track.country];
+        menuToEdit.transform.Find(GRADE_TEXT_NAME).GetComponent<TextMeshProUGUI>().text         = "Grade: "                         + Tracks.gradeToString[eventEntry.track.grade];
+        menuToEdit.transform.Find(GRID_SIZE_TEXT_NAME).GetComponent<TextMeshProUGUI>().text     = "Grid Size (includes Player): "   + eventEntry.gridSize.ToString();
+        menuToEdit.transform.Find(LAPS_MINS_TEXT_NAME).GetComponent<TextMeshProUGUI>().text     = eventEntry.laps != -1 ? "Laps: "  + eventEntry.laps.ToString() : "Mins: " + eventEntry.mins.ToString();
+        menuToEdit.transform.Find(WHITELIST_TEXT_NAME).GetComponent<TextMeshProUGUI>().text     = "Entry Pass Tier: "               + eventEntry.parentEvent.parentEventSeries.seriesTier.ToString() + "\n\n" + eventEntry.parentEvent.GetPrintWhitelist();
 
         // Change the event entry back button's onclick action
         Button backBtn                                  = menuToEdit.transform.Find(BACK_BTN_NAME).GetComponent<Button>();
@@ -789,7 +980,7 @@ public class MenuManager : MonoBehaviour
 
         const string BUY_BTN_NAME   = "PurchaseConfirmation/YesBtn";
 
-        BlockButtons();
+        BlockNavButtons();
 
         // Set the onclick event of the buy button on the notification screen
         // Buy/sell the product and clear the notification
@@ -815,6 +1006,6 @@ public class MenuManager : MonoBehaviour
             bodyText = "Are you sure you want to sell a " + product.GetPrintName() + " for " + product.GetSellPrice() + "?\nBalance after transaction: " + remainingBalance + "\n" + product.GetInfoBlurb();
         }
 
-        Notification("Confirm Transaction", bodyText, product.GetSprite(), true);
+        Notification("Confirm Transaction", bodyText, product.GetSprite(), NotificationType.PurchaseConfirmation);
     }
 }

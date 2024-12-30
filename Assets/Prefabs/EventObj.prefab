@@ -172,7 +172,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
   m_AnchoredPosition: {x: 0, y: 5}
-  m_SizeDelta: {x: 900, y: 330.9472}
+  m_SizeDelta: {x: 900, y: 280}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!222 &9183145809427965878
 CanvasRenderer:
@@ -373,15 +373,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Padding:
-    m_Left: 15
-    m_Right: 15
-    m_Top: 15
-    m_Bottom: 15
+    m_Left: 5
+    m_Right: 5
+    m_Top: 0
+    m_Bottom: 45
   m_ChildAlignment: 4
   m_StartCorner: 0
   m_StartAxis: 0
-  m_CellSize: {x: 300, y: 300}
-  m_Spacing: {x: 25, y: 25}
+  m_CellSize: {x: 250, y: 250}
+  m_Spacing: {x: 0, y: 0}
   m_Constraint: 2
   m_ConstraintCount: 1
 --- !u!114 &6084274575899584643
@@ -827,7 +827,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 1810, y: 425}
+  m_SizeDelta: {x: 900, y: 425}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4325982681688676822
 CanvasRenderer:
@@ -884,8 +884,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 72
-  m_fontSizeBase: 72
+  m_fontSize: 48
+  m_fontSizeBase: 48
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 0
@@ -1073,8 +1073,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -27.5684}
-  m_SizeDelta: {x: 1800, y: 369.8633}
+  m_AnchoredPosition: {x: -675, y: -27.5684}
+  m_SizeDelta: {x: 450, y: 369.8633}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5227174549114178851
 CanvasRenderer:
@@ -1168,7 +1168,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 1552.1628, w: 0}
+  m_margin: {x: 0, y: 0, z: -0.6746216, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -1499,7 +1499,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Rewards
+  m_text: Top Rewards
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 1c63498a8a4e2e049a54b871ed29f072, type: 2}
   m_sharedMaterial: {fileID: 4821923005614107027, guid: 1c63498a8a4e2e049a54b871ed29f072, type: 2}

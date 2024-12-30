@@ -36,8 +36,8 @@ public class GameManager : MonoBehaviour
       while(true){
         result = IOManager.ReadInNewResult();
         if(result != null){
-          // Check if this was an AMS 2 race session, break out of the loop
-          if(result.Simulator == "AMS 2" && result.SessionType == "Race"){
+          // Check if this was an AMS 2 race session that has the same gridSize as our eventEntry, if yes, break out of the loop
+          if(result.Simulator == "AMS 2" && result.SessionType == "Race" && eventEntry.gridSize == result.Drivers.Count){
             break;
           }
           else{
@@ -53,14 +53,19 @@ public class GameManager : MonoBehaviour
       // If result is null here, means we couldn't find a result
       if(null == result){
         checkResultBtn.interactable = true;
-        menuManager.Notification("Alert", "Could not find an AMS 2 race session result in directory: " + PATH_TO_JSONS + ".\nMake sure Second Monitor is running before, during and after the race!");
+        menuManager.Notification("Alert",
+          "Could not find an AMS 2 race session result that had a grid size (including the player) of " + eventEntry.gridSize.ToString() + " in directory: " + PATH_TO_JSONS +
+          ".\nMake sure Second Monitor is running before, during and after the race, and make sure the race settings shown in AutoTurismo match the in-game race settings!");
         return;
       }
 
-      eventEntry.CompleteEventEntry(result.Drivers);
+      eventEntry.CompleteEventEntry(result.Drivers, car);
       checkResultBtn.interactable   = true;
-      menuManager.Series(eventEntry.parentEvent.parentEventSeries);
-      menuManager.Notification("Event Entry Complete!", "You started: P" + eventEntry.playerResult.InitialPositionInClass.ToString() + "\nYou finished: P" + eventEntry.playerResult.FinishingPositionInClass.ToString());
+
+      menuManager.CompleteEventEntry(eventEntry);
+
+      // TODO: check if event is done. If so, figure out a system to delete it from the series and add in a new one to replace it or something
+      // maybe completing a rookie formula vee event adds another rookie formula vee event and also adds a novice formula vee event, if there isn't already one
     }
 
     public void SetProfile(string profileName){
@@ -85,6 +90,11 @@ public class GameManager : MonoBehaviour
         else if(product is EntryPass entryPass){
           menuManager.Notification("New Entry Pass Obtained!", "You've bought an entry pass!\n\n" + entryPass.GetInfoBlurb(), entryPass.GetSprite());
         }
+      }
+      else{
+        // Can't afford, alert the user
+        menuManager.Notification("Alert",
+          "You don't have enough money to buy: " + product.GetPrintName() + ".\n\nBalance: " + curProfile.GetPrintMoney() + "\nCost: " + product.GetPrintPrice());
       }
     }
 
