@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Collections.Generic;
 
 using UnityEngine;
@@ -38,7 +39,7 @@ public class Profile
         level               = 1;
         SetMaxExperienceBasedOnLevel();
 
-        // Base unlocks
+        // Base unlocks (DEALERS)
         UnlockDealer(Dealers.GetDealer(Dealers.VEE_NAME,                    typeof(CarDealer)));
         UnlockDealer(Dealers.GetDealer(Dealers.VOLKSWAGEN_NAME,             typeof(CarDealer)));
         UnlockDealer(Dealers.GetDealer(Dealers.COPA_CLASSIC_B_NAME,         typeof(CarDealer)));
@@ -46,38 +47,59 @@ public class Profile
         UnlockDealer(Dealers.GetDealer(Dealers.VOLKSWAGEN_NAME,             typeof(EntryPassDealer)));
         UnlockDealer(Dealers.GetDealer(Dealers.COPA_CLASSIC_B_NAME,         typeof(EntryPassDealer)));
 
-        Event raceEvent = Event.GenerateNewRaceEvent(
+        // Base unlocks (EVENTS)
+        EventSeries newSeriesCopa   = new EventSeries("Copa Classic B for Dummies"  , EventSeriesManager.SeriesTier.Rookie, Tracks.Country.Brazil);
+        EventSeries newSeriesVee    = new EventSeries("Formula Vee for Dummies"     , EventSeriesManager.SeriesTier.Novice, Tracks.Country.Brazil);
+
+        Event.GenerateNewEvent(
+            "Weekend Race - Copa Classic B",
+            Event.EventType.Race,
+            Event.EventDuration.Mini,
+            newSeriesCopa,
+            new List<Tracks.Country>() {{Tracks.Country.Brazil}},
+            new List<Cars.CarType>(),
+            new List<Cars.CarClass>() { {Cars.CarClass.CopaClassicB} },
+            new List<Cars.CarBrand>(),
+            new List<string>(),
+            25,
+            1500,
+            useLaps:true
+        );
+        Event.GenerateNewEvent(
+            "Weekend Race - Copa Classic B",
+            Event.EventType.Race,
+            Event.EventDuration.Long,
+            newSeriesCopa,
+            new List<Tracks.Country>() {{Tracks.Country.Brazil}},
+            new List<Cars.CarType>(),
+            new List<Cars.CarClass>() { {Cars.CarClass.CopaClassicB} },
+            new List<Cars.CarBrand>(),
+            new List<string>(),
+            30,
+            1750,
+            false
+        );
+        Event.GenerateNewEvent(
             "Sunday Cup - Copa Classic B",
-            Tracks.Country.Brazil,
-            EventSeriesManager.SeriesTier.Rookie,
-            Event.EventDuration.Mini,
-            new List<Cars.CarType>(),
+            Event.EventType.Championship,
+            Event.EventDuration.Average,
+            newSeriesCopa,
+            new List<Tracks.Country>() {{Tracks.Country.Brazil}},
+            new List<Cars.CarType>() { {Cars.CarType.Sportscar} },
             new List<Cars.CarClass>() { {Cars.CarClass.CopaClassicB} },
-            new List<Cars.CarBrand>(),
+            new List<Cars.CarBrand>() { {Cars.CarBrand.Chevrolet} },
             new List<string>(),
-            25,
-            1500,
-            true
-        );
-        Event raceEventTwo = Event.GenerateNewRaceEvent(
-            "Saturday Cup - Copa Classic B",
-            Tracks.Country.Brazil,
-            EventSeriesManager.SeriesTier.Amateur,
-            Event.EventDuration.Long,
-            new List<Cars.CarType>(),
-            new List<Cars.CarClass>() { {Cars.CarClass.CopaClassicB} },
-            new List<Cars.CarBrand>(),
-            new List<string>(),
-            30,
-            1750,
+            150,
+            3500,
             false
         );
 
-        Event raceEventVee = Event.GenerateNewRaceEvent(
-            "Sunday Cup - Formula Vee",
-            Tracks.Country.Brazil,
-            EventSeriesManager.SeriesTier.Novice,
+        Event.GenerateNewEvent(
+            "Weekend Race - Formula Vee",
+            Event.EventType.Race,
             Event.EventDuration.Mini,
+            newSeriesVee,
+            new List<Tracks.Country>() {{Tracks.Country.Brazil}},
             new List<Cars.CarType>(),
             new List<Cars.CarClass>() { {Cars.CarClass.FormulaVeeBrasil} },
             new List<Cars.CarBrand>(),
@@ -86,11 +108,12 @@ public class Profile
             1500,
             true
         );
-        Event raceEventVeeTwo = Event.GenerateNewRaceEvent(
-            "Saturday Cup - Formula Vee",
-            Tracks.Country.Brazil,
-            EventSeriesManager.SeriesTier.Amateur,
+        Event.GenerateNewEvent(
+            "Weekend Race - Formula Vee",
+            Event.EventType.Race,
             Event.EventDuration.Long,
+            newSeriesVee,
+            new List<Tracks.Country>() {{Tracks.Country.Brazil}},
             new List<Cars.CarType>(),
             new List<Cars.CarClass>() { {Cars.CarClass.FormulaVeeBrasil} },
             new List<Cars.CarBrand>(),
@@ -99,14 +122,6 @@ public class Profile
             1750,
             false
         );
-
-        EventSeries newSeries = new EventSeries("Copa Classic B for Dummies", EventSeriesManager.SeriesTier.Rookie, new List<Event>() { {raceEvent}, {raceEventTwo} });
-        EventSeries newSeriesTwo = new EventSeries("Formula Vee for Dummies", EventSeriesManager.SeriesTier.Novice, new List<Event>() { {raceEventVee}, {raceEventVeeTwo} });
-
-        EventSeriesManager.AddNewSeries(Tracks.Country.Brazil, newSeries);
-        EventSeriesManager.AddNewSeries(Tracks.Country.Brazil, newSeriesTwo);
-        EventSeriesManager.AddNewSeries(Tracks.Country.Brazil, newSeriesTwo);
-        EventSeriesManager.AddNewSeries(Tracks.Country.Brazil, newSeries);
     }
 
     public List<Purchasable> GetOwnedProducts(Type productType){
@@ -179,6 +194,35 @@ public class Profile
 
     public int GetLevel(){
         return level;
+    }
+
+    public List<Car> GetOwnedCarsFiltered(
+        List<string> carNames, List<Cars.CarType> carTypes, List<Cars.CarClass> carClasses, List<Cars.CarBrand> carBrands
+    ){
+        // Get our filtered cars
+        return Cars.FilterCars(GetOwnedProducts(typeof(Car)).OfType<Car>().ToList(), carNames, carTypes, carClasses, carBrands);
+    }
+
+    public List<Car> GetOwnedCarsThatCanRaceEvent(
+        List<string> carNames, List<Cars.CarType> carTypes, List<Cars.CarClass> carClasses, List<Cars.CarBrand> carBrands, EventSeriesManager.SeriesTier seriesTier
+    ){
+        // Get our filtered cars and entry passes
+        List<Car>       filteredCars    = GetOwnedCarsFiltered(carNames, carTypes, carClasses, carBrands);
+        List<EntryPass> filteredPasses  = EntryPasses.FilterEntryPasses(GetOwnedProducts(typeof(EntryPass)).OfType<EntryPass>().ToList(), seriesTier);
+
+        List<Car>       toReturn        = new List<Car>();
+
+        // Now check which cars we have valid entry passes for
+        foreach(Car car in filteredCars){
+            foreach(EntryPass entryPass in filteredPasses){
+                if(entryPass.WorksWithCar(car)){
+                    toReturn.Add(car);
+                    break;
+                }
+            }
+        }
+
+        return toReturn;
     }
 
     private void SetMaxExperienceBasedOnLevel(){

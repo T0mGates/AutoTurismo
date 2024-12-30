@@ -17,6 +17,24 @@ public class EntryPass : Purchasable
         tier            = tierParam;
     }
 
+    public bool WorksWithCar(Car car){
+        if(carType == car.type){
+            return true;
+        }
+
+        if(carBrand == car.brand){
+            return true;
+        }
+
+        foreach(Cars.CarClass carsClass in car.classes){
+            if(carsClass == carClass){
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public override Sprite GetSprite(){
         //string imageName = name.Replace(" ", "") + "_EntryPass";
         string imageName = Cars.typeToString[carType] + Cars.classToString[carClass] + Cars.brandToString[carBrand] + "_EntryPass";
@@ -134,6 +152,19 @@ public static class EntryPasses
                         BRAND_BASE_COST + (BRAND_COST_PER_TIER * (int)passTier)));
                 }
         }
+    }
+
+    public static List<EntryPass> FilterEntryPasses(List<EntryPass> entryPasses, EventSeriesManager.SeriesTier tier){
+        List<EntryPass> filteredPasses = new List<EntryPass>();
+
+        // Filter the given entry passes by their series tier
+        foreach(EntryPass entryPass in entryPasses){
+            if(entryPass.tier == tier){
+                filteredPasses.Add(entryPass);
+            }
+        }
+
+        return filteredPasses;
     }
 
     public static void AddNewEntryPass(EntryPass passToAdd)

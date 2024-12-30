@@ -139,6 +139,56 @@ public static class Cars
         brandToCars[carBrand].Add(carToAdd);
     }
 
+    public static List<Car> FilterCars(List<Car> toFilter, List<string> carNames, List<CarType> carTypes, List<CarClass> carClasses, List<CarBrand> carBrands){
+        // Returns a list of cars that are in 'toFilter' and who's name/type/class/brand matches one of the given params
+        List<Car> filteredCars  = new List<Car>();
+        foreach(Car car in toFilter){
+            // addCar is used to save time
+            bool addCar         = false;
+
+            foreach(string carName in carNames){
+                if(car.name == carName){
+                    filteredCars.Add(car);
+                    addCar      = true;
+                    break;
+                }
+            }
+
+            if(!addCar){
+                foreach(CarType carType in carTypes){
+                    if(car.type == carType){
+                        addCar  = true;
+                        break;
+                    }
+                }
+            }
+
+            if(!addCar){
+                foreach(CarClass carClass in carClasses){
+                    if(car.classes.Contains(carClass)){
+                        addCar  = true;
+                        break;
+                    }
+                }
+            }
+
+            if(!addCar){
+                foreach(CarBrand carBrand in carBrands){
+                    if(car.brand == carBrand){
+                        addCar  = true;
+                        break;
+                    }
+                }
+            }
+
+            if(addCar){
+                filteredCars.Add(car);
+            }
+        }
+
+        return filteredCars;
+    }
+
     public static Car GetCar(string carName){
         return nameToCar[carName];
     }

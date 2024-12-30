@@ -1,12 +1,10 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
-using System.Globalization;
 using System;
+using System.Linq;
 using Unity.VisualScripting;
-using UnityEngine.TextCore.Text;
 
 
 public class MenuManager : MonoBehaviour
@@ -24,6 +22,9 @@ public class MenuManager : MonoBehaviour
     public GameObject   inventoryMenu;
     public GameObject   racingMenu;
     public GameObject   countrySeriesMenu;
+    public GameObject   seriesMenu;
+    public GameObject   eventEntryMenu;
+    public GameObject   chooseCarMenu;
 
     [Header("Player Info")]
     public Slider       expSlider;
@@ -51,8 +52,22 @@ public class MenuManager : MonoBehaviour
     public GameObject   countrySeriesPrefab;
     public Transform    countrySeriesContentTransform;
 
+    [Header("Series")]
+    public GameObject       eventPrefab;
+    public GameObject       eventEntryPrefab;
+    public Transform        seriesContentTransform;
+
+    // We will have multiple of these dynamically added to the seriesContentTransform
+    private List<Transform> eventContentTransforms;
+
+    [Header("Choose Car")]
+    public GameObject       chooseCarPrefab;
+    public Transform        chooseCarContentTransform;
+
     void Start(){
-        gameManager = GameObject.FindWithTag("GameManager").GetComponent<GameManager>();
+        eventContentTransforms  = new List<Transform>();
+
+        gameManager             = GameObject.FindWithTag("GameManager").GetComponent<GameManager>();
 
         TurnAllOff();
 
@@ -72,6 +87,9 @@ public class MenuManager : MonoBehaviour
         inventoryMenu.SetActive(false);
         racingMenu.SetActive(false);
         countrySeriesMenu.SetActive(false);
+        seriesMenu.SetActive(false);
+        eventEntryMenu.SetActive(false);
+        chooseCarMenu.SetActive(false);
 
         // Destroy objects
         foreach(Transform child in dealershipContentTransform)
@@ -87,6 +105,21 @@ public class MenuManager : MonoBehaviour
             Destroy(child.gameObject);
         }
         foreach(Transform child in countrySeriesContentTransform)
+        {
+            Destroy(child.gameObject);
+        }
+        foreach(Transform child in seriesContentTransform)
+        {
+            Destroy(child.gameObject);
+        }
+        foreach(Transform eventContentTransform in eventContentTransforms){
+            foreach(Transform child in eventContentTransform){
+
+                Destroy(child.gameObject);
+            }
+        }
+        eventContentTransforms.Clear();
+        foreach(Transform child in chooseCarContentTransform)
         {
             Destroy(child.gameObject);
         }
@@ -202,11 +235,31 @@ public class MenuManager : MonoBehaviour
         }
     }
 
+    // Series screen, show all event series for a country's series
     public void Series(EventSeries series){
-
+        TurnAllOff();
+        navigationMenu.SetActive(true);
+        seriesMenu.SetActive(true);
+        PopulateSeries(series);
     }
 
-    public void Notification(string title, string bodyText, Sprite rewardSprite, bool isAConfirmation = false){
+    // Event entry screen, show all info for an event entry
+    public void EventEntry(EventEntry eventEntry){
+        TurnAllOff();
+        navigationMenu.SetActive(true);
+        eventEntryMenu.SetActive(true);
+        PopulateEventEntry(eventEntry);
+    }
+
+    // Event entry screen, show all info for an event entry
+    public void ChooseCar(EventEntry eventEntry){
+        TurnAllOff();
+        navigationMenu.SetActive(true);
+        chooseCarMenu.SetActive(true);
+        PopulateChooseCar(eventEntry);
+    }
+
+    public void Notification(string title, string bodyText, Sprite rewardSprite = null, bool isAConfirmation = false){
         const string TITLE_TEXT_NAME        = "TitleTxt";
         const string BODY_TEXT_NAME         = "NotificationTxt";
         const string REWARD_IMG_NAME        = "RewardImg";
@@ -222,7 +275,14 @@ public class MenuManager : MonoBehaviour
 
         notificationMenu.transform.Find(TITLE_TEXT_NAME).GetComponent<TextMeshProUGUI>().text   = title;
         notificationMenu.transform.Find(BODY_TEXT_NAME).GetComponent<TextMeshProUGUI>().text    = bodyText;
-        notificationMenu.transform.Find(REWARD_IMG_NAME).GetComponent<Image>().sprite           = rewardSprite;
+
+        if(rewardSprite != null){
+            notificationMenu.transform.Find(REWARD_IMG_NAME).GetComponent<Image>().sprite       = rewardSprite;
+            notificationMenu.transform.Find(REWARD_IMG_NAME).gameObject.SetActive(true);
+        }
+        else{
+            notificationMenu.transform.Find(REWARD_IMG_NAME).gameObject.SetActive(false);
+        }
 
         notificationMenu.transform.Find(NORMAL_NOTI_NAME).gameObject.SetActive(!isAConfirmation);
         notificationMenu.transform.Find(CONFIRMATION_NAME).gameObject.SetActive(isAConfirmation);
@@ -359,7 +419,6 @@ public class MenuManager : MonoBehaviour
         const string        PRICE_TEXT_NAME    = "PriceSell/PriceTxt";
 
         const string        TITLE_TEXT_NAME    = "TitleTxt";
-        //const string        BACK_BTN_NAME      = "BackBtn";
 
         GameObject          newObj;
         List<Purchasable>   products           = gameManager.curProfile.GetOwnedProducts(productType);
@@ -455,6 +514,208 @@ public class MenuManager : MonoBehaviour
             viewBtn.onClick.RemoveAllListeners();
             viewBtn.onClick.AddListener(() => { Series(series); });
         }
+    }
+
+    private void PopulateSeries(EventSeries series){
+        // Country name is needed to know which menu the back btn will go to
+        // Tier is needed for the text
+
+        const string        SERIES_TITLE_NAME               = "SeriesTxt";
+        const string        SERIES_TIER_NAME                = "SeriesTierTxt";
+        const string        BACK_BTN_NAME                   = "BackBtn";
+
+        // These are for the event prefab
+        const string        EVENT_TITLE_NAME                = "EventNameTxt";
+        const string        EVENT_TYPE_NAME                 = "EventTypeTxt";
+        const string        MONEY_TEXT_NAME                 = "Reward/MoneyRewardTxt";
+        const string        FAME_TEXT_NAME                  = "Reward/FameRewardTxt";
+        const string        WHITELIST_TEXT_NAME             = "WhitelistTxt";
+        const string        EVENT_CONTENT_TRANSFORM_NAME    = "EventEntriesScrollView/Viewport/EventEntriesContent";
+
+        // Don't forget image later on
+
+        GameObject          newObj;
+
+        // Change the series title
+        seriesMenu.transform.Find(SERIES_TITLE_NAME).GetComponent<TextMeshProUGUI>().text       = series.name;
+        // Change the series tier
+        seriesMenu.transform.Find(SERIES_TIER_NAME).GetComponent<TextMeshProUGUI>().text        = EventSeriesManager.tierToString[series.seriesTier] + " Drivers Only";
+
+        // Set onclick for the back button, depending on what menu preceeded this one
+        seriesMenu.transform.Find(BACK_BTN_NAME).GetComponent<Button>().onClick.RemoveAllListeners();
+        seriesMenu.transform.Find(BACK_BTN_NAME).GetComponent<Button>().onClick.AddListener(()  => { CountrySeries(series.partOfCountry.ToString()); });
+
+        foreach(Event seriesEvent in series.events){
+
+            newObj                                                                              = (GameObject)Instantiate(eventPrefab, seriesContentTransform);
+
+            //TODO: Change the image
+            //newObj.transform.Find(PRODUCT_IMAGE_NAME).GetComponent<Image>().sprite              = product.GetSprite();
+
+            // Change the event name
+            newObj.transform.Find(EVENT_TITLE_NAME).GetComponent<TextMeshProUGUI>().text        = seriesEvent.name;
+
+            // Change the event type text
+            newObj.transform.Find(EVENT_TYPE_NAME).GetComponent<TextMeshProUGUI>().text         = Event.eventDurationToString[seriesEvent.eventDuration] + " " + Event.eventTypeToString[seriesEvent.eventType];
+
+            // Change the money reward text
+            newObj.transform.Find(MONEY_TEXT_NAME).GetComponent<TextMeshProUGUI>().text         = seriesEvent.getPrintMoneyReward();
+
+            // Change the fame reward text
+            newObj.transform.Find(FAME_TEXT_NAME).GetComponent<TextMeshProUGUI>().text          = seriesEvent.bonusFame.ToString() + " Fame";
+
+            // Change the whitelist text
+            newObj.transform.Find(WHITELIST_TEXT_NAME).GetComponent<TextMeshProUGUI>().text     = seriesEvent.getPrintWhitelist();
+
+            // Now do the inner event entries for this event, after locating the eventContentTransform found in the newly made prefab
+            Transform eventContentTransform                                                     = newObj.transform.Find(EVENT_CONTENT_TRANSFORM_NAME).GetComponent<Transform>();
+            eventContentTransforms.Add(eventContentTransform);
+            PopulateEvent(seriesEvent);
+        }
+    }
+
+    private void PopulateEvent(Event seriesEvent){
+        // These are for the event entry prefab
+        const string        ENTRY_TITLE_NAME                                                = "EventEntryTxt";
+
+        GameObject          newObj;
+
+        int count = 1;
+
+        foreach(EventEntry eventEntry in seriesEvent.eventEntries){
+            // The eventContentTransform to use will be the most newly added transform to the eventContentTransforms list
+            newObj                                                                          = (GameObject)Instantiate(eventEntryPrefab, eventContentTransforms[eventContentTransforms.Count-1]);
+
+            // Change the event entry's text
+            newObj.transform.Find(ENTRY_TITLE_NAME).GetComponent<TextMeshProUGUI>().text    = count.ToString();
+            count++;
+
+            // Change the event entry button's onclick action
+            Button eventEntryBtn                                                            = newObj.GetComponent<Button>();
+
+            eventEntryBtn.onClick.RemoveAllListeners();
+            eventEntryBtn.onClick.AddListener(()                                            => { EventEntry(eventEntry); });
+        }
+    }
+
+    private void PopulateEventEntry(EventEntry eventEntry){
+        const string        ENTRY_TITLE_NAME            = "TitleTxt";
+        const string        ENTRY_NUM_TEXT_NAME         = "EventEntryNumTxt";
+        const string        TRACK_TEXT_NAME             = "TrackTxt";
+        const string        COUNTRY_TEXT_NAME           = "CountryTxt";
+        const string        GRADE_TEXT_NAME             = "GradeTxt";
+        const string        GRID_SIZE_TEXT_NAME         = "GridSizeTxt";
+        const string        LAPS_MINS_TEXT_NAME         = "LapsMinsTxt";
+        const string        WHITELIST_TEXT_NAME         = "WhitelistTxt";
+        const string        BG_IMAGE_NAME               = "BG";
+        const string        BACK_BTN_NAME               = "BackBtn";
+        const string        CHOOSE_CAR_BTN_NAME         = "ChooseCarBtn";
+
+        // Change all the text
+        eventEntryMenu.transform.Find(ENTRY_TITLE_NAME).GetComponent<TextMeshProUGUI>().text        = eventEntry.parentEvent.name;
+        eventEntryMenu.transform.Find(ENTRY_NUM_TEXT_NAME).GetComponent<TextMeshProUGUI>().text     = "Race "               + eventEntry.parentEvent.GetEventEntryPosition(eventEntry).ToString() + " of " + eventEntry.parentEvent.eventEntries.Count.ToString();
+        eventEntryMenu.transform.Find(TRACK_TEXT_NAME).GetComponent<TextMeshProUGUI>().text         = "Name: "              + eventEntry.track.name + " " + eventEntry.track.layout;
+        eventEntryMenu.transform.Find(COUNTRY_TEXT_NAME).GetComponent<TextMeshProUGUI>().text       = "Country: "           + Tracks.countryToString[eventEntry.track.country];
+        eventEntryMenu.transform.Find(GRADE_TEXT_NAME).GetComponent<TextMeshProUGUI>().text         = "Grade: "             + Tracks.gradeToString[eventEntry.track.grade];
+        eventEntryMenu.transform.Find(GRID_SIZE_TEXT_NAME).GetComponent<TextMeshProUGUI>().text     = "Grid Size: "         + eventEntry.gridSize.ToString();
+        eventEntryMenu.transform.Find(LAPS_MINS_TEXT_NAME).GetComponent<TextMeshProUGUI>().text     = eventEntry.laps != -1 ? "Laps: " + eventEntry.laps.ToString() : "Mins: " + eventEntry.mins.ToString();
+        eventEntryMenu.transform.Find(WHITELIST_TEXT_NAME).GetComponent<TextMeshProUGUI>().text     = "Entry Pass Tier: "   + eventEntry.parentEvent.parentEventSeries.seriesTier.ToString() + "\n\n" + eventEntry.parentEvent.getPrintWhitelist();
+
+        // Change the event entry back button's onclick action
+        Button backBtn                                  = eventEntryMenu.transform.Find(BACK_BTN_NAME).GetComponent<Button>();
+
+        backBtn.onClick.RemoveAllListeners();
+        backBtn.onClick.AddListener(()                  => { Series(eventEntry.parentEvent.parentEventSeries); });
+
+        Button chooseCarBtn                             = eventEntryMenu.transform.Find(CHOOSE_CAR_BTN_NAME).GetComponent<Button>();
+
+        chooseCarBtn.onClick.RemoveAllListeners();
+        chooseCarBtn.onClick.AddListener(()                  => { ChooseCar(eventEntry); });
+    }
+
+    private void PopulateChooseCar(EventEntry eventEntry){
+
+        // Menu where you choose a car for an event
+        const string                    PRODUCT_IMAGE_NAME      = "CarImg";
+        const string                    NAME_TEXT_NAME          = "CarNameTxt";
+        const string                    CLASSES_TEXT_NAME       = "CarClassesTxt";
+        const string                    TYPE_TEXT_NAME          = "CarTypeTxt";
+        const string                    NO_CAR_TEXT_NAME        = "NoCarTxt";
+        const string                    CHOOSE_BTN_NAME         = "ChooseBtn";
+
+        const string                    BACK_BTN_NAME           = "BackBtn";
+
+        GameObject          newObj;
+
+        EventSeriesManager.SeriesTier   seriesTier              = eventEntry.parentEvent.parentEventSeries.seriesTier;
+        List<Cars.CarType>              allowedCarTypes         = eventEntry.parentEvent.typeWhitelist;
+        List<Cars.CarClass>             allowedCarClasses       = eventEntry.parentEvent.classWhitelist;
+        List<Cars.CarBrand>             allowedCarBrands        = eventEntry.parentEvent.brandWhitelist;
+        List<string>                    allowedCarNames         = eventEntry.parentEvent.nameWhitelist;
+
+        // Change the back button onclick action
+        Button backBtn = chooseCarMenu.transform.Find(BACK_BTN_NAME).GetComponent<Button>();
+
+        backBtn.onClick.RemoveAllListeners();
+        backBtn.onClick.AddListener(() => { EventEntry(eventEntry); });
+
+        // Get your owned cars that you can race in this event entry
+        // These are the cars you own that fit in this event (but you may or may not have the proper entry pass)
+        List<Car>           legalOwnedCars                  = gameManager.curProfile.GetOwnedCarsFiltered(allowedCarNames, allowedCarTypes, allowedCarClasses, allowedCarBrands);
+        // These are the cars that you own that fit in this event, that you do have an entry pass for
+        List<Car>           legalRaceableOwnedCars          = gameManager.curProfile.GetOwnedCarsThatCanRaceEvent(allowedCarNames, allowedCarTypes, allowedCarClasses, allowedCarBrands, seriesTier);
+
+        GameObject          noCarObj            = chooseCarMenu.transform.Find(NO_CAR_TEXT_NAME).gameObject;
+        // If we don't have any valid cars, alert the user in some way
+        if(0 == legalOwnedCars.Count){
+            noCarObj.GetComponent<TextMeshProUGUI>().text = "You don't own any cars that you can race in this event, or, you don't own a '" +
+                                                            EventSeriesManager.tierToString[seriesTier] +
+                                                            "' entry pass that works with one of your cars that is legal for this event.";
+            noCarObj.SetActive(true);
+        }
+        else{
+            noCarObj.SetActive(false);
+        }
+
+        foreach(Car car in legalOwnedCars){
+
+            newObj                                                                              = (GameObject)Instantiate(chooseCarPrefab, chooseCarContentTransform);
+
+            // Set BG to green if this car is raceable (have an entry pass that works with it and the event), else set BG to red
+            newObj.GetComponent<Image>().color                                                  = legalRaceableOwnedCars.Contains(car) ? transparentGreen : transparentRed;
+
+            // Change the image
+            newObj.transform.Find(PRODUCT_IMAGE_NAME).GetComponent<Image>().sprite              = car.GetSprite();
+
+            // Change the car name
+            newObj.transform.Find(NAME_TEXT_NAME).GetComponent<TextMeshProUGUI>().text          = car.GetPrintName();
+
+            // Change the car class(es)
+            newObj.transform.Find(CLASSES_TEXT_NAME).GetComponent<TextMeshProUGUI>().text       = car.GetPrintClasses();
+            // Change the car type
+            newObj.transform.Find(TYPE_TEXT_NAME).GetComponent<TextMeshProUGUI>().text          = car.GetPrintType();
+
+            // Change the 'choose' button onclick action
+            Button chooseBtn                                                                    = newObj.transform.Find(CHOOSE_BTN_NAME).GetComponent<Button>();
+
+            chooseBtn.onClick.RemoveAllListeners();
+            // If you don't own an entry pass for this legal car, alert the user
+            chooseBtn.onClick.AddListener(()                                                    => { ChooseCarClicked(eventEntry, car, legalRaceableOwnedCars.Contains(car)); });
+        }
+    }
+
+    // Final click before actually 'racing'
+    private void ChooseCarClicked(EventEntry eventEntry, Car car, bool ownEntryPassForCar){
+        if(!ownEntryPassForCar){
+            // Alert the user. Kind of acts as our tutorial lol
+            Notification("Alert",
+            "You do not own a '" + EventSeriesManager.tierToString[eventEntry.parentEvent.parentEventSeries.seriesTier] +
+            "' entry pass for any of:\n\nCar type: " + car.GetPrintType() + "\nCar classes: " + car.GetPrintClasses() +
+            "\nCar brand: " + car.brand.ToString());
+            return;
+        }
+
+        // At this point, safe to go race!
     }
 
     // Dealer is only needed for a 'buy', so if it is null, this will be treated as a 'selling' transaction
