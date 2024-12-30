@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Playables;
+using UnityEngine.UI;
 
 
 public class GameManager : MonoBehaviour
@@ -15,20 +17,50 @@ public class GameManager : MonoBehaviour
       menuManager = GameObject.FindWithTag("MenuManager").GetComponent<MenuManager>();
 
       IOManager.SetJsonDir(PATH_TO_JSONS);
-      RaceResult result = IOManager.ReadInNewResult();
-      for(int j = 0; j < result.Drivers.Count; j++){
-        ResultDriver driver = result.Drivers[j];
-        if(driver.IsPlayer){
-            // Found player
-            Debug.Log("Found player: " + driver.DriverLongName + ", driving a " + driver.CarName + " to P" + driver.FinishingPosition.ToString());
-        }
-      }
+
     }
 
     // Update is called once per frame
     void Update()
     {
 
+    }
+
+    public void CheckRaceCompletion(EventEntry eventEntry, Car car, Button checkResultBtn){
+      // First stop the user from being able to spam the button
+      checkResultBtn.interactable = false;
+      // Don't forget to re-enable the given checkResultBtn
+      // checkResultBtn.interactable = true;
+
+      RaceResult result;
+      while(true){
+        result = IOManager.ReadInNewResult();
+        if(result != null){
+          // Check if this was an AMS 2 race session, break out of the loop
+          if(result.Simulator == "AMS 2" && result.SessionType == "Race"){
+            break;
+          }
+          else{
+            result = null;
+          }
+        }
+        else{
+          // If no json file was found, break out of the while loop
+          break;
+        }
+      }
+
+      // If result is null here, means we couldn't find a result
+      if(null == result){
+        checkResultBtn.interactable = true;
+        menuManager.Notification("Alert", "Could not find an AMS 2 race session result in directory: " + PATH_TO_JSONS + ".\nMake sure Second Monitor is running before, during and after the race!");
+        return;
+      }
+
+      eventEntry.CompleteEventEntry(result.Drivers);
+      checkResultBtn.interactable   = true;
+      menuManager.Series(eventEntry.parentEvent.parentEventSeries);
+      menuManager.Notification("Event Entry Complete!", "You started: P" + eventEntry.playerResult.InitialPositionInClass.ToString() + "\nYou finished: P" + eventEntry.playerResult.FinishingPositionInClass.ToString());
     }
 
     public void SetProfile(string profileName){

@@ -7,20 +7,21 @@ public static class IOManager
 
     static public void SetJsonDir(string PathToJsonDirParam){
         PathToJsonDir = PathToJsonDirParam;
-    } 
+    }
 
     static public RaceResult ReadInNewResult(){
 
-        string[] filedata = Directory.GetFiles(PathToJsonDir); 
-      
-        // Displaying the file names one by one 
-        foreach (string i in filedata) 
-        { 
+        string[] filedata = Directory.GetFiles(PathToJsonDir);
+
+        // Displaying the file names one by one
+        foreach (string i in filedata)
+        {
             if(i.Contains(".json")){
               RaceResult result = JsonConvert.DeserializeObject<RaceResult>(File.ReadAllText(i));
+              // TODO clear the json file
               return result;
             }
-        } 
+        }
 
         return null;
     }

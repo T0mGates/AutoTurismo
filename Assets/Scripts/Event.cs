@@ -124,7 +124,6 @@ public class Event
     public EventDuration        eventDuration;
     public EventSeries          parentEventSeries;
 
-    public List<EventEntry>     eventEntries;
     public int                  bonusFame;
     public int                  bonusMoney;
 
@@ -132,6 +131,8 @@ public class Event
     public List<Cars.CarClass>  classWhitelist;
     public List<Cars.CarBrand>  brandWhitelist;
     public List<string>         nameWhitelist;
+
+    private List<EventEntry>    eventEntries;
 
     public Event(
                 string nameParam, EventType eventTypeParam, EventDuration eventDurationParam, EventSeries parentEventSeriesParam,
@@ -155,6 +156,94 @@ public class Event
         eventEntries        = new List<EventEntry>();
 
         parentEventSeries.events.Add(this);
+    }
+
+    public void EventEntryCompleted(EventEntry eventEntryParam){
+        int nextUpIndex = eventEntries.IndexOf(eventEntryParam) + 1;
+
+        if(nextUpIndex >= eventEntries.Count){
+            // TODO: Event is complete!
+            Debug.Log("Event: " + name + " is complete!");
+        }
+        else{
+            eventEntries[nextUpIndex].nextUp = true;
+        }
+    }
+
+    public void AddNewEventEntry(EventEntry entryToAdd){
+        eventEntries.Add(entryToAdd);
+        // If this is the first event, make it the next up to race
+        if(1 == eventEntries.Count){
+            entryToAdd.nextUp = true;
+        }
+    }
+
+    public int GetEventEntryPosition(EventEntry eventEntryToCheck){
+        // Returns the 'position number' for a given event entry
+        return eventEntries.IndexOf(eventEntryToCheck) + 1;
+    }
+
+    // Returns a string that includes details on all the whitelists for this event
+    public string getPrintWhitelist(){
+        string toReturn = "";
+
+        // Car Names
+        if(nameWhitelist.Count > 0){
+            toReturn += "Car Names:";
+        }
+        foreach(string carName in nameWhitelist){
+            toReturn += " " + carName + ",";
+        }
+        // Remove the trailing comma, add new line
+        if(nameWhitelist.Count > 0){
+            toReturn = toReturn.Substring(0, toReturn.Length - 1) + "\n";
+        }
+
+        // Car Types
+        if(typeWhitelist.Count > 0){
+            toReturn += "Car Types:";
+        }
+        foreach(Cars.CarType carType in typeWhitelist){
+            toReturn += " " + Cars.typeToString[carType] + ",";
+        }
+        // Remove the trailing comma, add new line
+        if(typeWhitelist.Count > 0){
+            toReturn = toReturn.Substring(0, toReturn.Length - 1) + "\n";
+        }
+
+        // Car Classes
+        if(classWhitelist.Count > 0){
+            toReturn += "Car Classes:";
+        }
+        foreach(Cars.CarClass carClass in classWhitelist){
+            toReturn += " " + Cars.classToString[carClass] + ",";
+        }
+        // Remove the trailing comma, add new line
+        if(classWhitelist.Count > 0){
+            toReturn = toReturn.Substring(0, toReturn.Length - 1) + "\n";
+        }
+
+        // Car Brands
+        if(brandWhitelist.Count > 0){
+            toReturn += "Car Brands:";
+        }
+        foreach(Cars.CarBrand carBrand in brandWhitelist){
+            toReturn += " " + Cars.brandToString[carBrand] + ",";
+        }
+        // Remove the trailing comma, add new line
+        if(brandWhitelist.Count > 0){
+            toReturn = toReturn.Substring(0, toReturn.Length - 1) + "\n";
+        }
+
+        return toReturn;
+    }
+
+    public string getPrintMoneyReward(){
+        return "$" + bonusMoney.ToString("n0");
+    }
+
+    public List<EventEntry> GetEventEntries(){
+        return eventEntries;
     }
 
     public static Event GenerateNewEvent(
@@ -263,70 +352,6 @@ public class Event
         return newEvent;
     }
 
-    public int GetEventEntryPosition(EventEntry eventEntryToCheck){
-        // Returns the 'position number' for a given event entry
-        return eventEntries.IndexOf(eventEntryToCheck) + 1;
-    }
-
-    // Returns a string that includes details on all the whitelists for this event
-    public string getPrintWhitelist(){
-        string toReturn = "";
-
-        // Car Names
-        if(nameWhitelist.Count > 0){
-            toReturn += "Car Names:";
-        }
-        foreach(string carName in nameWhitelist){
-            toReturn += " " + carName + ",";
-        }
-        // Remove the trailing comma, add new line
-        if(nameWhitelist.Count > 0){
-            toReturn = toReturn.Substring(0, toReturn.Length - 1) + "\n";
-        }
-
-        // Car Types
-        if(typeWhitelist.Count > 0){
-            toReturn += "Car Types:";
-        }
-        foreach(Cars.CarType carType in typeWhitelist){
-            toReturn += " " + Cars.typeToString[carType] + ",";
-        }
-        // Remove the trailing comma, add new line
-        if(typeWhitelist.Count > 0){
-            toReturn = toReturn.Substring(0, toReturn.Length - 1) + "\n";
-        }
-
-        // Car Classes
-        if(classWhitelist.Count > 0){
-            toReturn += "Car Classes:";
-        }
-        foreach(Cars.CarClass carClass in classWhitelist){
-            toReturn += " " + Cars.classToString[carClass] + ",";
-        }
-        // Remove the trailing comma, add new line
-        if(classWhitelist.Count > 0){
-            toReturn = toReturn.Substring(0, toReturn.Length - 1) + "\n";
-        }
-
-        // Car Brands
-        if(brandWhitelist.Count > 0){
-            toReturn += "Car Brands:";
-        }
-        foreach(Cars.CarBrand carBrand in brandWhitelist){
-            toReturn += " " + Cars.brandToString[carBrand] + ",";
-        }
-        // Remove the trailing comma, add new line
-        if(brandWhitelist.Count > 0){
-            toReturn = toReturn.Substring(0, toReturn.Length - 1) + "\n";
-        }
-
-        return toReturn;
-    }
-
-    public string getPrintMoneyReward(){
-        return "$" + bonusMoney.ToString("n0");
-    }
-
     public enum EventDuration
     {
         Mini, // Around 5-7 minutes
@@ -408,28 +433,52 @@ public class Event
 
 public class EventEntry
 {
-    public Track    track;
-    public int      mins;
-    public int      laps;
-    public bool     completed;
-    public bool     attempted;
-    public int      finishPosition;
-    public Event    parentEvent;
+    public Track                track;
+    public int                  mins;
+    public int                  laps;
+    public bool                 attempted;
+    // Whether this entry is the 'next up' to race in the event
+    public bool                 nextUp;
+    public Event                parentEvent;
 
     // Probably want AI levels and whatnot
-    public int      gridSize;
+    public int                  gridSize;
+
+    // Will be filled in once the event entry is done
+    public List<ResultDriver>   driverResults;
+    public ResultDriver         playerResult;
 
     public EventEntry(Track trackParam, int gridSizeParam, Event parentEventParam, int minsParam = -1, int lapsParam = -1){
         track           = trackParam;
         gridSize        = gridSizeParam;
         mins            = minsParam;
         laps            = lapsParam;
-        completed       = false;
         attempted       = false;
-        finishPosition  = -1;
+        nextUp          = false;
         parentEvent     = parentEventParam;
 
-        parentEvent.eventEntries.Add(this);
+        driverResults   = new List<ResultDriver>();
+
+        parentEvent.AddNewEventEntry(this);
+    }
+
+    public void CompleteEventEntry(List<ResultDriver> driverResultsParam){
+        Debug.Log("EventEntry complete!");
+        attempted   = true;
+        nextUp      = false;
+
+        driverResults   = driverResultsParam;
+        foreach(ResultDriver driver in driverResultsParam){
+            if(driver.IsPlayer){
+                // Found player
+                Debug.Log("Found player: " + driver.DriverLongName + ", driving a " + driver.CarName + " to P" + driver.FinishingPositionInClass.ToString());
+                playerResult = driver;
+                break;
+            }
+        }
+
+        // Notify the Event that this entry is done
+        parentEvent.EventEntryCompleted(this);
     }
 
     public static EventEntry GenerateNewEventEntry(Track track, Event.EventDuration duration, EventSeriesManager.SeriesTier tier, Event parentEventParam, bool useLaps){
