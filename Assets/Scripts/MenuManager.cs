@@ -23,7 +23,7 @@ public class MenuManager : MonoBehaviour
     public GameObject   shopMenu;
     public GameObject   inventoryMenu;
     public GameObject   racingMenu;
-    public GameObject   countrySeriesMenu;
+    public GameObject   regionSeriesMenu;
     public GameObject   seriesMenu;
     public GameObject   eventEntryMenu;
     public GameObject   chooseCarMenu;
@@ -53,9 +53,9 @@ public class MenuManager : MonoBehaviour
     private Color transparentRed            = new Color(1.0f, 0.75f, 0.75f, 0.85f);
     private Color transparentBlue           = new Color(0.75f, 0.75f, 1.0f, 0.85f);
 
-    [Header("Country")]
-    public GameObject   countrySeriesPrefab;
-    public Transform    countrySeriesContentTransform;
+    [Header("Region")]
+    public GameObject   regionSeriesPrefab;
+    public Transform    regionSeriesContentTransform;
 
     [Header("Series")]
     public GameObject       eventPrefab;
@@ -91,7 +91,7 @@ public class MenuManager : MonoBehaviour
         shopMenu.SetActive(false);
         inventoryMenu.SetActive(false);
         racingMenu.SetActive(false);
-        countrySeriesMenu.SetActive(false);
+        regionSeriesMenu.SetActive(false);
         seriesMenu.SetActive(false);
         eventEntryMenu.SetActive(false);
         chooseCarMenu.SetActive(false);
@@ -112,7 +112,7 @@ public class MenuManager : MonoBehaviour
         {
             Destroy(child.gameObject);
         }
-        foreach(Transform child in countrySeriesContentTransform)
+        foreach(Transform child in regionSeriesContentTransform)
         {
             Destroy(child.gameObject);
         }
@@ -238,14 +238,14 @@ public class MenuManager : MonoBehaviour
         racingMenu.SetActive(true);
     }
 
-    public void CountrySeries(string countryName){
-        foreach(Tracks.Country country in Enum.GetValues(typeof(Tracks.Country))){
-            // Look if the string representation of the enum is the given country name
-            if(country.ToString() == countryName.Replace(" ", "")){
+    public void RegionSeries(string clickableRegionName){
+        foreach(Tracks.ClickableRegion region in Enum.GetValues(typeof(Tracks.ClickableRegion))){
+            // Look if the string representation of the enum is the given region name
+            if(region.ToString() == clickableRegionName.Replace(" ", "")){
                 TurnAllOff();
                 navigationMenu.SetActive(true);
-                countrySeriesMenu.SetActive(true);
-                PopulateCountrySeries(country);
+                regionSeriesMenu.SetActive(true);
+                PopulateRegionSeries(region);
             }
         }
     }
@@ -676,8 +676,8 @@ public class MenuManager : MonoBehaviour
         }
     }
 
-    private void PopulateCountrySeries(Tracks.Country country){
-        const string        COUNTRY_TEXT_NAME   = "CountrySeriesTxt";
+    private void PopulateRegionSeries(Tracks.ClickableRegion region){
+        const string        REGION_TEXT_NAME    = "RegionSeriesTxt";
 
         // These are for the prefab
         const string        SERIES_TITLE_NAME   = "SeriesNameTxt";
@@ -690,14 +690,14 @@ public class MenuManager : MonoBehaviour
         // Don't forget image later on
 
         GameObject          newObj;
-        List<EventSeries>   seriesList          = EventSeriesManager.GetCountrySeries(country);
+        List<EventSeries>   seriesList          = EventSeriesManager.GetRegionSeries(region);
 
         // Change the title depending on what the country type is
-        countrySeriesMenu.transform.Find(COUNTRY_TEXT_NAME).GetComponent<TextMeshProUGUI>().text     = Tracks.countryToString[country];
+        regionSeriesMenu.transform.Find(REGION_TEXT_NAME).GetComponent<TextMeshProUGUI>().text = Tracks.regionToString[region];
 
         foreach(EventSeries series in seriesList){
 
-            newObj                                                                              = (GameObject)Instantiate(countrySeriesPrefab, countrySeriesContentTransform);
+            newObj                                                                              = (GameObject)Instantiate(regionSeriesPrefab, regionSeriesContentTransform);
 
             //TODO: Change the image
             //newObj.transform.Find(PRODUCT_IMAGE_NAME).GetComponent<Image>().sprite              = product.GetSprite();
@@ -743,7 +743,7 @@ public class MenuManager : MonoBehaviour
 
         // Set onclick for the back button, depending on what menu preceeded this one
         seriesMenu.transform.Find(BACK_BTN_NAME).GetComponent<Button>().onClick.RemoveAllListeners();
-        seriesMenu.transform.Find(BACK_BTN_NAME).GetComponent<Button>().onClick.AddListener(()  => { CountrySeries(series.partOfCountry.ToString()); });
+        seriesMenu.transform.Find(BACK_BTN_NAME).GetComponent<Button>().onClick.AddListener(()  => { RegionSeries(series.partOfRegion.ToString()); });
 
         foreach(Event seriesEvent in series.events){
 

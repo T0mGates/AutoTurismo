@@ -414,7 +414,7 @@ GameObject:
   - component: {fileID: 8124531824918312063}
   - component: {fileID: 2308749443873985854}
   m_Layer: 5
-  m_Name: CountrySeries
+  m_Name: RegionSeriesObj
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

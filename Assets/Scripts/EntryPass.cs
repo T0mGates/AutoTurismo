@@ -37,13 +37,13 @@ public class EntryPass : Purchasable
 
     public override Sprite GetSprite(){
         //string imageName = name.Replace(" ", "") + "_EntryPass";
-        string imageName = Cars.typeToString[carType] + Cars.classToString[carClass] + Cars.brandToString[carBrand] + "_EntryPass";
+        string imageName = Cars.typeToString[carType] + Cars.classToString[carClass] + carBrand.ToString() + "_EntryPass";
         Debug.Log("Looking for image: " + imageName);
         return Resources.Load<Sprite>("Images/" + imageName);
     }
 
     public override string GetPrintName(){
-        return Cars.typeToString[carType] + Cars.classToString[carClass] + Cars.brandToString[carBrand] + " - " + EventSeriesManager.tierToString[tier] + " Entry Pass";
+        return Cars.typeToString[carType] + Cars.classToString[carClass] + carBrand.ToString() + " - " + EventSeriesManager.tierToString[tier] + " Entry Pass";
     }
 
     public override string GetInfoBlurb()
@@ -200,7 +200,7 @@ public static class EntryPasses
 
             foreach(Cars.CarBrand carBrand in Enum.GetValues(typeof(Cars.CarBrand))){
                 AddNewEntryPass(new EntryPass(
-                    Cars.brandToString[carBrand] + EventSeriesManager.tierToString[passTier],
+                    carBrand.ToString() + EventSeriesManager.tierToString[passTier],
                     Cars.CarType.None,
                     Cars.CarClass.None,
                     carBrand,

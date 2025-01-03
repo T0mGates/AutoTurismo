@@ -10,12 +10,12 @@ public class EventSeries
     public EventSeriesManager.SeriesTier    seriesTier;
     public string                           name;
     public List<Event>                      events;
-    public Tracks.Country                   partOfCountry;
+    public Tracks.ClickableRegion           partOfRegion;
 
-    public EventSeries(string nameParam, EventSeriesManager.SeriesTier seriesTierParam, Tracks.Country partOfCountryParam){
+    public EventSeries(string nameParam, EventSeriesManager.SeriesTier seriesTierParam, Tracks.ClickableRegion partOfRegionParam){
         name            = nameParam;
         seriesTier      = seriesTierParam;
-        partOfCountry   = partOfCountryParam;
+        partOfRegion    = partOfRegionParam;
         events          = new List<Event>();
 
         EventSeriesManager.AddNewSeries(this);
@@ -40,26 +40,26 @@ public class EventSeries
 
 public static class EventSeriesManager
 {
-    private static Dictionary<Tracks.Country, List<EventSeries>> countryToSeries;
+    private static Dictionary<Tracks.ClickableRegion, List<EventSeries>> regionToSeries;
 
     static EventSeriesManager(){
         // Initialize our main dictionary
-        countryToSeries = new Dictionary<Tracks.Country, List<EventSeries>>();
+        regionToSeries = new Dictionary<Tracks.ClickableRegion, List<EventSeries>>();
 
         // Initialize the lists within
-        foreach(Tracks.Country country in Enum.GetValues(typeof(Tracks.Country))){
-            countryToSeries[country] = new List<EventSeries>();
+        foreach(Tracks.ClickableRegion region in Enum.GetValues(typeof(Tracks.ClickableRegion))){
+            regionToSeries[region] = new List<EventSeries>();
         }
     }
 
-    public static List<EventSeries> GetCountrySeries(Tracks.Country country){
-        return countryToSeries[country];
+    public static List<EventSeries> GetRegionSeries(Tracks.ClickableRegion region){
+        return regionToSeries[region];
     }
 
-    // Called to add a new series to a country
+    // Called to add a new series to a region
     // Called by EventSeries' constructor
     public static void AddNewSeries(EventSeries seriesToAdd){
-        countryToSeries[seriesToAdd.partOfCountry].Add(seriesToAdd);
+        regionToSeries[seriesToAdd.partOfRegion].Add(seriesToAdd);
     }
 
     public enum SeriesTier
@@ -85,7 +85,7 @@ public static class EventSeriesManager
         {SeriesTier.Master,             "Master"},
         {SeriesTier.Prodigy,            "Prodigy"},
         {SeriesTier.Legend,             "Legend"},
-        {SeriesTier.WorldRenowned,      "WorldRenowned"}
+        {SeriesTier.WorldRenowned,      "World-Renowned"}
     };
 
     // Used for race length calculations
@@ -105,15 +105,42 @@ public static class EventSeriesManager
     // Set restrictions on what grade tracks each tier drivers can race on
     public static Dictionary<SeriesTier, List<Tracks.Grade>> tierAllowedOnGrade = new Dictionary<SeriesTier, List<Tracks.Grade>>
     {
-        {SeriesTier.Rookie,             new List<Tracks.Grade>() { {Tracks.Grade.Kart}, {Tracks.Grade.Four}, {Tracks.Grade.Temporary} } },
-        {SeriesTier.Novice,             new List<Tracks.Grade>() { {Tracks.Grade.Kart}, {Tracks.Grade.Four}, {Tracks.Grade.Temporary}, {Tracks.Grade.Three}}},
-        {SeriesTier.Amateur,            new List<Tracks.Grade>() { {Tracks.Grade.Kart}, {Tracks.Grade.Four}, {Tracks.Grade.Temporary}, {Tracks.Grade.Three}, {Tracks.Grade.Historic}}},
-        {SeriesTier.Pro,                new List<Tracks.Grade>() { {Tracks.Grade.Temporary}, {Tracks.Grade.Three}, {Tracks.Grade.Historic}, {Tracks.Grade.Two}}},
-        {SeriesTier.Elite,              new List<Tracks.Grade>() { {Tracks.Grade.Three}, {Tracks.Grade.Historic}, {Tracks.Grade.Two}}},
-        {SeriesTier.Master,             new List<Tracks.Grade>() { {Tracks.Grade.One}, {Tracks.Grade.Historic}, {Tracks.Grade.Two}}},
-        {SeriesTier.Prodigy,            new List<Tracks.Grade>() { {Tracks.Grade.One}, {Tracks.Grade.Historic}, {Tracks.Grade.Two}}},
-        {SeriesTier.Legend,             new List<Tracks.Grade>() { {Tracks.Grade.One}, {Tracks.Grade.Historic}, {Tracks.Grade.Two}}},
+        {SeriesTier.Rookie,             new List<Tracks.Grade>() { {Tracks.Grade.Four}, {Tracks.Grade.Three}, {Tracks.Grade.Historic} } },
+        {SeriesTier.Novice,             new List<Tracks.Grade>() { {Tracks.Grade.Four}, {Tracks.Grade.Three}, {Tracks.Grade.Historic} } },
+        {SeriesTier.Amateur,            new List<Tracks.Grade>() { {Tracks.Grade.Four}, {Tracks.Grade.Three}, {Tracks.Grade.Historic}, {Tracks.Grade.Temporary} } },
+        {SeriesTier.Pro,                new List<Tracks.Grade>() { {Tracks.Grade.Four}, {Tracks.Grade.Three}, {Tracks.Grade.Historic}, {Tracks.Grade.Temporary}, {Tracks.Grade.Two} } },
+        {SeriesTier.Elite,              new List<Tracks.Grade>() { {Tracks.Grade.Three}, {Tracks.Grade.Two}, {Tracks.Grade.Historic} } },
+        {SeriesTier.Master,             new List<Tracks.Grade>() { {Tracks.Grade.Three}, {Tracks.Grade.One}, {Tracks.Grade.Historic}, {Tracks.Grade.Two} } },
+        {SeriesTier.Prodigy,            new List<Tracks.Grade>() { {Tracks.Grade.One}, {Tracks.Grade.Historic}, {Tracks.Grade.Two} } },
+        {SeriesTier.Legend,             new List<Tracks.Grade>() { {Tracks.Grade.One}, {Tracks.Grade.Historic}, {Tracks.Grade.Two} } },
         {SeriesTier.WorldRenowned,      new List<Tracks.Grade>() { {Tracks.Grade.One}, {Tracks.Grade.Historic}}}
+    };
+
+    // Set base fame pay for each tier
+    public static Dictionary<SeriesTier, int> tierFameReward = new Dictionary<SeriesTier, int>
+    {
+        {SeriesTier.Rookie,             10},
+        {SeriesTier.Novice,             15},
+        {SeriesTier.Amateur,            20},
+        {SeriesTier.Pro,                30},
+        {SeriesTier.Elite,              35},
+        {SeriesTier.Master,             40},
+        {SeriesTier.Prodigy,            50},
+        {SeriesTier.Legend,             60},
+        {SeriesTier.WorldRenowned,      80},
+    };
+    // Set base money pay for each tier
+    public static Dictionary<SeriesTier, int> tierMoneyReward = new Dictionary<SeriesTier, int>
+    {
+        {SeriesTier.Rookie,             500},
+        {SeriesTier.Novice,             700},
+        {SeriesTier.Amateur,            1000},
+        {SeriesTier.Pro,                1250},
+        {SeriesTier.Elite,              1500},
+        {SeriesTier.Master,             1700},
+        {SeriesTier.Prodigy,            1850},
+        {SeriesTier.Legend,             2150},
+        {SeriesTier.WorldRenowned,      2400},
     };
 }
 
@@ -279,7 +306,7 @@ public class Event
             toReturn += "Car Brands:";
         }
         foreach(Cars.CarBrand carBrand in brandWhitelist){
-            toReturn += " " + Cars.brandToString[carBrand] + OR_SEPARATOR;
+            toReturn += " " + carBrand.ToString() + OR_SEPARATOR;
         }
         // Remove the trailing comma, add new line
         if(brandWhitelist.Count > 0){
@@ -345,12 +372,17 @@ public class Event
     public static Event GenerateNewEvent(
                 string eventName, EventType eventType, EventDuration duration, EventSeries parentEventSeriesParam, List<Tracks.Country> allowedCountries,
                 List<Cars.CarType> allowedTypes, List<Cars.CarClass> allowedClasses, List<Cars.CarBrand> allowedBrands, List<string> allowedNames,
-                int topFameReward, int topMoneyReward, bool useLaps = true, List<Track> blacklistedTracks = null
+                bool useLaps = true, List<Track> blacklistedTracks = null
                 ){
         // First pick the track depending on the tier and country
         EventSeriesManager.SeriesTier   tier            = parentEventSeriesParam.seriesTier;
         Track                           trackToUse      = null;
         List<Tracks.Grade>              allowedGrades   = EventSeriesManager.tierAllowedOnGrade[tier];
+
+        // If any kart is in the event, only kart tracks can be raced
+        if(allowedClasses.Contains(Cars.CarClass.Kart125cc) || allowedClasses.Contains(Cars.CarClass.KartGX390) || allowedClasses.Contains(Cars.CarClass.KartRental) || allowedClasses.Contains(Cars.CarClass.KartShifter) || allowedClasses.Contains(Cars.CarClass.KartSuper) || allowedBrands.Contains(Cars.CarBrand.Kart)){
+            allowedGrades = new List<Tracks.Grade> { {Tracks.Grade.Kart} };
+        }
 
         // Keep track of which grades we have tried
         List<Tracks.Grade>              triedGrades     = new List<Tracks.Grade>();
@@ -366,10 +398,31 @@ public class Event
         int                             numEntries      = GetNumEventEntries(eventType, duration);
         List<Track>                     tracksToUse     = new List<Track>();
 
+        int topFameReward                               = GenerateTopFameReward(duration, parentEventSeriesParam.seriesTier) * numEntries;
+        int topMoneyReward                              = GenerateTopMoneyReward(duration, parentEventSeriesParam.seriesTier) * numEntries;
+
+        // Holds which countries have currently been used
+        List<Tracks.Country> usedCountries              = new List<Tracks.Country>();
+
+
+        bool triedAllGrades                             = true;
+        bool triedAllCountries                          = true;
+
         // While we haven't filled out our tracksToUse
         while(tracksToUse.Count < numEntries){
-            // While we haven't tried every grade
-            while(triedGrades.Count < allowedGrades.Count){
+
+            // If we already checked for a track for every country, just reset and have duplicate countries
+            if(usedCountries.Count >= allowedCountries.Count){
+                usedCountries.Clear();
+            }
+
+            triedGrades.Clear();
+            trackToUse = null;
+            validTracks.Clear();
+            triedAllGrades = false;
+
+            // While we haven't tried every grade and we haven't honed in on a track for this iteration
+            while(triedGrades.Count < allowedGrades.Count && null == trackToUse){
                 // Start with the track grade
                 // Pick a random grade from the list of valid track grades (so long we haven't tried that grade yet)
                 while(true){
@@ -378,19 +431,45 @@ public class Event
                     if(!triedGrades.Contains(gradeToUse)){
                         break;
                     }
+                    // If we have tried every grade, break out completely
+                    if(triedGrades.Count == allowedGrades.Count){
+                        triedAllGrades = true;
+                        break;
+                    }
                 }
+
+                if(triedAllGrades){
+                    break;
+                }
+
                 triedGrades.Add(gradeToUse);
+
+                triedCountries.Clear();
+                triedAllCountries = false;
 
                 // While we haven't tried every country and we haven't found a single valid track
                 while(triedCountries.Count < allowedCountries.Count && 0 == validTracks.Count){
                     // Pick a random country from the list of allowed countries (so long we haven't tried that country yet)
                     while(true){
                         countryToUse  = allowedCountries[UnityEngine.Random.Range(0, allowedCountries.Count)];
-                        // If we haven't tried this grade, break
+                        // If we haven't tried this country, go on (break)
                         if(!triedCountries.Contains(countryToUse)){
+                            if(!usedCountries.Contains(countryToUse)){
+                                break;
+                            }
+                            triedCountries.Add(countryToUse);
+                        }
+                        // If we have tried every country, break out completely
+                        if(triedCountries.Count == allowedCountries.Count){
+                            triedAllCountries = true;
                             break;
                         }
                     }
+
+                    if(triedAllCountries){
+                        break;
+                    }
+
                     triedCountries.Add(countryToUse);
 
                     // Get the tracks for one of the allowed countries
@@ -403,21 +482,25 @@ public class Event
                                 validTracks.Remove(track);
                             }
                         }
-                        // Also don't add a duplicate
-                        foreach(Track track in tracksToUse){
-                            if(validTracks.Contains(track)){
-                                validTracks.Remove(track);
-                            }
+                    }
+                    // Don't add a duplicate (except if we have no other option)
+                    //if(validTracks.Count > tracksToUse.Count){
+                    foreach(Track track in tracksToUse){
+                        if(validTracks.Contains(track)){
+                            validTracks.Remove(track);
                         }
                     }
+                    //}
+                // tried every country
                 }
+
                 // If validTracks is still empty, means we have no valid tracks so try again
                 // If it is not empty, break out of the loop after assigning our track
                 if(validTracks.Count > 0){
                     // Pick a random track from that list
                     trackToUse                      = validTracks[UnityEngine.Random.Range(0, validTracks.Count)];
-                    break;
                 }
+            // tried every grade
             }
 
             // If trackToUse is still null at this point, it means we couldn't generate a new unique track for an event entry
@@ -428,14 +511,27 @@ public class Event
                     return null;
                 }
 
-                int maxTrackIndex = tracksToUse.Count - 1;
+                int maxTrackIndex       = tracksToUse.Count - 1;
+                List<int> usedIndices   = new List<int>();
+                int indexToUse          = -1;
                 while(tracksToUse.Count < numEntries){
-                    tracksToUse.Add(tracksToUse[UnityEngine.Random.Range(0, maxTrackIndex)]);
+                    while(usedIndices.Contains(indexToUse) || -1 == indexToUse){
+                        indexToUse = UnityEngine.Random.Range(0, maxTrackIndex + 1);
+                    }
+                    tracksToUse.Add(tracksToUse[indexToUse]);
+                    usedIndices.Add(indexToUse);
+
+                    // If we've used all the possible indices, restart the indices
+                    if(usedIndices.Count == maxTrackIndex + 1){
+                        usedIndices.Clear();
+                    }
                 }
             }
             else{
+                usedCountries.Add(trackToUse.country);
                 tracksToUse.Add(trackToUse);
             }
+        // filled up our tracksToUse
         }
 
         Event newEvent = new Event(eventName, eventType, duration, parentEventSeriesParam, allowedTypes, allowedClasses, allowedBrands, allowedNames, topFameReward, topMoneyReward);
@@ -450,12 +546,12 @@ public class Event
 
     public enum EventDuration
     {
-        Mini, // Around 5-7 minutes
-        Short, // Around 9-11 minutes
-        Average, // Around 15 minutes
-        FairlyLong, // Around 20-25 minutes
-        Long, // Around 30 minutes
-        Endurance // 1 hour +
+        Mini = 0, // Around 5-7 minutes
+        Short = 1, // Around 9-11 minutes
+        Average = 2, // Around 15 minutes
+        FairlyLong = 3, // Around 20-25 minutes
+        Long = 4, // Around 30 minutes
+        Endurance = 5 // 1 hour +
     }
 
     // Holds how long in minutes an event is supposed to take for each duration
@@ -524,6 +620,29 @@ public class Event
         }
 
         return 0;
+    }
+
+    // Generates a top fame reward given an event duration and tier
+    private static int GenerateTopFameReward(EventDuration duration, EventSeriesManager.SeriesTier seriesTier){
+        int baseReward      = EventSeriesManager.tierFameReward[seriesTier];
+        float multiplier    = 1.0f + ((float)duration/2.0f);
+
+        int rangeNum        = baseReward/3;
+
+        int realReward      = baseReward + UnityEngine.Random.Range(-1*rangeNum, rangeNum+1);
+
+        return (int)((float)realReward * multiplier);
+    }
+    // Generates a top money reward given an event duration and tier
+    private static int GenerateTopMoneyReward(EventDuration duration, EventSeriesManager.SeriesTier seriesTier){
+        int baseReward      = EventSeriesManager.tierMoneyReward[seriesTier];
+        float multiplier    = 1.0f + ((float)duration/2.0f);
+
+        int rangeNum        = baseReward/3;
+
+        int realReward      = baseReward + UnityEngine.Random.Range(-1*rangeNum, rangeNum+1);
+
+        return (int)((float)realReward * multiplier);
     }
 }
 

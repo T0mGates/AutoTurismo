@@ -3,6 +3,8 @@ using System.Linq;
 using System.Collections.Generic;
 
 using UnityEngine;
+using System.Reflection;
+using UnityEngine.UIElements;
 
 public class Profile
 {
@@ -43,88 +45,106 @@ public class Profile
 
     public void BaseUnlocks(){
         // Base unlocks (DEALERS)
-        UnlockDealer(Dealers.GetDealer(Dealers.VEE_NAME,                    typeof(CarDealer)));
-        UnlockDealer(Dealers.GetDealer(Dealers.VOLKSWAGEN_NAME,             typeof(CarDealer)));
-        UnlockDealer(Dealers.GetDealer(Dealers.COPA_CLASSIC_B_NAME,         typeof(CarDealer)));
-        UnlockDealer(Dealers.GetDealer(Dealers.VEE_NAME,                    typeof(EntryPassDealer)));
-        UnlockDealer(Dealers.GetDealer(Dealers.VOLKSWAGEN_NAME,             typeof(EntryPassDealer)));
-        UnlockDealer(Dealers.GetDealer(Dealers.COPA_CLASSIC_B_NAME,         typeof(EntryPassDealer)));
+        UnlockDealer(Dealers.GetDealer(Cars.classToString[Cars.CarClass.FormulaVee],                    typeof(CarDealer)));
+        UnlockDealer(Dealers.GetDealer(Cars.CarBrand.Volkswagen.ToString(),             typeof(CarDealer)));
+        UnlockDealer(Dealers.GetDealer(Cars.classToString[Cars.CarClass.CopaClassicB],         typeof(CarDealer)));
+        UnlockDealer(Dealers.GetDealer(Cars.classToString[Cars.CarClass.FormulaVee],                    typeof(EntryPassDealer)));
+        UnlockDealer(Dealers.GetDealer(Cars.CarBrand.Volkswagen.ToString(),             typeof(EntryPassDealer)));
+        UnlockDealer(Dealers.GetDealer(Cars.classToString[Cars.CarClass.CopaClassicB],         typeof(EntryPassDealer)));
 
         // Base unlocks (EVENTS)
-        EventSeries newSeriesCopa   = new EventSeries("Copa Classic B for Dummies"  , EventSeriesManager.SeriesTier.Rookie, Tracks.Country.Brazil);
-        EventSeries newSeriesVee    = new EventSeries("Formula Vee for Dummies"     , EventSeriesManager.SeriesTier.Novice, Tracks.Country.Brazil);
 
-        Event.GenerateNewEvent(
-            "Weekend Race - Copa Classic B",
-            Event.EventType.Race,
-            Event.EventDuration.Mini,
-            newSeriesCopa,
-            new List<Tracks.Country>() {{Tracks.Country.Brazil}},
-            new List<Cars.CarType>(),
-            new List<Cars.CarClass>() { {Cars.CarClass.CopaClassicB} },
-            new List<Cars.CarBrand>(),
-            new List<string>(),
-            1400,
-            30000,
-            useLaps:true
-        );
-        Event.GenerateNewEvent(
-            "Weekend Race - Copa Classic B",
-            Event.EventType.Race,
-            Event.EventDuration.Long,
-            newSeriesCopa,
-            new List<Tracks.Country>() {{Tracks.Country.Brazil}},
-            new List<Cars.CarType>(),
-            new List<Cars.CarClass>() { {Cars.CarClass.CopaClassicB} },
-            new List<Cars.CarBrand>(),
-            new List<string>(),
-            30,
-            1750,
-            false
-        );
-        Event.GenerateNewEvent(
-            "Sunday Cup - Copa Classic B vs Formula Vee",
-            Event.EventType.Championship,
-            Event.EventDuration.Mini,
-            newSeriesCopa,
-            new List<Tracks.Country>() {{Tracks.Country.Brazil}},
-            new List<Cars.CarType>() { },
-            new List<Cars.CarClass>() { {Cars.CarClass.CopaClassicB}, {Cars.CarClass.FormulaVeeBrasil} },
-            new List<Cars.CarBrand>() { {Cars.CarBrand.Chevrolet}, {Cars.CarBrand.Volkswagen} },
-            new List<string>(),
-            150,
-            3500,
-            false
-        );
+        foreach(Tracks.ClickableRegion region in Enum.GetValues(typeof(Tracks.ClickableRegion))){
+            EventSeries newSeriesCopa   = new EventSeries("Copa Classic B for Dummies"  , EventSeriesManager.SeriesTier.Rookie, region);
+            EventSeries newSeriesVee    = new EventSeries("Formula Vee for Dummies"     , EventSeriesManager.SeriesTier.Amateur, region);
+            EventSeries newSeriesCopaFL   = new EventSeries("Copa Classic FL for Gods" , EventSeriesManager.SeriesTier.Elite, region);
 
-        Event.GenerateNewEvent(
-            "Weekend Race - Formula Vee",
-            Event.EventType.Race,
-            Event.EventDuration.Mini,
-            newSeriesVee,
-            new List<Tracks.Country>() {{Tracks.Country.Brazil}},
-            new List<Cars.CarType>(),
-            new List<Cars.CarClass>() { {Cars.CarClass.FormulaVeeBrasil} },
-            new List<Cars.CarBrand>(),
-            new List<string>(),
-            25,
-            1500,
-            true
-        );
-        Event.GenerateNewEvent(
-            "Weekend Race - Formula Vee",
-            Event.EventType.Race,
-            Event.EventDuration.Long,
-            newSeriesVee,
-            new List<Tracks.Country>() {{Tracks.Country.Brazil}},
-            new List<Cars.CarType>(),
-            new List<Cars.CarClass>() { {Cars.CarClass.FormulaVeeBrasil} },
-            new List<Cars.CarBrand>(),
-            new List<string>(),
-            30,
-            1750,
-            false
-        );
+            Event.GenerateNewEvent(
+                "Weekend Race - Copa Classic B",
+                Event.EventType.Race,
+                Event.EventDuration.Mini,
+                newSeriesCopa,
+                Tracks.GetCountries(region),
+                new List<Cars.CarType>(),
+                new List<Cars.CarClass>() { {Cars.CarClass.CopaClassicB} },
+                new List<Cars.CarBrand>(),
+                new List<string>(),
+                useLaps:true
+            );
+            Event.GenerateNewEvent(
+                "Weekend Race - Copa Classic B",
+                Event.EventType.Race,
+                Event.EventDuration.Long,
+                newSeriesCopa,
+                Tracks.GetCountries(region),
+                new List<Cars.CarType>(),
+                new List<Cars.CarClass>() { {Cars.CarClass.CopaClassicB} },
+                new List<Cars.CarBrand>(),
+                new List<string>(),
+                false
+            );
+            Event.GenerateNewEvent(
+                "Sunday Cup - Copa Classic B vs Formula Vee",
+                Event.EventType.Championship,
+                Event.EventDuration.Mini,
+                newSeriesCopa,
+                Tracks.GetCountries(region),
+                new List<Cars.CarType>() { },
+                new List<Cars.CarClass>() { {Cars.CarClass.CopaClassicB}, {Cars.CarClass.FormulaVee} },
+                new List<Cars.CarBrand>() { {Cars.CarBrand.Chevrolet}, {Cars.CarBrand.Volkswagen} },
+                new List<string>(),
+                false
+            );
+
+            Event.GenerateNewEvent(
+                "Weekend Race - Formula Vee",
+                Event.EventType.Race,
+                Event.EventDuration.Mini,
+                newSeriesVee,
+                Tracks.GetCountries(region),
+                new List<Cars.CarType>(),
+                new List<Cars.CarClass>() { {Cars.CarClass.FormulaVee} },
+                new List<Cars.CarBrand>(),
+                new List<string>(),
+                true
+            );
+            Event.GenerateNewEvent(
+                "Weekend Race - Formula Vee",
+                Event.EventType.Race,
+                Event.EventDuration.Long,
+                newSeriesVee,
+                Tracks.GetCountries(region),
+                new List<Cars.CarType>(),
+                new List<Cars.CarClass>() { {Cars.CarClass.FormulaVee} },
+                new List<Cars.CarBrand>(),
+                new List<string>(),
+                false
+            );
+            Event.GenerateNewEvent(
+                "Endurance Championship - Formula Vee",
+                Event.EventType.Championship,
+                Event.EventDuration.Endurance,
+                newSeriesVee,
+                Tracks.GetCountries(region),
+                new List<Cars.CarType>(),
+                new List<Cars.CarClass>() { {Cars.CarClass.FormulaVee} },
+                new List<Cars.CarBrand>(),
+                new List<string>(),
+                false
+            );
+            Event.GenerateNewEvent(
+                "Sunday Cup - Copa Classic FL",
+                Event.EventType.Championship,
+                Event.EventDuration.Average,
+                newSeriesCopaFL,
+                Tracks.GetCountries(region),
+                new List<Cars.CarType>(),
+                new List<Cars.CarClass>() { {Cars.CarClass.CopaClassicFL} },
+                new List<Cars.CarBrand>(),
+                new List<string>(),
+                false
+            );
+        }
     }
 
     public List<Purchasable> GetOwnedProducts(Type productType){

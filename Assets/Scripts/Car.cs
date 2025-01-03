@@ -21,7 +21,7 @@ public class Car : Purchasable
     }
 
     public override string GetPrintName(){
-        return Cars.brandToString[brand] == "" ?  name : Cars.brandToString[brand] + " " + name;
+        return brand.ToString() == "" ?  name : brand.ToString() + " " + name;
     }
 
     public override string GetInfoBlurb()
@@ -66,14 +66,139 @@ public class Car : Purchasable
 public static class Cars
 {
     // Names are unique
-    public const string                     VEE_2011_NAME                   = "Formula Vee 2011";
-    public const string                     VEE_FIN_NAME                    = "Formula Vee Fin";
-    public const string                     COPA_B_CHEVETTE_NAME            = "Chevette CCB";
-    public const string                     COPA_B_GOL_NAME                 = "Gol CCB";
-    public const string                     COPA_B_PASSAT_NAME              = "Passat CCB";
-    public const string                     COPA_B_GTE_NAME                 = "GTE CCB";
-    public const string                     COPA_B_UNO_NAME                 = "Uno CCB";
-    public const string                     COPA_B_COOPER_NAME              = "Cooper S 1965 B";
+
+    // COPA CLASSIC B
+    public const string                     COPA_B_CHEVETTE_NAME                    = "Chevette CCB";
+    public const string                     COPA_B_GOL_NAME                         = "Gol CCB";
+    public const string                     COPA_B_PASSAT_NAME                      = "Passat CCB";
+    public const string                     COPA_B_GTE_NAME                         = "GTE CCB";
+    public const string                     COPA_B_UNO_NAME                         = "Uno CCB";
+    public const string                     COPA_B_COOPER_NAME                      = "Cooper S 1965 B";
+
+    // COPA CLASSIC FL
+    public const string                     COPA_FL_FUSCA_NAME                      = "Fusca CCFL";
+    public const string                     COPA_FL_GOL_NAME                        = "Gol CCFL";
+    public const string                     COPA_FL_PASSAT_NAME                     = "Passat CCFL";
+    public const string                     COPA_FL_GTB_NAME                        = "GTB CCFL";
+
+    // COPA TRUCK
+    public const string                     COPA_TRUCK_STRALIS_NAME                 = "Stralis";
+    public const string                     COPA_TRUCK_TGX_NAME                     = "TGX";
+    public const string                     COPA_TRUCK_ACTROS_NAME                  = "Benz Constellation";
+    public const string                     COPA_TRUCK_CONSTELLATION_NAME           = "Actros-2651";
+    public const string                     COPA_TRUCK_TRUCK                        = "Truck";
+
+    // Street: TSI
+    public const string                     TSI_POLO_NAME                           = "Polo";
+    public const string                     TSI_POLO_GTS_NAME                       = "Polo GTS";
+    public const string                     TSI_VIRTUS_NAME                         = "Virtus";
+    public const string                     TSI_VIRTUS_GTS_NAME                     = "Virtus GTS";
+
+    // Street: Camaro
+    public const string                     STREET_CAMARO_NAME                      = "Camaro SS";
+
+    // Street: Super Cars
+    public const string                     SUPER_CORVETTE_NAME                     = "Corvette C8 Z06";
+    public const string                     SUPER_F1_NAME                           = "F1 LM";
+    public const string                     SUPER_GTR_NAME                          = "GTR";
+
+    // GT5
+    public const string                     GTO_G55_NAME                            = "G55 GT3";
+    // GT5
+    public const string                     GTO_GTR_NAME                            = "GTR Race";
+
+    // GT5
+    public const string                     GT5_G40_NAME                            = "G40";
+    public const string                     GT5_P052_NAME                           = "P052";
+
+    // GT4
+    public const string                     GT4_M4_NAME                             = "M4 GT4";
+    public const string                     GT4_CAMARO_NAME                         = "Camaro GT4.R";
+    public const string                     GT4_G55_NAME                            = "G55 GT4";
+    public const string                     GT4_570S_NAME                           = "570s";
+    public const string                     GT4_AMG_NAME                            = "AMG GT4";
+    public const string                     GT4_CAYMAN_NAME                         = "Cayman GT4 CS MR";
+    public const string                     GT4_R8_NAME                             = "R8 LMS GT4";
+
+    // GT3
+    public const string                     GT3_M6_NAME                             = "M6 GT3";
+    public const string                     GT3_720S_NAME                           = "720S";
+    public const string                     GT3_AMG_NAME                            = "AMG GT3";
+    public const string                     GT3_GTR_NAME                            = "GT-R Nismo GT3";
+    public const string                     GT3_911_NAME                            = "911 GT3 R";
+    public const string                     GT3_R8_NAME                             = "R8 LMS GT3";
+
+    // Carrera (similar to GT3)
+    public const string                     CARRERA_911_38_NAME                     = "911 GT3 Cup 3.8";
+    public const string                     CARRERA_911_40_NAME                     = "911 GT3 Cup 4.0";
+
+    // GT1
+    public const string                     GT1_GTR_NAME                            = "F1 GTR Longtail";
+    public const string                     GT1_CLK_NAME                            = "Benz CLK LM";
+    public const string                     GT1_R390_NAME                           = "R390 GT1";
+    public const string                     GT1_911_NAME                            = "911 GT1";
+
+
+    // Karts
+    public const string                     KART_125CC_NAME                         = "Kart 125cc 2STROKE";
+    public const string                     KART_GX390_NAME                         = "Kart GX390 Race";
+    public const string                     KART_RENTAL_NAME                        = "Kart GX390 Rental";
+    public const string                     KART_SHIFTER_NAME                       = "Kart 125cc Shifter";
+    public const string                     KART_SUPER_NAME                         = "Superkart 125cc";
+
+    // FORMULA VEE
+    public const string                     VEE_2011_NAME                           = "Formula Vee 2011";
+    public const string                     VEE_FIN_NAME                            = "Formula Vee Fin";
+
+    // Formula Trainer
+    public const string                     F_TRAINER_NAME                          = "Trainer";
+
+    // Formula Trainer Advanced
+    public const string                     F_TRAINER_ADVANCED_NAME                 = "Trainer Advanced";
+
+    // Formula Inter
+    public const string                     F_INTER_NAME                            = "Inter MG-15";
+
+    // F3
+    public const string                     F3_F301_NAME                            = "F301";
+    public const string                     F3_F309_NAME                            = "F309";
+
+    // Formula Reiza
+    public const string                     F_REIZA_NAME                            = "Reiza";
+
+    // Formula Ultimate Gen 2
+    public const string                     F_GEN2_NAME                             = "Ultimate Gen 2";
+
+
+    // Prototypes
+
+    // Group C
+    public const string                     GROUP_C_CORVETTE_NAME                   = "Corvette GTP";
+    public const string                     GROUP_C_R89C_NAME                       = "R89C";
+    public const string                     GROUP_C_962C_NAME                       = "962C";
+    public const string                     GROUP_C_C9_NAME                         = "C9";
+
+    // P4
+    public const string                     P4_S2000_NAME                           = "S2000";
+    public const string                     P4_MRX_DURATEC_NAME                     = "MRX Duratec P4";
+
+    // P3
+    public const string                     P3_MRX_HONDA_NAME                       = "MRX Honda P3";
+    public const string                     P3_MRX_DURATEC_NAME                     = "MRX Duratec Turbo P3";
+    public const string                     P3_ROCO_NAME                            = "001";
+
+    // P2
+    public const string                     P2_MRX_DURATEC_NAME                     = "MRX Duratec Turbo F2";
+    public const string                     P2_SIGMA_NAME                           = "P1";
+
+    // P1 Gen 2
+    public const string                     P1_G58_NAME                             = "G58 Gen2";
+    public const string                     P1_JS_NAME                              = "JS P320";
+    public const string                     P1_AJR_CHEVROLET_NAME                   = "AJR Gen2 Chevrolet";
+    public const string                     P1_AJR_HONDA_NAME                       = "AJR Gen2 Honda";
+    public const string                     P1_AJR_NISSAN_NAME                      = "AJR Gen2 Nissan";
+    public const string                     P1_G5_NAME                              = "P1 G5";
+
 
     // Holds ALL cars in the database
     private static List<Car>                                cars {get; set;}
@@ -85,6 +210,141 @@ public static class Cars
     private static Dictionary<CarClass, List<Car>>          classToCars {get; set;}
     // Will match brand to list of cars who are that brand
     private static Dictionary<CarBrand, List<Car>>          brandToCars {get; set;}
+
+    private static void InitializeCars(){
+        // Init, add ALL of the game's cars here
+
+        // Karts
+        AddNewCar(new Car(KART_RENTAL_NAME,                 CarType.OpenWheeler,    new List<CarClass> {CarClass.KartRental},           CarBrand.Kart,              4000));
+        AddNewCar(new Car(KART_GX390_NAME,                  CarType.OpenWheeler,    new List<CarClass> {CarClass.KartGX390},            CarBrand.Kart,              4000));
+        AddNewCar(new Car(KART_125CC_NAME,                  CarType.OpenWheeler,    new List<CarClass> {CarClass.Kart125cc},            CarBrand.Kart,              5000));
+        AddNewCar(new Car(KART_SHIFTER_NAME,                CarType.OpenWheeler,    new List<CarClass> {CarClass.KartShifter},          CarBrand.Kart,              6000));
+        AddNewCar(new Car(KART_SUPER_NAME,                  CarType.OpenWheeler,    new List<CarClass> {CarClass.KartSuper},            CarBrand.Kart,              8000));
+
+        // FORMULA VEE
+        AddNewCar(new Car(VEE_2011_NAME,                    CarType.OpenWheeler,    new List<CarClass> {CarClass.FormulaVee},           CarBrand.Volkswagen,        6000));
+        AddNewCar(new Car(VEE_FIN_NAME,                     CarType.OpenWheeler,    new List<CarClass> {CarClass.FormulaVee},           CarBrand.Volkswagen,        7500));
+
+        // COPA CLASSIC B
+        AddNewCar(new Car(COPA_B_CHEVETTE_NAME,             CarType.Touring,        new List<CarClass> {CarClass.CopaClassicB},         CarBrand.Chevrolet,         6500));
+        AddNewCar(new Car(COPA_B_COOPER_NAME,               CarType.Touring,        new List<CarClass> {CarClass.CopaClassicB},         CarBrand.Mini,              7000));
+        AddNewCar(new Car(COPA_B_GOL_NAME,                  CarType.Touring,        new List<CarClass> {CarClass.CopaClassicB},         CarBrand.Volkswagen,        7500));
+        AddNewCar(new Car(COPA_B_GTE_NAME,                  CarType.Touring,        new List<CarClass> {CarClass.CopaClassicB},         CarBrand.Puma,              8000));
+        AddNewCar(new Car(COPA_B_PASSAT_NAME,               CarType.Touring,        new List<CarClass> {CarClass.CopaClassicB},         CarBrand.Volkswagen,        8500));
+        AddNewCar(new Car(COPA_B_UNO_NAME,                  CarType.Touring,        new List<CarClass> {CarClass.CopaClassicB},         CarBrand.Fiat,              9000));
+
+        // COPA CLASSIC FL
+        AddNewCar(new Car(COPA_FL_FUSCA_NAME,               CarType.Touring,        new List<CarClass> {CarClass.CopaClassicFL},        CarBrand.Volkswagen,        9000));
+        AddNewCar(new Car(COPA_FL_GOL_NAME,                 CarType.Touring,        new List<CarClass> {CarClass.CopaClassicFL},        CarBrand.Volkswagen,        9500));
+        AddNewCar(new Car(COPA_FL_PASSAT_NAME,              CarType.Touring,        new List<CarClass> {CarClass.CopaClassicFL},        CarBrand.Volkswagen,        10000));
+        AddNewCar(new Car(COPA_FL_GTB_NAME,                 CarType.Touring,        new List<CarClass> {CarClass.CopaClassicFL},        CarBrand.Puma,              10500));
+
+        // COPA TRUCK
+        AddNewCar(new Car(COPA_TRUCK_STRALIS_NAME,          CarType.Truck,          new List<CarClass> {CarClass.CopaTruck},            CarBrand.Iveco,             7000));
+        AddNewCar(new Car(COPA_TRUCK_TGX_NAME,              CarType.Truck,          new List<CarClass> {CarClass.CopaTruck},            CarBrand.MAN,               7500));
+        AddNewCar(new Car(COPA_TRUCK_ACTROS_NAME,           CarType.Truck,          new List<CarClass> {CarClass.CopaTruck},            CarBrand.Mercedes,          8000));
+        AddNewCar(new Car(COPA_TRUCK_CONSTELLATION_NAME,    CarType.Truck,          new List<CarClass> {CarClass.CopaTruck},            CarBrand.Volkswagen,        8500));
+        AddNewCar(new Car(COPA_TRUCK_TRUCK,                 CarType.Truck,          new List<CarClass> {CarClass.CopaTruck},            CarBrand.Vulkan,            9000));
+
+        // TSI
+        AddNewCar(new Car(TSI_POLO_NAME,                    CarType.Road,           new List<CarClass> {CarClass.TSI},                  CarBrand.Volkswagen,        7500));
+        AddNewCar(new Car(TSI_POLO_GTS_NAME,                CarType.Road,           new List<CarClass> {CarClass.TSI},                  CarBrand.Volkswagen,        8000));
+        AddNewCar(new Car(TSI_VIRTUS_NAME,                  CarType.Road,           new List<CarClass> {CarClass.TSI},                  CarBrand.Volkswagen,        8500));
+        AddNewCar(new Car(TSI_VIRTUS_GTS_NAME,              CarType.Road,           new List<CarClass> {CarClass.TSI},                  CarBrand.Volkswagen,        9000));
+
+        // Street: Camaro
+        AddNewCar(new Car(STREET_CAMARO_NAME,               CarType.Road,           new List<CarClass> {CarClass.StreetCars},           CarBrand.Chevrolet,         12000));
+
+        // Street: Super cars
+        AddNewCar(new Car(SUPER_CORVETTE_NAME,              CarType.Road,           new List<CarClass> {CarClass.SuperCars},            CarBrand.Chevrolet,         16000));
+        AddNewCar(new Car(SUPER_F1_NAME,                    CarType.Road,           new List<CarClass> {CarClass.SuperCars},            CarBrand.McLaren,           16500));
+        AddNewCar(new Car(SUPER_GTR_NAME,                   CarType.Road,           new List<CarClass> {CarClass.SuperCars},            CarBrand.Ultima,            17000));
+
+        // GT Open
+        AddNewCar(new Car(GTO_G55_NAME,                     CarType.GT,             new List<CarClass> {CarClass.GTOpen},               CarBrand.Ginetta,           16000));
+        AddNewCar(new Car(GTO_GTR_NAME,                     CarType.GT,             new List<CarClass> {CarClass.GTOpen},               CarBrand.Ultima,            20000));
+
+        // GT5
+        AddNewCar(new Car(GT5_G40_NAME,                     CarType.GT,             new List<CarClass> {CarClass.GT5},                  CarBrand.Ginetta,           8500));
+        AddNewCar(new Car(GT5_P052_NAME,                    CarType.GT,             new List<CarClass> {CarClass.GT5},                  CarBrand.Puma,              9000));
+
+        // GT4
+        AddNewCar(new Car(GT4_M4_NAME,                      CarType.GT,             new List<CarClass> {CarClass.GT4},                  CarBrand.BMW,               12000));
+        AddNewCar(new Car(GT4_CAMARO_NAME,                  CarType.GT,             new List<CarClass> {CarClass.GT4},                  CarBrand.Chevrolet,         12000));
+        AddNewCar(new Car(GT4_G55_NAME,                     CarType.GT,             new List<CarClass> {CarClass.GT4},                  CarBrand.Ginetta,           12500));
+        AddNewCar(new Car(GT4_570S_NAME,                    CarType.GT,             new List<CarClass> {CarClass.GT4},                  CarBrand.McLaren,           12500));
+        AddNewCar(new Car(GT4_AMG_NAME,                     CarType.GT,             new List<CarClass> {CarClass.GT4},                  CarBrand.Mercedes,          13000));
+        AddNewCar(new Car(GT4_CAYMAN_NAME,                  CarType.GT,             new List<CarClass> {CarClass.GT4},                  CarBrand.Porsche,           13000));
+        AddNewCar(new Car(GT4_R8_NAME,                      CarType.GT,             new List<CarClass> {CarClass.GT4},                  CarBrand.Audi,              13000));
+
+        // GT3
+        AddNewCar(new Car(GT3_M6_NAME,                      CarType.GT,             new List<CarClass> {CarClass.GT3},                  CarBrand.BMW,               16000));
+        AddNewCar(new Car(GT3_R8_NAME,                      CarType.GT,             new List<CarClass> {CarClass.GT3},                  CarBrand.Audi,              16000));
+        AddNewCar(new Car(GT3_720S_NAME,                    CarType.GT,             new List<CarClass> {CarClass.GT3},                  CarBrand.McLaren,           16500));
+        AddNewCar(new Car(GT3_AMG_NAME,                     CarType.GT,             new List<CarClass> {CarClass.GT3},                  CarBrand.Mercedes,          16500));
+        AddNewCar(new Car(GT3_GTR_NAME,                     CarType.GT,             new List<CarClass> {CarClass.GT3},                  CarBrand.Nissan,            17000));
+        AddNewCar(new Car(GT3_911_NAME,                     CarType.GT,             new List<CarClass> {CarClass.GT3},                  CarBrand.Porsche,           17000));
+
+        // CARRERA
+        AddNewCar(new Car(CARRERA_911_38_NAME,              CarType.Sportscar,      new List<CarClass> {CarClass.Carrera},              CarBrand.Porsche,           16000));
+        AddNewCar(new Car(CARRERA_911_40_NAME,              CarType.Sportscar,      new List<CarClass> {CarClass.Carrera},              CarBrand.Porsche,           18000));
+
+        // GT1
+        AddNewCar(new Car(GT1_GTR_NAME,                     CarType.GT,             new List<CarClass> {CarClass.GT1},                  CarBrand.McLaren,           22500));
+        AddNewCar(new Car(GT1_CLK_NAME,                     CarType.GT,             new List<CarClass> {CarClass.GT1},                  CarBrand.Mercedes,          23000));
+        AddNewCar(new Car(GT1_R390_NAME,                    CarType.GT,             new List<CarClass> {CarClass.GT1},                  CarBrand.Nissan,            23500));
+        AddNewCar(new Car(GT1_911_NAME,                     CarType.GT,             new List<CarClass> {CarClass.GT1},                  CarBrand.Porsche,           24000));
+
+
+        // Formula Trainer
+        AddNewCar(new Car(F_TRAINER_NAME,                   CarType.OpenWheeler,    new List<CarClass> {CarClass.FormulaTrainer},       CarBrand.Formula,           8000));
+
+        // Formula Trainer Advanced
+        AddNewCar(new Car(F_TRAINER_ADVANCED_NAME,          CarType.OpenWheeler,    new List<CarClass> {CarClass.FormulaTrainerA},      CarBrand.Formula,           9500));
+
+        // Formula Inter
+        AddNewCar(new Car(F_INTER_NAME,                     CarType.OpenWheeler,    new List<CarClass> {CarClass.FormulaInter},         CarBrand.Formula,           11500));
+
+        // F3
+        AddNewCar(new Car(F3_F301_NAME,                     CarType.OpenWheeler,    new List<CarClass> {CarClass.F3},                   CarBrand.Dallara,           13500));
+        AddNewCar(new Car(F3_F309_NAME,                     CarType.OpenWheeler,    new List<CarClass> {CarClass.F3},                   CarBrand.Dallara,           14000));
+
+        // Formula Reiza
+        AddNewCar(new Car(F_REIZA_NAME,                     CarType.OpenWheeler,    new List<CarClass> {CarClass.FormulaReiza},         CarBrand.Formula,           17000));
+
+        // Formula Ultimate Gen 2
+        AddNewCar(new Car(F_GEN2_NAME,                      CarType.OpenWheeler,    new List<CarClass> {CarClass.FormulaUltimateGen2},  CarBrand.Formula,           23000));
+
+
+        // Prototype
+
+        // Group C
+        AddNewCar(new Car(GROUP_C_CORVETTE_NAME,            CarType.Prototype,      new List<CarClass> {CarClass.GroupC},               CarBrand.Chevrolet,         18000));
+        AddNewCar(new Car(GROUP_C_R89C_NAME,                CarType.Prototype,      new List<CarClass> {CarClass.GroupC},               CarBrand.Nissan,            18000));
+        AddNewCar(new Car(GROUP_C_962C_NAME,                CarType.Prototype,      new List<CarClass> {CarClass.GroupC},               CarBrand.Porsche,           18500));
+        AddNewCar(new Car(GROUP_C_C9_NAME,                  CarType.Prototype,      new List<CarClass> {CarClass.GroupC},               CarBrand.Mercedes,          18500));
+
+        // P4
+        AddNewCar(new Car(P4_S2000_NAME,                    CarType.Prototype,      new List<CarClass> {CarClass.P4},                   CarBrand.MCR,               20500));
+        AddNewCar(new Car(P4_MRX_DURATEC_NAME,              CarType.Prototype,      new List<CarClass> {CarClass.P4},                   CarBrand.MetalMoro,         20500));
+
+        // P3
+        AddNewCar(new Car(P3_MRX_HONDA_NAME,                CarType.Prototype,      new List<CarClass> {CarClass.P3},                   CarBrand.MetalMoro,         23000));
+        AddNewCar(new Car(P3_MRX_DURATEC_NAME,              CarType.Prototype,      new List<CarClass> {CarClass.P3},                   CarBrand.MetalMoro,         23000));
+        AddNewCar(new Car(P3_ROCO_NAME,                     CarType.Prototype,      new List<CarClass> {CarClass.P3},                   CarBrand.Roco,              23500));
+
+        // P2
+        AddNewCar(new Car(P2_MRX_DURATEC_NAME,              CarType.Prototype,      new List<CarClass> {CarClass.P2},                   CarBrand.MetalMoro,         26000));
+        AddNewCar(new Car(P2_SIGMA_NAME,                    CarType.Prototype,      new List<CarClass> {CarClass.P2},                   CarBrand.Sigma,             26500));
+
+        // P1 Gen 2
+        AddNewCar(new Car(P1_G58_NAME,                      CarType.Prototype,      new List<CarClass> {CarClass.P1Gen2},               CarBrand.Ginetta,           30000));
+        AddNewCar(new Car(P1_JS_NAME,                       CarType.Prototype,      new List<CarClass> {CarClass.P1Gen2},               CarBrand.Ligier,            30000));
+        AddNewCar(new Car(P1_AJR_CHEVROLET_NAME,            CarType.Prototype,      new List<CarClass> {CarClass.P1Gen2},               CarBrand.MetalMoro,         31000));
+        AddNewCar(new Car(P1_AJR_HONDA_NAME,                CarType.Prototype,      new List<CarClass> {CarClass.P1Gen2},               CarBrand.MetalMoro,         31000));
+        AddNewCar(new Car(P1_AJR_NISSAN_NAME,               CarType.Prototype,      new List<CarClass> {CarClass.P1Gen2},               CarBrand.MetalMoro,         31000));
+        AddNewCar(new Car(P1_G5_NAME,                       CarType.Prototype,      new List<CarClass> {CarClass.P1Gen2},               CarBrand.Sigma,             32000));
+    }
 
     static Cars(){
         cars         = new List<Car>();
@@ -200,10 +460,11 @@ public static class Cars
         OpenWheeler,
         Touring,
         Sportscar,
-        GranTurismo,
+        GT,
         Prototype,
         Club,
         Truck,
+        Road,
         None
     }
 
@@ -213,57 +474,118 @@ public static class Cars
         {CarType.OpenWheeler,               "Open Wheeler"},
         {CarType.Touring,                   "Touring"},
         {CarType.Sportscar,                 "Sportscar"},
-        {CarType.GranTurismo,               "Gran Turismo"},
+        {CarType.GT,                        "GT"},
         {CarType.Prototype,                 "Prototype"},
         {CarType.Club,                      "Club"},
-        {CarType.Truck,                     "Truck"}
+        {CarType.Truck,                     "Truck"},
+        {CarType.Road,                      "Road"}
     };
 
     public enum CarClass
     {
         None,
-        FormulaVeeBrasil,
-        CopaClassicB
+        Kart125cc,
+        KartGX390,
+        KartRental,
+        KartShifter,
+        KartSuper,
+        FormulaVee,
+        CopaClassicB,
+        CopaClassicFL,
+        CopaTruck,
+        TSI,
+        StreetCars,
+        SuperCars,
+        GTOpen,
+        GT5,
+        GT4,
+        GT3,
+        GT1,
+        Carrera,
+        FormulaTrainer,
+        FormulaTrainerA,
+        FormulaInter,
+        F3,
+        FormulaReiza,
+        FormulaUltimateGen2,
+        GroupC,
+        P4,
+        P3,
+        P2,
+        P1Gen2
     }
 
     public static Dictionary<CarClass, string> classToString = new Dictionary<CarClass, string>
     {
-        {CarClass.None,             ""},
-        {CarClass.FormulaVeeBrasil, "Formula Vee - Brasil"},
-        {CarClass.CopaClassicB,     "Copa Classic - B"}
+        {CarClass.None,                 ""},
+        {CarClass.Kart125cc,            "Kart 125cc"},
+        {CarClass.KartGX390,            "Kart GX 390"},
+        {CarClass.KartRental,           "Kart Rental"},
+        {CarClass.KartShifter,          "Kart Shifter"},
+        {CarClass.KartSuper,            "Super Kart"},
+        {CarClass.FormulaVee,           "Formula Vee"},
+        {CarClass.CopaClassicB,         "Copa Classic - B"},
+        {CarClass.CopaClassicFL,        "Copa Classic - FL"},
+        {CarClass.CopaTruck,            "Copa Truck"},
+        {CarClass.TSI,                  "TSI"},
+        {CarClass.StreetCars,           "Street Cars"},
+        {CarClass.SuperCars,            "Super Cars"},
+        {CarClass.GTOpen,               "GT Open"},
+        {CarClass.GT5,                  "GT5"},
+        {CarClass.GT4,                  "GT4"},
+        {CarClass.GT3,                  "GT3"},
+        {CarClass.GT1,                  "GT1"},
+        {CarClass.Carrera,              "Carrera"},
+        {CarClass.FormulaTrainer,       "Formula Trainer"},
+        {CarClass.FormulaTrainerA,      "Formula Trainer Advanced"},
+        {CarClass.FormulaInter,         "Formula Inter"},
+        {CarClass.F3,                   "F3"},
+        {CarClass.FormulaReiza,         "Formula Reiza"},
+        {CarClass.FormulaUltimateGen2,  "Formula Ultimate Gen 2"},
+        {CarClass.GroupC,               "Group C"},
+        {CarClass.P4,                   "P4"},
+        {CarClass.P3,                   "P3"},
+        {CarClass.P2,                   "P2"},
+        {CarClass.P1Gen2,               "P1 Generation 2"}
     };
 
     public enum CarBrand
     {
         None,
+        Kart,
         Ford,
         Volkswagen,
         Puma,
         Fiat,
         Mini,
-        Chevrolet
+        Chevrolet,
+        Iveco,
+        MAN,
+        Mercedes,
+        Vulkan,
+        Ginetta,
+        Porsche,
+        BMW,
+        McLaren,
+        Nissan,
+        Dallara,
+        Audi,
+        Ultima,
+        Formula,
+        MCR,
+        MetalMoro,
+        Roco,
+        Sigma,
+        Ligier
     }
 
-    public static Dictionary<CarBrand, string> brandToString = new Dictionary<CarBrand, string>
+    public static Dictionary<CarClass, List<EventSeriesManager.SeriesTier>> classToSeries = new Dictionary<CarClass, List<EventSeriesManager.SeriesTier>>
     {
-        {CarBrand.None,             ""},
-        {CarBrand.Chevrolet,        "Chevrolet"},
-        {CarBrand.Fiat,             "Fiat"},
-        {CarBrand.Ford,             "Ford"},
-        {CarBrand.Mini,             "Mini"},
-        {CarBrand.Puma,             "Puma"},
-        {CarBrand.Volkswagen,       "Volkswagen"},
+        {CarClass.CopaClassicB,         new List<EventSeriesManager.SeriesTier> {
+            {EventSeriesManager.SeriesTier.Rookie}
+        }},
+        {CarClass.FormulaVee,           new List<EventSeriesManager.SeriesTier> {
+            {EventSeriesManager.SeriesTier.Rookie}
+        }},
     };
-
-    private static void InitializeCars(){
-        // Init, add ALL of the game's cars here
-        AddNewCar(new Car(VEE_2011_NAME,            CarType.OpenWheeler,    new List<CarClass> {CarClass.FormulaVeeBrasil},     CarBrand.Volkswagen,        6000));
-        AddNewCar(new Car(VEE_FIN_NAME,             CarType.OpenWheeler,    new List<CarClass> {CarClass.FormulaVeeBrasil},     CarBrand.Volkswagen,        7500));
-        AddNewCar(new Car(COPA_B_CHEVETTE_NAME,     CarType.Touring,        new List<CarClass> {CarClass.CopaClassicB},         CarBrand.Chevrolet,         6500));
-        AddNewCar(new Car(COPA_B_COOPER_NAME,       CarType.Touring,        new List<CarClass> {CarClass.CopaClassicB},         CarBrand.Mini,              7000));
-        AddNewCar(new Car(COPA_B_GOL_NAME,          CarType.Touring,        new List<CarClass> {CarClass.CopaClassicB},         CarBrand.Volkswagen,        7500));
-        AddNewCar(new Car(COPA_B_GTE_NAME,          CarType.Touring,        new List<CarClass> {CarClass.CopaClassicB},         CarBrand.Puma,              8000));
-        AddNewCar(new Car(COPA_B_PASSAT_NAME,       CarType.Touring,        new List<CarClass> {CarClass.CopaClassicB},         CarBrand.Volkswagen,        8500));
-        AddNewCar(new Car(COPA_B_UNO_NAME,          CarType.Touring,        new List<CarClass> {CarClass.CopaClassicB},         CarBrand.Fiat,              9000));
-    }
 }
