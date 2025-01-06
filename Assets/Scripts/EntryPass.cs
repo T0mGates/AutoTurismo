@@ -39,7 +39,7 @@ public class EntryPass : Purchasable
         //string imageName = name.Replace(" ", "") + "_EntryPass";
         string imageName = Cars.typeToString[carType] + Cars.classToString[carClass] + carBrand.ToString() + "_EntryPass";
         Debug.Log("Looking for image: " + imageName);
-        return Resources.Load<Sprite>("Images/" + imageName);
+        return Resources.Load<Sprite>("Images/EntryPasses/" + imageName);
     }
 
     public override string GetPrintName(){

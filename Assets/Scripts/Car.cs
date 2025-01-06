@@ -17,7 +17,7 @@ public class Car : Purchasable
 
     public override Sprite GetSprite(){
         string imageName = name.Replace(" ", "") + "_Car";
-        return Resources.Load<Sprite>("Images/" + imageName);
+        return Resources.Load<Sprite>("Images/Cars/" + imageName);
     }
 
     public override string GetPrintName(){
@@ -67,6 +67,8 @@ public static class Cars
 {
     // Names are unique
 
+    public const string                     COPA_UNO                                = "Uno";
+
     // COPA CLASSIC B
     public const string                     COPA_B_CHEVETTE_NAME                    = "Chevette CCB";
     public const string                     COPA_B_GOL_NAME                         = "Gol CCB";
@@ -84,8 +86,8 @@ public static class Cars
     // COPA TRUCK
     public const string                     COPA_TRUCK_STRALIS_NAME                 = "Stralis";
     public const string                     COPA_TRUCK_TGX_NAME                     = "TGX";
-    public const string                     COPA_TRUCK_ACTROS_NAME                  = "Benz Constellation";
-    public const string                     COPA_TRUCK_CONSTELLATION_NAME           = "Actros-2651";
+    public const string                     COPA_TRUCK_CONSTELLATION_NAME           = "Constellation";
+    public const string                     COPA_TRUCK_ACTROS_NAME                  = "Benz Actros-2651";
     public const string                     COPA_TRUCK_TRUCK                        = "Truck";
 
     // Street: TSI
@@ -94,13 +96,25 @@ public static class Cars
     public const string                     TSI_VIRTUS_NAME                         = "Virtus";
     public const string                     TSI_VIRTUS_GTS_NAME                     = "Virtus GTS";
 
-    // Street: Camaro
+    // Street
     public const string                     STREET_CAMARO_NAME                      = "Camaro SS";
+
+    public const string                     STREET_LANCER_R_NAME                    = "Lancer R";
+    public const string                     STREET_LANCER_RS_NAME                   = "Lancer RS";
 
     // Street: Super Cars
     public const string                     SUPER_CORVETTE_NAME                     = "Corvette C8 Z06";
     public const string                     SUPER_F1_NAME                           = "F1 LM";
     public const string                     SUPER_GTR_NAME                          = "GTR";
+
+    // Street: Hyper Cars
+    public const string                     HYPER_BT62_NAME                         = "BT62";
+    public const string                     HYPER_SENNA_NAME                        = "Senna";
+
+    // GTE
+    public const string                     GTE_C8R_NAME                            = "Corvette C8.R";
+    public const string                     GTE_911_NAME                            = "911 RSR-19";
+    public const string                     GTE_M8_NAME                             = "M8 GTE";
 
     // GT5
     public const string                     GTO_G55_NAME                            = "G55 GT3";
@@ -115,7 +129,7 @@ public static class Cars
     public const string                     GT4_M4_NAME                             = "M4 GT4";
     public const string                     GT4_CAMARO_NAME                         = "Camaro GT4.R";
     public const string                     GT4_G55_NAME                            = "G55 GT4";
-    public const string                     GT4_570S_NAME                           = "570s";
+    public const string                     GT4_570S_NAME                           = "570S";
     public const string                     GT4_AMG_NAME                            = "AMG GT4";
     public const string                     GT4_CAYMAN_NAME                         = "Cayman GT4 CS MR";
     public const string                     GT4_R8_NAME                             = "R8 LMS GT4";
@@ -127,6 +141,12 @@ public static class Cars
     public const string                     GT3_GTR_NAME                            = "GT-R Nismo GT3";
     public const string                     GT3_911_NAME                            = "911 GT3 R";
     public const string                     GT3_R8_NAME                             = "R8 LMS GT3";
+
+    // TODO: havent added these in yet
+    public const string                     GT3_992_NAME                            = "992 GT3 R";
+    public const string                     GT3_AMG_EVO_NAME                        = "AMG GT3 Evo";
+    public const string                     GT3_720S_EVO_NAME                       = "720S EVO";
+    public const string                     GT3_M4_NAME                             = "M4";
 
     // Carrera (similar to GT3)
     public const string                     CARRERA_911_38_NAME                     = "911 GT3 Cup 3.8";
@@ -225,13 +245,15 @@ public static class Cars
         AddNewCar(new Car(VEE_2011_NAME,                    CarType.OpenWheeler,    new List<CarClass> {CarClass.FormulaVee},           CarBrand.Volkswagen,        6000));
         AddNewCar(new Car(VEE_FIN_NAME,                     CarType.OpenWheeler,    new List<CarClass> {CarClass.FormulaVee},           CarBrand.Volkswagen,        7500));
 
+        AddNewCar(new Car(COPA_UNO,                         CarType.Touring,        new List<CarClass> {CarClass.CopaUno},              CarBrand.Fiat,              7000));
+
         // COPA CLASSIC B
         AddNewCar(new Car(COPA_B_CHEVETTE_NAME,             CarType.Touring,        new List<CarClass> {CarClass.CopaClassicB},         CarBrand.Chevrolet,         6500));
         AddNewCar(new Car(COPA_B_COOPER_NAME,               CarType.Touring,        new List<CarClass> {CarClass.CopaClassicB},         CarBrand.Mini,              7000));
         AddNewCar(new Car(COPA_B_GOL_NAME,                  CarType.Touring,        new List<CarClass> {CarClass.CopaClassicB},         CarBrand.Volkswagen,        7500));
         AddNewCar(new Car(COPA_B_GTE_NAME,                  CarType.Touring,        new List<CarClass> {CarClass.CopaClassicB},         CarBrand.Puma,              8000));
         AddNewCar(new Car(COPA_B_PASSAT_NAME,               CarType.Touring,        new List<CarClass> {CarClass.CopaClassicB},         CarBrand.Volkswagen,        8500));
-        AddNewCar(new Car(COPA_B_UNO_NAME,                  CarType.Touring,        new List<CarClass> {CarClass.CopaClassicB},         CarBrand.Fiat,              9000));
+        AddNewCar(new Car(COPA_B_UNO_NAME,                  CarType.Touring,        new List<CarClass> {CarClass.CopaClassicB},         CarBrand.Fiat,              7000));
 
         // COPA CLASSIC FL
         AddNewCar(new Car(COPA_FL_FUSCA_NAME,               CarType.Touring,        new List<CarClass> {CarClass.CopaClassicFL},        CarBrand.Volkswagen,        9000));
@@ -252,17 +274,28 @@ public static class Cars
         AddNewCar(new Car(TSI_VIRTUS_NAME,                  CarType.Road,           new List<CarClass> {CarClass.TSI},                  CarBrand.Volkswagen,        8500));
         AddNewCar(new Car(TSI_VIRTUS_GTS_NAME,              CarType.Road,           new List<CarClass> {CarClass.TSI},                  CarBrand.Volkswagen,        9000));
 
-        // Street: Camaro
-        AddNewCar(new Car(STREET_CAMARO_NAME,               CarType.Road,           new List<CarClass> {CarClass.StreetCars},           CarBrand.Chevrolet,         12000));
+        // Street
+        AddNewCar(new Car(STREET_CAMARO_NAME,               CarType.Road,           new List<CarClass> {CarClass.Camaro},               CarBrand.Chevrolet,         12000));
+        AddNewCar(new Car(STREET_LANCER_R_NAME,             CarType.Road,           new List<CarClass> {CarClass.Lancer},               CarBrand.Mitsubishi,        13000));
+        AddNewCar(new Car(STREET_LANCER_RS_NAME,            CarType.Road,           new List<CarClass> {CarClass.Lancer},               CarBrand.Mitsubishi,        14000));
 
         // Street: Super cars
         AddNewCar(new Car(SUPER_CORVETTE_NAME,              CarType.Road,           new List<CarClass> {CarClass.SuperCars},            CarBrand.Chevrolet,         16000));
         AddNewCar(new Car(SUPER_F1_NAME,                    CarType.Road,           new List<CarClass> {CarClass.SuperCars},            CarBrand.McLaren,           16500));
         AddNewCar(new Car(SUPER_GTR_NAME,                   CarType.Road,           new List<CarClass> {CarClass.SuperCars},            CarBrand.Ultima,            17000));
 
+        // Street: Hyper cars
+        AddNewCar(new Car(HYPER_BT62_NAME,                  CarType.Road,           new List<CarClass> {CarClass.HyperCars},            CarBrand.Brabham,           50000));
+        AddNewCar(new Car(HYPER_SENNA_NAME,                 CarType.Road,           new List<CarClass> {CarClass.HyperCars},            CarBrand.McLaren,           55000));
+
         // GT Open
         AddNewCar(new Car(GTO_G55_NAME,                     CarType.GT,             new List<CarClass> {CarClass.GTOpen},               CarBrand.Ginetta,           16000));
         AddNewCar(new Car(GTO_GTR_NAME,                     CarType.GT,             new List<CarClass> {CarClass.GTOpen},               CarBrand.Ultima,            20000));
+
+        // GTE
+        AddNewCar(new Car(GTE_C8R_NAME,                     CarType.GT,             new List<CarClass> {CarClass.GTE},                  CarBrand.Chevrolet,         15000));
+        AddNewCar(new Car(GTE_911_NAME,                     CarType.GT,             new List<CarClass> {CarClass.GTE},                  CarBrand.Porsche,           15000));
+        AddNewCar(new Car(GTE_M8_NAME,                      CarType.GT,             new List<CarClass> {CarClass.GTE},                  CarBrand.BMW,               15000));
 
         // GT5
         AddNewCar(new Car(GT5_G40_NAME,                     CarType.GT,             new List<CarClass> {CarClass.GT5},                  CarBrand.Ginetta,           8500));
@@ -490,18 +523,23 @@ public static class Cars
         KartShifter,
         KartSuper,
         FormulaVee,
+        CopaUno,
         CopaClassicB,
         CopaClassicFL,
         CopaTruck,
         TSI,
         StreetCars,
         SuperCars,
+        HyperCars,
         GTOpen,
+        GTE,
         GT5,
         GT4,
         GT3,
         GT1,
         Carrera,
+        Lancer,
+        Camaro,
         FormulaTrainer,
         FormulaTrainerA,
         FormulaInter,
@@ -524,18 +562,23 @@ public static class Cars
         {CarClass.KartShifter,          "Kart Shifter"},
         {CarClass.KartSuper,            "Super Kart"},
         {CarClass.FormulaVee,           "Formula Vee"},
+        {CarClass.CopaUno,              "Copa Uno"},
         {CarClass.CopaClassicB,         "Copa Classic - B"},
         {CarClass.CopaClassicFL,        "Copa Classic - FL"},
         {CarClass.CopaTruck,            "Copa Truck"},
         {CarClass.TSI,                  "TSI"},
         {CarClass.StreetCars,           "Street Cars"},
         {CarClass.SuperCars,            "Super Cars"},
+        {CarClass.HyperCars,            "Hyper Cars"},
+        {CarClass.GTE,                  "GT Endurance"},
         {CarClass.GTOpen,               "GT Open"},
         {CarClass.GT5,                  "GT5"},
         {CarClass.GT4,                  "GT4"},
         {CarClass.GT3,                  "GT3"},
         {CarClass.GT1,                  "GT1"},
         {CarClass.Carrera,              "Carrera"},
+        {CarClass.Lancer,               "Lancer"},
+        {CarClass.Camaro,               "Camaro"},
         {CarClass.FormulaTrainer,       "Formula Trainer"},
         {CarClass.FormulaTrainerA,      "Formula Trainer Advanced"},
         {CarClass.FormulaInter,         "Formula Inter"},
@@ -576,7 +619,9 @@ public static class Cars
         MetalMoro,
         Roco,
         Sigma,
-        Ligier
+        Ligier,
+        Mitsubishi,
+        Brabham
     }
 
     public static Dictionary<CarClass, List<EventSeriesManager.SeriesTier>> classToSeries = new Dictionary<CarClass, List<EventSeriesManager.SeriesTier>>
