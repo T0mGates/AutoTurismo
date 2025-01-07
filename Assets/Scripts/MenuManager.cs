@@ -5,8 +5,6 @@ using UnityEngine.UI;
 using System;
 using System.Linq;
 using System.Collections;
-using System.Drawing.Text;
-using UnityEngine.AI;
 
 
 public class MenuManager : MonoBehaviour
@@ -23,6 +21,7 @@ public class MenuManager : MonoBehaviour
     public GameObject   shopMenu;
     public GameObject   inventoryMenu;
     public GameObject   racingMenu;
+    public GameObject   regionTiersMenu;
     public GameObject   regionSeriesMenu;
     public GameObject   seriesMenu;
     public GameObject   eventEntryMenu;
@@ -54,6 +53,8 @@ public class MenuManager : MonoBehaviour
     private Color transparentBlue           = new Color(0.75f, 0.75f, 1.0f, 0.85f);
 
     [Header("Region")]
+    public GameObject   regionTiersPrefab;
+    public Transform    regionTiersContentTransform;
     public GameObject   regionSeriesPrefab;
     public Transform    regionSeriesContentTransform;
 
@@ -91,6 +92,7 @@ public class MenuManager : MonoBehaviour
         shopMenu.SetActive(false);
         inventoryMenu.SetActive(false);
         racingMenu.SetActive(false);
+        regionTiersMenu.SetActive(false);
         regionSeriesMenu.SetActive(false);
         seriesMenu.SetActive(false);
         eventEntryMenu.SetActive(false);
@@ -109,6 +111,10 @@ public class MenuManager : MonoBehaviour
             Destroy(child.gameObject);
         }
         foreach(Transform child in garageContentTransform)
+        {
+            Destroy(child.gameObject);
+        }
+        foreach(Transform child in regionTiersContentTransform)
         {
             Destroy(child.gameObject);
         }
@@ -238,16 +244,23 @@ public class MenuManager : MonoBehaviour
         racingMenu.SetActive(true);
     }
 
-    public void RegionSeries(string clickableRegionName){
-        foreach(Tracks.ClickableRegion region in Enum.GetValues(typeof(Tracks.ClickableRegion))){
+    public void RegionSelect(string clickableRegionName){
+        foreach(Region.ClickableRegion region in Enum.GetValues(typeof(Region.ClickableRegion))){
             // Look if the string representation of the enum is the given region name
             if(region.ToString() == clickableRegionName.Replace(" ", "")){
                 TurnAllOff();
                 navigationMenu.SetActive(true);
-                regionSeriesMenu.SetActive(true);
-                PopulateRegionSeries(region);
+                regionTiersMenu.SetActive(true);
+                PopulateRegionTiers(region);
             }
         }
+    }
+
+    public void RegionSeries(Region.ClickableRegion region, EventSeries.SeriesTier tier){
+        TurnAllOff();
+        navigationMenu.SetActive(true);
+        regionSeriesMenu.SetActive(true);
+        PopulateRegionSeries(region, tier);
     }
 
     // Series screen, show all event series for a country's series
@@ -302,7 +315,7 @@ public class MenuManager : MonoBehaviour
 
         eventEntryCompleteMenu.transform.Find(REWARD_IMG_NAME).GetComponent<Image>().sprite             = eventEntry.playerCar.GetSprite();
 
-        List<dynamic[]> queuedRewards                                                                    = new List<dynamic[]>();
+        List<dynamic[]> queuedRewards                                                                   = new List<dynamic[]>();
         // If the whole event is finished, queue up the event rewards after the event entry rewards
         if(eventEntry.parentEvent.GetCompletedStatus()){
             dynamic[] eventParams = { "Event Rewards", eventEntry.parentEvent.GetRewardInfo(), eventEntry.parentEvent.GetFameReward(), eventEntry.parentEvent.GetMoneyReward() };
@@ -462,10 +475,12 @@ public class MenuManager : MonoBehaviour
         PurchaseConfirmation
     }
 
-    public void Notification(string title, string bodyText, Sprite rewardSprite = null, NotificationType notificationType = NotificationType.Normal){
+    public void Notification(string title, string bodyText, Sprite rewardSprite = null, Sprite rewardBGSprite = null, NotificationType notificationType = NotificationType.Normal){
         const string TITLE_TEXT_NAME        = "TitleTxt";
         const string BODY_TEXT_NAME         = "NotificationTxt";
         const string REWARD_IMG_NAME        = "RewardImg";
+        const string REWARD_IMG_BG_NAME     = "RewardImgBG";
+        const string REWARD_INNER_NAME      = "RewardImgInner";
 
         const string NORMAL_NOTI_NAME       = "NormalNotification";
         const string CONFIRMATION_NAME      = "PurchaseConfirmation";
@@ -486,6 +501,15 @@ public class MenuManager : MonoBehaviour
         else{
             notificationMenu.transform.Find(REWARD_IMG_NAME).gameObject.SetActive(false);
         }
+
+        bool useBGImg                                                                           = null != rewardBGSprite;
+        if(useBGImg){
+            notificationMenu.transform.Find(REWARD_IMG_BG_NAME).GetComponent<Image>().sprite    = rewardBGSprite;
+            notificationMenu.transform.Find(REWARD_INNER_NAME).GetComponent<Image>().sprite     = rewardSprite;
+        }
+        notificationMenu.transform.Find(REWARD_INNER_NAME).gameObject.SetActive(useBGImg);
+        notificationMenu.transform.Find(REWARD_IMG_BG_NAME).gameObject.SetActive(useBGImg);
+        notificationMenu.transform.Find(REWARD_IMG_NAME).gameObject.SetActive(!useBGImg);
 
         notificationMenu.transform.Find(NORMAL_NOTI_NAME).gameObject.SetActive(notificationType == NotificationType.Normal);
         notificationMenu.transform.Find(CONFIRMATION_NAME).gameObject.SetActive(notificationType == NotificationType.PurchaseConfirmation);
@@ -525,6 +549,8 @@ public class MenuManager : MonoBehaviour
 
     private void PopulateDealer(Dealer dealer){
         const string PRODUCT_IMAGE_NAME = "ProductImg";
+        const string PRODUCT_INNER_NAME = "ProductImgInner";
+        const string PRODUCT_BG_NAME    = "ProductImgBG";
         const string NAME_TEXT_NAME     = "ProductNameTxt";
         const string CLASSES_TEXT_NAME  = "ProductClassesTxt";
         const string TYPE_TEXT_NAME     = "ProductTypeTxt";
@@ -559,6 +585,16 @@ public class MenuManager : MonoBehaviour
 
             // Change the image
             newObj.transform.Find(PRODUCT_IMAGE_NAME).GetComponent<Image>().sprite              = product.GetSprite();
+
+            Sprite bgSprite                                                                     = product.GetBGSprite();
+            bool useBGImg                                                                       = null != bgSprite;
+            if(useBGImg){
+                newObj.transform.Find(PRODUCT_BG_NAME).GetComponent<Image>().sprite             = bgSprite;
+                newObj.transform.Find(PRODUCT_INNER_NAME).GetComponent<Image>().sprite          = product.GetSprite();
+            }
+            newObj.transform.Find(PRODUCT_INNER_NAME).gameObject.SetActive(useBGImg);
+            newObj.transform.Find(PRODUCT_BG_NAME).gameObject.SetActive(useBGImg);
+            newObj.transform.Find(PRODUCT_IMAGE_NAME).gameObject.SetActive(!useBGImg);
 
             // Change the product name
             newObj.transform.Find(NAME_TEXT_NAME).GetComponent<TextMeshProUGUI>().text          = product.GetPrintName();
@@ -611,17 +647,19 @@ public class MenuManager : MonoBehaviour
     }
 
     private void PopulateGarage(Type productType){
-        const string        PRODUCT_IMAGE_NAME = "ProductImg";
-        const string        NAME_TEXT_NAME     = "ProductNameTxt";
-        const string        CLASSES_TEXT_NAME  = "ProductClassesTxt";
-        const string        TYPE_TEXT_NAME     = "ProductTypeTxt";
-        const string        SELL_BTN_NAME      = "PriceSell/SellBtn";
-        const string        PRICE_TEXT_NAME    = "PriceSell/PriceTxt";
+        const string        PRODUCT_IMAGE_NAME  = "ProductImg";
+        const string        PRODUCT_BG_NAME     = "ProductImgBG";
+        const string        PRODUCT_INNER_NAME  = "ProductImgInner";
+        const string        NAME_TEXT_NAME      = "ProductNameTxt";
+        const string        CLASSES_TEXT_NAME   = "ProductClassesTxt";
+        const string        TYPE_TEXT_NAME      = "ProductTypeTxt";
+        const string        SELL_BTN_NAME       = "PriceSell/SellBtn";
+        const string        PRICE_TEXT_NAME     = "PriceSell/PriceTxt";
 
-        const string        TITLE_TEXT_NAME    = "TitleTxt";
+        const string        TITLE_TEXT_NAME     = "TitleTxt";
 
         GameObject          newObj;
-        List<Purchasable>   products           = gameManager.curProfile.GetOwnedProducts(productType);
+        List<Purchasable>   products            = gameManager.curProfile.GetOwnedProducts(productType);
 
         // Change the title depending on what the product type is
         if(typeof(EntryPass).IsAssignableFrom(productType)){
@@ -646,6 +684,16 @@ public class MenuManager : MonoBehaviour
 
             // Change the car name
             newObj.transform.Find(NAME_TEXT_NAME).GetComponent<TextMeshProUGUI>().text          = product.GetPrintName();
+
+            Sprite bgSprite                                                                     = product.GetBGSprite();
+            bool useBGImg                                                                       = null != bgSprite;
+            if(useBGImg){
+                newObj.transform.Find(PRODUCT_BG_NAME).GetComponent<Image>().sprite             = bgSprite;
+                newObj.transform.Find(PRODUCT_INNER_NAME).GetComponent<Image>().sprite          = product.GetSprite();
+            }
+            newObj.transform.Find(PRODUCT_INNER_NAME).gameObject.SetActive(useBGImg);
+            newObj.transform.Find(PRODUCT_BG_NAME).gameObject.SetActive(useBGImg);
+            newObj.transform.Find(PRODUCT_IMAGE_NAME).gameObject.SetActive(!useBGImg);
 
             if(product is Car car){
                 // Change the car class(es)
@@ -676,8 +724,40 @@ public class MenuManager : MonoBehaviour
         }
     }
 
-    private void PopulateRegionSeries(Tracks.ClickableRegion region){
-        const string        REGION_TEXT_NAME    = "RegionSeriesTxt";
+    private void PopulateRegionTiers(Region.ClickableRegion region){
+        const string        REGION_TITLE_TXT_NAME   = "RegionTitleTxt";
+
+        // These are for the prefab
+        const string        TIER_TXT_NAME           = "TierTxt";
+
+        GameObject                      newObj;
+        List<EventSeries.SeriesTier>    tierList    = Enum.GetValues(typeof(EventSeries.SeriesTier)).Cast<EventSeries.SeriesTier>().ToList();
+
+        // Change the title depending on what the country type is
+        regionTiersMenu.transform.Find(REGION_TITLE_TXT_NAME).GetComponent<TextMeshProUGUI>().text = Region.regionToString[region];
+
+        foreach(EventSeries.SeriesTier tier in tierList){
+
+            newObj                                                                              = (GameObject)Instantiate(regionTiersPrefab, regionTiersContentTransform);
+
+            //TODO: Change the image
+            //newObj.transform.Find(PRODUCT_IMAGE_NAME).GetComponent<Image>().sprite              = product.GetSprite();
+
+            // Change the btn text
+            newObj.transform.Find(TIER_TXT_NAME).GetComponent<TextMeshProUGUI>().text           = EventSeries.tierToString[tier];
+
+            // Change the button onclick action
+            Button btn                                                                          = newObj.GetComponent<Button>();
+
+            btn.onClick.RemoveAllListeners();
+            btn.onClick.AddListener(() => { RegionSeries(region, tier); });
+        }
+    }
+
+    private void PopulateRegionSeries(Region.ClickableRegion region, EventSeries.SeriesTier tier){
+        const string        REGION_TEXT_NAME    = "RegionTitleTxt";
+        const string        TIER_TEXT_NAME      = "RegionTierTxt";
+        const string        BACK_BTN_NAME       = "BackBtn";
 
         // These are for the prefab
         const string        SERIES_TITLE_NAME   = "SeriesNameTxt";
@@ -690,10 +770,17 @@ public class MenuManager : MonoBehaviour
         // Don't forget image later on
 
         GameObject          newObj;
-        List<EventSeries>   seriesList          = EventSeriesManager.GetRegionSeries(region);
+        List<EventSeries>   seriesList          = Region.regions[region].tierToSeries[tier];
 
-        // Change the title depending on what the country type is
-        regionSeriesMenu.transform.Find(REGION_TEXT_NAME).GetComponent<TextMeshProUGUI>().text = Tracks.regionToString[region];
+        // Change the title depending on what the region is
+        regionSeriesMenu.transform.Find(REGION_TEXT_NAME).GetComponent<TextMeshProUGUI>().text  = Region.regionToString[region];
+
+        // Change the tier text depending on what the tier is
+        regionSeriesMenu.transform.Find(TIER_TEXT_NAME).GetComponent<TextMeshProUGUI>().text    = EventSeries.tierToString[tier] + " Series";
+
+        // Set onclick for the back button, depending on what menu preceeded this one
+        regionSeriesMenu.transform.Find(BACK_BTN_NAME).GetComponent<Button>().onClick.RemoveAllListeners();
+        regionSeriesMenu.transform.Find(BACK_BTN_NAME).GetComponent<Button>().onClick.AddListener(()  => { RegionSelect(region.ToString()); });
 
         foreach(EventSeries series in seriesList){
 
@@ -706,7 +793,7 @@ public class MenuManager : MonoBehaviour
             newObj.transform.Find(SERIES_TITLE_NAME).GetComponent<TextMeshProUGUI>().text       = series.name;
 
             // Change the tier text
-            newObj.transform.Find(SERIES_TIER_NAME).GetComponent<TextMeshProUGUI>().text        = SERIES_TIER_PREFIX + EventSeriesManager.tierToString[series.seriesTier] + SERIES_TIER_SUFFIX;
+            newObj.transform.Find(SERIES_TIER_NAME).GetComponent<TextMeshProUGUI>().text        = SERIES_TIER_PREFIX + EventSeries.tierToString[series.seriesTier] + SERIES_TIER_SUFFIX;
 
             // Change the view button onclick action
             Button viewBtn = newObj.transform.Find(VIEW_BTN_NAME).GetComponent<Button>();
@@ -739,11 +826,11 @@ public class MenuManager : MonoBehaviour
         // Change the series title
         seriesMenu.transform.Find(SERIES_TITLE_NAME).GetComponent<TextMeshProUGUI>().text       = series.name;
         // Change the series tier
-        seriesMenu.transform.Find(SERIES_TIER_NAME).GetComponent<TextMeshProUGUI>().text        = EventSeriesManager.tierToString[series.seriesTier] + " Drivers Only";
+        seriesMenu.transform.Find(SERIES_TIER_NAME).GetComponent<TextMeshProUGUI>().text        = EventSeries.tierToString[series.seriesTier] + " Drivers Only";
 
         // Set onclick for the back button, depending on what menu preceeded this one
         seriesMenu.transform.Find(BACK_BTN_NAME).GetComponent<Button>().onClick.RemoveAllListeners();
-        seriesMenu.transform.Find(BACK_BTN_NAME).GetComponent<Button>().onClick.AddListener(()  => { RegionSeries(series.partOfRegion.ToString()); });
+        seriesMenu.transform.Find(BACK_BTN_NAME).GetComponent<Button>().onClick.AddListener(()  => { RegionSeries(series.partOfRegion, series.seriesTier); });
 
         foreach(Event seriesEvent in series.events){
 
@@ -776,41 +863,47 @@ public class MenuManager : MonoBehaviour
 
     private void PopulateEvent(Event seriesEvent){
         // These are for the event entry prefab
-        const string        ENTRY_TITLE_NAME                                                = "EventEntryTxt";
+        const string        ENTRY_TITLE_NAME            = "EventEntryTxt";
 
         GameObject          newObj;
 
-        int count                                                                           = 1;
+        int count                                       = 1;
 
-        bool foundNextUp                                                                    = false;
+        bool foundNextUp                                = false;
 
         foreach(EventEntry eventEntry in seriesEvent.GetEventEntries()){
             // The eventContentTransform to use will be the most newly added transform to the eventContentTransforms list
-            newObj                                                                          = (GameObject)Instantiate(eventEntryPrefab, eventContentTransforms[eventContentTransforms.Count-1]);
+            newObj                                      = (GameObject)Instantiate(eventEntryPrefab, eventContentTransforms[eventContentTransforms.Count-1]);
 
             // Change the event entry's text
-            newObj.transform.Find(ENTRY_TITLE_NAME).GetComponent<TextMeshProUGUI>().text    = count.ToString();
+            TextMeshProUGUI btnText                     = newObj.transform.Find(ENTRY_TITLE_NAME).GetComponent<TextMeshProUGUI>();
+            btnText.text                                = count.ToString();
             count++;
+
+            // If event entry has been attempted, add in the player's result
+            if(eventEntry.attempted){
+                btnText.text                            = btnText.text + "\nResult: P" + eventEntry.playerResult.FinishingPositionInClass.ToString();
+            }
 
             if(foundNextUp){
                 // If it is after the 'next up to race' eventEntry, reduce the alpha value to show it is not raceable yet
-                Image entryImg                                                                  = newObj.transform.GetComponent<Image>();
-                Color tmpColor                                                                  = entryImg.color;
-                tmpColor.a                                                                      = 0.50f;
-                entryImg.color                                                                  = tmpColor;
+                Image entryImg                          = newObj.transform.GetComponent<Image>();
+                Color tmpColor                          = entryImg.color;
+                tmpColor.a                              = 0.50f;
+                entryImg.color                          = tmpColor;
             }
             else{
                 // Check if it is next up, if yes, next entries should be dimmed
                 if(eventEntry.nextUp){
-                    foundNextUp                                                                 = true;
+                    foundNextUp                         = true;
                 }
             }
 
             // Change the event entry button's onclick action
-            Button eventEntryBtn                                                                = newObj.GetComponent<Button>();
+            Button eventEntryBtn                        = newObj.GetComponent<Button>();
 
             eventEntryBtn.onClick.RemoveAllListeners();
-            eventEntryBtn.onClick.AddListener(()                                                => { EventEntry(eventEntry); });
+            eventEntryBtn.onClick.AddListener(()        => { EventEntry(eventEntry); });
         }
     }
 
@@ -840,7 +933,7 @@ public class MenuManager : MonoBehaviour
 
         GameObject          newObj;
 
-        EventSeriesManager.SeriesTier   seriesTier              = eventEntry.parentEvent.parentEventSeries.seriesTier;
+        EventSeries.SeriesTier   seriesTier                     = eventEntry.parentEvent.parentEventSeries.seriesTier;
         List<Cars.CarType>              allowedCarTypes         = eventEntry.parentEvent.typeWhitelist;
         List<Cars.CarClass>             allowedCarClasses       = eventEntry.parentEvent.classWhitelist;
         List<Cars.CarBrand>             allowedCarBrands        = eventEntry.parentEvent.brandWhitelist;
@@ -918,6 +1011,7 @@ public class MenuManager : MonoBehaviour
         checkResultBtn.onClick.AddListener(()                                                       => { gameManager.CheckRaceCompletion(eventEntry, car, checkResultBtn); });
     }
 
+    // Common between event entry and the menu after choosing a car
     private void PopulateEventEntryCommonFunction(EventEntry eventEntry, GameObject menuToEdit){
         const string        ENTRY_TITLE_NAME            = "TitleTxt";
         const string        ENTRY_NUM_TEXT_NAME         = "EventEntryNumTxt";
@@ -930,6 +1024,10 @@ public class MenuManager : MonoBehaviour
         const string        BG_IMAGE_NAME               = "BG";
         const string        BACK_BTN_NAME               = "BackBtn";
 
+        // Multi-eventEntry related
+        const string        RESULTS_TITLE_TXT_NAME      = "ChampionshipStandingsTitleTxt";
+        const string        RESULTS_STANDINGS_TXT_NAME  = "ChampionshipStandingsTxt";
+
         // Change all the text
         menuToEdit.transform.Find(ENTRY_TITLE_NAME).GetComponent<TextMeshProUGUI>().text        = eventEntry.parentEvent.name;
         menuToEdit.transform.Find(ENTRY_NUM_TEXT_NAME).GetComponent<TextMeshProUGUI>().text     = "Race "                           + eventEntry.parentEvent.GetEventEntryPosition(eventEntry).ToString() + " of " + eventEntry.parentEvent.GetEventEntries().Count.ToString();
@@ -939,6 +1037,31 @@ public class MenuManager : MonoBehaviour
         menuToEdit.transform.Find(GRID_SIZE_TEXT_NAME).GetComponent<TextMeshProUGUI>().text     = "Grid Size (includes Player): "   + eventEntry.gridSize.ToString();
         menuToEdit.transform.Find(LAPS_MINS_TEXT_NAME).GetComponent<TextMeshProUGUI>().text     = eventEntry.laps != -1 ? "Laps: "  + eventEntry.laps.ToString() : "Mins: " + eventEntry.mins.ToString();
         menuToEdit.transform.Find(WHITELIST_TEXT_NAME).GetComponent<TextMeshProUGUI>().text     = "Entry Pass Tier: "               + eventEntry.parentEvent.parentEventSeries.seriesTier.ToString() + "\n\n" + eventEntry.parentEvent.GetPrintWhitelist();
+
+        // Show the event entry's results, and if this is a championship and this not an attempted event entry, show the standings (if it is not the first event entry of the championship)
+        GameObject resultObj                                        = menuToEdit.transform.Find(RESULTS_STANDINGS_TXT_NAME).gameObject;
+        GameObject resultTitleObj                                   = menuToEdit.transform.Find(RESULTS_TITLE_TXT_NAME).gameObject;
+        if(eventEntry.attempted){
+            resultObj.GetComponent<TextMeshProUGUI>().text          = eventEntry.GetPrintResults();
+            resultTitleObj.GetComponent<TextMeshProUGUI>().text     = "Results";
+
+            resultObj.SetActive(true);
+            resultTitleObj.SetActive(true);
+        }
+        else{
+            // If this is not the first event entry, show standings
+            if(1 < eventEntry.parentEvent.GetEventEntryPosition(eventEntry)){
+                resultObj.GetComponent<TextMeshProUGUI>().text      = eventEntry.parentEvent.GetPrintStandings();
+                resultTitleObj.GetComponent<TextMeshProUGUI>().text = "Standings";
+
+                resultObj.SetActive(true);
+                resultTitleObj.SetActive(true);
+            }
+            else{
+                resultObj.SetActive(false);
+                resultTitleObj.SetActive(false);
+            }
+        }
 
         // Change the event entry back button's onclick action
         Button backBtn                                  = menuToEdit.transform.Find(BACK_BTN_NAME).GetComponent<Button>();
@@ -953,7 +1076,7 @@ public class MenuManager : MonoBehaviour
         if(!ownEntryPassForCar){
             // Alert the user, kind of acts as our tutorial for entry passes lol
             Notification("Alert",
-            "You do not own a '" + EventSeriesManager.tierToString[eventEntry.parentEvent.parentEventSeries.seriesTier] +
+            "You do not own a '" + EventSeries.tierToString[eventEntry.parentEvent.parentEventSeries.seriesTier] +
             "' entry pass for any of:\n\nCar type: " + car.GetPrintType() + "\nCar classes: " + car.GetPrintClasses() +
             "\nCar brand: " + car.brand.ToString());
             return;
@@ -1006,6 +1129,6 @@ public class MenuManager : MonoBehaviour
             bodyText = "Are you sure you want to sell a " + product.GetPrintName() + " for " + product.GetSellPrice() + "?\nBalance after transaction: " + remainingBalance + "\n" + product.GetInfoBlurb();
         }
 
-        Notification("Confirm Transaction", bodyText, product.GetSprite(), NotificationType.PurchaseConfirmation);
+        Notification("Confirm Transaction", bodyText, product.GetSprite(), product.GetBGSprite(), NotificationType.PurchaseConfirmation);
     }
 }

@@ -7,9 +7,9 @@ public class EntryPass : Purchasable
     public Cars.CarType                     carType;
     public Cars.CarClass                    carClass;
     public Cars.CarBrand                    carBrand;
-    public EventSeriesManager.SeriesTier    tier;
+    public EventSeries.SeriesTier           tier;
 
-    public EntryPass(string nameParam, Cars.CarType typeParam, Cars.CarClass classParam, Cars.CarBrand brandParam, EventSeriesManager.SeriesTier tierParam, int priceParam, int sellPriceParam = -1) : base(nameParam, priceParam, sellPriceParam)
+    public EntryPass(string nameParam, Cars.CarType typeParam, Cars.CarClass classParam, Cars.CarBrand brandParam, EventSeries.SeriesTier tierParam, int priceParam, int sellPriceParam = -1) : base(nameParam, priceParam, sellPriceParam)
     {
         carType         = typeParam;
         carClass        = classParam;
@@ -36,14 +36,19 @@ public class EntryPass : Purchasable
     }
 
     public override Sprite GetSprite(){
-        //string imageName = name.Replace(" ", "") + "_EntryPass";
-        string imageName = Cars.typeToString[carType] + Cars.classToString[carClass] + carBrand.ToString() + "_EntryPass";
+        string brandString  = carBrand == Cars.CarBrand.None ? "" : carBrand.ToString().Replace(" ", "");
+        string imageName    = Cars.typeToString[carType].Replace(" ", "") + Cars.classToString[carClass].Replace(" ", "") + brandString + "_Dealer";
         Debug.Log("Looking for image: " + imageName);
-        return Resources.Load<Sprite>("Images/EntryPasses/" + imageName);
+        return Resources.Load<Sprite>("Images/Logos/" + imageName);
+    }
+
+    public override Sprite GetBGSprite(){
+        return Resources.Load<Sprite>("Images/EntryPasses/" + tier.ToString() + "_EntryPass");
     }
 
     public override string GetPrintName(){
-        return Cars.typeToString[carType] + Cars.classToString[carClass] + carBrand.ToString() + " - " + EventSeriesManager.tierToString[tier] + " Entry Pass";
+        string brandString  = carBrand == Cars.CarBrand.None ? "" : carBrand.ToString();
+        return Cars.typeToString[carType] + Cars.classToString[carClass] + brandString + " - " + EventSeries.tierToString[tier] + " Entry Pass";
     }
 
     public override string GetInfoBlurb()
@@ -121,7 +126,7 @@ public static class EntryPasses
         InitializeEntryPasses();
     }
 
-    public static List<EntryPass> FilterEntryPasses(List<EntryPass> entryPasses, EventSeriesManager.SeriesTier tier){
+    public static List<EntryPass> FilterEntryPasses(List<EntryPass> entryPasses, EventSeries.SeriesTier tier){
 
         List<EntryPass> filteredPasses = new List<EntryPass>();
 
@@ -177,10 +182,10 @@ public static class EntryPasses
     private static void InitializeEntryPasses(){
         // Init, add ALL of the game's entry passes here
         // For now, simply add passes for each tier, for each car brand, car class and car type
-        foreach(EventSeriesManager.SeriesTier passTier in Enum.GetValues(typeof(EventSeriesManager.SeriesTier))){
+        foreach(EventSeries.SeriesTier passTier in Enum.GetValues(typeof(EventSeries.SeriesTier))){
             foreach(Cars.CarType carType in Enum.GetValues(typeof(Cars.CarType))){
                 AddNewEntryPass(new EntryPass(
-                    Cars.typeToString[carType] + EventSeriesManager.tierToString[passTier],
+                    Cars.typeToString[carType] + EventSeries.tierToString[passTier],
                     carType,
                     Cars.CarClass.None,
                     Cars.CarBrand.None,
@@ -190,7 +195,7 @@ public static class EntryPasses
 
             foreach(Cars.CarClass carClass in Enum.GetValues(typeof(Cars.CarClass))){
                 AddNewEntryPass(new EntryPass(
-                    Cars.classToString[carClass] + EventSeriesManager.tierToString[passTier],
+                    Cars.classToString[carClass] + EventSeries.tierToString[passTier],
                     Cars.CarType.None,
                     carClass,
                     Cars.CarBrand.None,
@@ -200,7 +205,7 @@ public static class EntryPasses
 
             foreach(Cars.CarBrand carBrand in Enum.GetValues(typeof(Cars.CarBrand))){
                 AddNewEntryPass(new EntryPass(
-                    carBrand.ToString() + EventSeriesManager.tierToString[passTier],
+                    carBrand.ToString() + EventSeries.tierToString[passTier],
                     Cars.CarType.None,
                     Cars.CarClass.None,
                     carBrand,

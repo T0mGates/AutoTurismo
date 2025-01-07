@@ -54,10 +54,10 @@ public class Profile
 
         // Base unlocks (EVENTS)
 
-        foreach(Tracks.ClickableRegion region in Enum.GetValues(typeof(Tracks.ClickableRegion))){
-            EventSeries newSeriesCopa   = new EventSeries("Copa Classic B for Dummies"  , EventSeriesManager.SeriesTier.Rookie, region);
-            EventSeries newSeriesVee    = new EventSeries("Formula Vee for Dummies"     , EventSeriesManager.SeriesTier.Amateur, region);
-            EventSeries newSeriesCopaFL   = new EventSeries("Copa Classic FL for Gods" , EventSeriesManager.SeriesTier.Elite, region);
+        foreach(Region.ClickableRegion region in Enum.GetValues(typeof(Region.ClickableRegion))){
+            EventSeries newSeriesCopa   = new EventSeries("Copa Classic B for Dummies"  , EventSeries.SeriesTier.Rookie, region);
+            EventSeries newSeriesVee    = new EventSeries("Formula Vee for Dummies"     , EventSeries.SeriesTier.Amateur, region);
+            EventSeries newSeriesCopaFL   = new EventSeries("Copa Classic FL for Gods" , EventSeries.SeriesTier.Elite, region);
 
             Event.GenerateNewEvent(
                 "Weekend Race - Copa Classic B",
@@ -233,7 +233,7 @@ public class Profile
 
     // Used to detect which cars are both for an event and also if we have a valid entry pass for the car
     public List<Car> GetOwnedCarsThatCanRaceEvent(
-        List<string> carNames, List<Cars.CarType> carTypes, List<Cars.CarClass> carClasses, List<Cars.CarBrand> carBrands, EventSeriesManager.SeriesTier seriesTier
+        List<string> carNames, List<Cars.CarType> carTypes, List<Cars.CarClass> carClasses, List<Cars.CarBrand> carBrands, EventSeries.SeriesTier seriesTier
     ){
         // Get our filtered cars and entry passes
         List<Car>       filteredCars    = GetOwnedCarsFiltered(carNames, carTypes, carClasses, carBrands);

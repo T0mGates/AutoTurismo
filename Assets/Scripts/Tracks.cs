@@ -28,17 +28,17 @@ public class Track
 public static class Tracks
 {
     private static Dictionary<Country, List<Track>>             countryTracks;
-    private static Dictionary<ClickableRegion, List<Country>>   regionToCountries;
+    private static Dictionary<Region.ClickableRegion, List<Country>>   regionToCountries;
 
     static Tracks(){
         // Initialize our Tracks DB
         countryTracks       = new Dictionary<Country, List<Track>>();
-        regionToCountries   = new Dictionary<ClickableRegion, List<Country>>();
+        regionToCountries   = new Dictionary<Region.ClickableRegion, List<Country>>();
 
         foreach(Country country in Enum.GetValues(typeof(Country))){
             countryTracks[country]      = new List<Track>();
         }
-        foreach(ClickableRegion region in Enum.GetValues(typeof(ClickableRegion))){
+        foreach(Region.ClickableRegion region in Enum.GetValues(typeof(Region.ClickableRegion))){
             regionToCountries[region]   = new List<Country>();
         }
 
@@ -60,8 +60,8 @@ public static class Tracks
         countryTracks[Country.USA]                                  = GetUSATracks();
 
         // (Clickable) Regions setup
-        foreach(ClickableRegion region in Enum.GetValues(typeof(ClickableRegion))){
-            regionToCountries[region]             = GetCountries(region);
+        foreach(Region.ClickableRegion region in Enum.GetValues(typeof(Region.ClickableRegion))){
+            regionToCountries[region]                               = GetCountries(region);
         }
     }
 
@@ -82,7 +82,7 @@ public static class Tracks
         return tracks;
     }
 
-    public static List<Track> GetTracks(ClickableRegion region){
+    public static List<Track> GetTracks(Region.ClickableRegion region){
         List<Track> tracks              = new List<Track>();
 
         foreach(Country country in regionToCountries[region]){
@@ -92,7 +92,7 @@ public static class Tracks
         return tracks;
     }
 
-    public static List<Track> GetTracks(ClickableRegion region, Grade grade){
+    public static List<Track> GetTracks(Region.ClickableRegion region, Grade grade){
         List<Track> tracks              = new List<Track>();
 
         foreach(Country country in regionToCountries[region]){
@@ -101,46 +101,6 @@ public static class Tracks
 
         return tracks;
     }
-
-    public enum ClickableRegion
-    {
-        // Continents
-        NorthAmerica,
-        SouthAmerica,
-        Europe,
-        Africa,
-        Asia,
-        Australia,
-
-        // Inter continent
-        NorthAmericaSouthAmerica,
-        SouthAmericaAfrica,
-        AfricaAustralia,
-        AustraliaAsia,
-        AsiaEurope,
-        EuropeNorthAmerica,
-        EuropeAfrica,
-
-        International
-    }
-
-    public static Dictionary<ClickableRegion, string> regionToString = new Dictionary<ClickableRegion, string>
-    {
-        {ClickableRegion.NorthAmerica,                  "North America"},
-        {ClickableRegion.SouthAmerica,                  "South America"},
-        {ClickableRegion.Europe,                        "Europe"},
-        {ClickableRegion.Africa,                        "Africa"},
-        {ClickableRegion.Asia,                          "Asia"},
-        {ClickableRegion.Australia,                     "Australia"},
-        {ClickableRegion.NorthAmericaSouthAmerica,      "Western Regionals"},
-        {ClickableRegion.SouthAmericaAfrica,            "Southwestern Regionals"},
-        {ClickableRegion.AfricaAustralia,               "Southeastern Regionals"},
-        {ClickableRegion.AustraliaAsia,                 "Eastern Regionals"},
-        {ClickableRegion.AsiaEurope,                    "Northeastern Regionals"},
-        {ClickableRegion.EuropeNorthAmerica,            "Northwestern Regionals"},
-        {ClickableRegion.EuropeAfrica,                  "Central Regionals"},
-        {ClickableRegion.International,                 "International"}
-    };
 
     public enum Country
     {
@@ -205,65 +165,65 @@ public static class Tracks
         {Grade.Kart,                "Kart"}
     };
 
-    public static List<Country> GetCountries(ClickableRegion region){
+    public static List<Country> GetCountries(Region.ClickableRegion region){
         List<Country> countries;
 
         switch(region){
-            case ClickableRegion.NorthAmerica:
+            case Region.ClickableRegion.NorthAmerica:
                 return new List<Country>() { {Country.USA}, {Country.Canada} };
-            case ClickableRegion.SouthAmerica:
+            case Region.ClickableRegion.SouthAmerica:
                 return new List<Country>() { {Country.Ecuador}, {Country.Brazil}, {Country.Argentina} };
-            case ClickableRegion.Europe:
+            case Region.ClickableRegion.Europe:
                 return new List<Country>() { {Country.Norway}, {Country.Austria}, {Country.England}, {Country.Monaco}, {Country.Italy}, {Country.Spain}, {Country.Portugal} };
-            case ClickableRegion.Africa:
+            case Region.ClickableRegion.Africa:
                 return new List<Country>() { {Country.SouthAfrica} };
-            case ClickableRegion.Asia:
+            case Region.ClickableRegion.Asia:
                 return new List<Country>() { {Country.Japan} };
-            case ClickableRegion.Australia:
+            case Region.ClickableRegion.Australia:
                 return new List<Country>() { {Country.Australia} };
 
-            case ClickableRegion.NorthAmericaSouthAmerica:
-                countries = GetCountries(ClickableRegion.NorthAmerica);
-                countries.AddRange(GetCountries(ClickableRegion.SouthAmerica));
+            case Region.ClickableRegion.NorthAmericaSouthAmerica:
+                countries = GetCountries(Region.ClickableRegion.NorthAmerica);
+                countries.AddRange(GetCountries(Region.ClickableRegion.SouthAmerica));
                 return countries;
 
-            case ClickableRegion.SouthAmericaAfrica:
-                countries = GetCountries(ClickableRegion.SouthAmerica);
-                countries.AddRange(GetCountries(ClickableRegion.Africa));
+            case Region.ClickableRegion.SouthAmericaAfrica:
+                countries = GetCountries(Region.ClickableRegion.SouthAmerica);
+                countries.AddRange(GetCountries(Region.ClickableRegion.Africa));
                 return countries;
 
-            case ClickableRegion.AfricaAustralia:
-                countries = GetCountries(ClickableRegion.Africa);
-                countries.AddRange(GetCountries(ClickableRegion.Australia));
+            case Region.ClickableRegion.AfricaAustralia:
+                countries = GetCountries(Region.ClickableRegion.Africa);
+                countries.AddRange(GetCountries(Region.ClickableRegion.Australia));
                 return countries;
 
-            case ClickableRegion.AustraliaAsia:
-                countries = GetCountries(ClickableRegion.Australia);
-                countries.AddRange(GetCountries(ClickableRegion.Asia));
+            case Region.ClickableRegion.AustraliaAsia:
+                countries = GetCountries(Region.ClickableRegion.Australia);
+                countries.AddRange(GetCountries(Region.ClickableRegion.Asia));
                 return countries;
 
-            case ClickableRegion.AsiaEurope:
-                countries = GetCountries(ClickableRegion.Asia);
-                countries.AddRange(GetCountries(ClickableRegion.Europe));
+            case Region.ClickableRegion.AsiaEurope:
+                countries = GetCountries(Region.ClickableRegion.Asia);
+                countries.AddRange(GetCountries(Region.ClickableRegion.Europe));
                 return countries;
 
-            case ClickableRegion.EuropeNorthAmerica:
-                countries = GetCountries(ClickableRegion.Europe);
-                countries.AddRange(GetCountries(ClickableRegion.NorthAmerica));
+            case Region.ClickableRegion.EuropeNorthAmerica:
+                countries = GetCountries(Region.ClickableRegion.Europe);
+                countries.AddRange(GetCountries(Region.ClickableRegion.NorthAmerica));
                 return countries;
 
-            case ClickableRegion.EuropeAfrica:
-                countries = GetCountries(ClickableRegion.Europe);
-                countries.AddRange(GetCountries(ClickableRegion.Africa));
+            case Region.ClickableRegion.EuropeAfrica:
+                countries = GetCountries(Region.ClickableRegion.Europe);
+                countries.AddRange(GetCountries(Region.ClickableRegion.Africa));
                 return countries;
 
-            case ClickableRegion.International:
-                countries = GetCountries(ClickableRegion.Europe);
-                countries.AddRange(GetCountries(ClickableRegion.NorthAmerica));
-                countries.AddRange(GetCountries(ClickableRegion.SouthAmerica));
-                countries.AddRange(GetCountries(ClickableRegion.Africa));
-                countries.AddRange(GetCountries(ClickableRegion.Australia));
-                countries.AddRange(GetCountries(ClickableRegion.Asia));
+            case Region.ClickableRegion.International:
+                countries = GetCountries(Region.ClickableRegion.Europe);
+                countries.AddRange(GetCountries(Region.ClickableRegion.NorthAmerica));
+                countries.AddRange(GetCountries(Region.ClickableRegion.SouthAmerica));
+                countries.AddRange(GetCountries(Region.ClickableRegion.Africa));
+                countries.AddRange(GetCountries(Region.ClickableRegion.Australia));
+                countries.AddRange(GetCountries(Region.ClickableRegion.Asia));
                 return countries;
 
             default:

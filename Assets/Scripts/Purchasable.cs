@@ -27,6 +27,10 @@ public abstract class Purchasable{
     public abstract string GetPrintName();
     public abstract string GetInfoBlurb();
 
+    public virtual Sprite GetBGSprite(){
+        return null;
+    }
+
     public string GetPrintPrice(){
         return "$" + price.ToString("n0");
     }

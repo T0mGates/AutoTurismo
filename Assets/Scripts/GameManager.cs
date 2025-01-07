@@ -59,6 +59,7 @@ public class GameManager : MonoBehaviour
         return;
       }
 
+      // At this point, we have a valid result
       eventEntry.CompleteEventEntry(result.Drivers, car);
       checkResultBtn.interactable   = true;
 
@@ -88,7 +89,7 @@ public class GameManager : MonoBehaviour
           menuManager.Notification("New Car Obtained!", "You've bought a brand new car!\n\n" + car.GetInfoBlurb(), car.GetSprite());
         }
         else if(product is EntryPass entryPass){
-          menuManager.Notification("New Entry Pass Obtained!", "You've bought an entry pass!\n\n" + entryPass.GetInfoBlurb(), entryPass.GetSprite());
+          menuManager.Notification("New Entry Pass Obtained!", "You've bought an entry pass!\n\n" + entryPass.GetInfoBlurb(), entryPass.GetSprite(), entryPass.GetBGSprite());
         }
       }
       else{

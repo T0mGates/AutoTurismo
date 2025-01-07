@@ -7,18 +7,18 @@ using System.Linq;
 public class EventSeries
 {
     // Name and tier together should make unique series
-    public EventSeriesManager.SeriesTier    seriesTier;
+    public SeriesTier                       seriesTier;
     public string                           name;
     public List<Event>                      events;
-    public Tracks.ClickableRegion           partOfRegion;
+    public Region.ClickableRegion           partOfRegion;
 
-    public EventSeries(string nameParam, EventSeriesManager.SeriesTier seriesTierParam, Tracks.ClickableRegion partOfRegionParam){
+    public EventSeries(string nameParam, SeriesTier seriesTierParam, Region.ClickableRegion partOfRegionParam){
         name            = nameParam;
         seriesTier      = seriesTierParam;
         partOfRegion    = partOfRegionParam;
         events          = new List<Event>();
 
-        EventSeriesManager.AddNewSeries(this);
+        Region.regions[partOfRegion].AddNewSeries(this);
     }
 
     // Override the equals method
@@ -36,38 +36,12 @@ public class EventSeries
         return name.GetHashCode() + seriesTier.GetHashCode();
     }
 
-}
-
-public static class EventSeriesManager
-{
-    private static Dictionary<Tracks.ClickableRegion, List<EventSeries>> regionToSeries;
-
-    static EventSeriesManager(){
-        // Initialize our main dictionary
-        regionToSeries = new Dictionary<Tracks.ClickableRegion, List<EventSeries>>();
-
-        // Initialize the lists within
-        foreach(Tracks.ClickableRegion region in Enum.GetValues(typeof(Tracks.ClickableRegion))){
-            regionToSeries[region] = new List<EventSeries>();
-        }
-    }
-
-    public static List<EventSeries> GetRegionSeries(Tracks.ClickableRegion region){
-        return regionToSeries[region];
-    }
-
-    // Called to add a new series to a region
-    // Called by EventSeries' constructor
-    public static void AddNewSeries(EventSeries seriesToAdd){
-        regionToSeries[seriesToAdd.partOfRegion].Add(seriesToAdd);
-    }
-
     public enum SeriesTier
     {
         Rookie          = 0,
         Novice          = 1,
         Amateur         = 2,
-        Pro             = 3,
+        Professional    = 3,
         Elite           = 4,
         Master          = 5,
         Prodigy         = 6,
@@ -80,7 +54,7 @@ public static class EventSeriesManager
         {SeriesTier.Rookie,             "Rookie"},
         {SeriesTier.Novice,             "Novice"},
         {SeriesTier.Amateur,            "Amateur"},
-        {SeriesTier.Pro,                "Pro"},
+        {SeriesTier.Professional,       "Professional"},
         {SeriesTier.Elite,              "Elite"},
         {SeriesTier.Master,             "Master"},
         {SeriesTier.Prodigy,            "Prodigy"},
@@ -94,7 +68,7 @@ public static class EventSeriesManager
         {SeriesTier.Rookie,             100/60},
         {SeriesTier.Novice,             125/60},
         {SeriesTier.Amateur,            150/60},
-        {SeriesTier.Pro,                175/60},
+        {SeriesTier.Professional,       175/60},
         {SeriesTier.Elite,              200/60},
         {SeriesTier.Master,             210/60},
         {SeriesTier.Prodigy,            220/60},
@@ -108,7 +82,7 @@ public static class EventSeriesManager
         {SeriesTier.Rookie,             new List<Tracks.Grade>() { {Tracks.Grade.Four}, {Tracks.Grade.Three}, {Tracks.Grade.Historic} } },
         {SeriesTier.Novice,             new List<Tracks.Grade>() { {Tracks.Grade.Four}, {Tracks.Grade.Three}, {Tracks.Grade.Historic} } },
         {SeriesTier.Amateur,            new List<Tracks.Grade>() { {Tracks.Grade.Four}, {Tracks.Grade.Three}, {Tracks.Grade.Historic}, {Tracks.Grade.Temporary} } },
-        {SeriesTier.Pro,                new List<Tracks.Grade>() { {Tracks.Grade.Four}, {Tracks.Grade.Three}, {Tracks.Grade.Historic}, {Tracks.Grade.Temporary}, {Tracks.Grade.Two} } },
+        {SeriesTier.Professional,       new List<Tracks.Grade>() { {Tracks.Grade.Four}, {Tracks.Grade.Three}, {Tracks.Grade.Historic}, {Tracks.Grade.Temporary}, {Tracks.Grade.Two} } },
         {SeriesTier.Elite,              new List<Tracks.Grade>() { {Tracks.Grade.Three}, {Tracks.Grade.Two}, {Tracks.Grade.Historic} } },
         {SeriesTier.Master,             new List<Tracks.Grade>() { {Tracks.Grade.Three}, {Tracks.Grade.One}, {Tracks.Grade.Historic}, {Tracks.Grade.Two} } },
         {SeriesTier.Prodigy,            new List<Tracks.Grade>() { {Tracks.Grade.One}, {Tracks.Grade.Historic}, {Tracks.Grade.Two} } },
@@ -122,7 +96,7 @@ public static class EventSeriesManager
         {SeriesTier.Rookie,             10},
         {SeriesTier.Novice,             15},
         {SeriesTier.Amateur,            20},
-        {SeriesTier.Pro,                30},
+        {SeriesTier.Professional,       30},
         {SeriesTier.Elite,              35},
         {SeriesTier.Master,             40},
         {SeriesTier.Prodigy,            50},
@@ -135,7 +109,7 @@ public static class EventSeriesManager
         {SeriesTier.Rookie,             500},
         {SeriesTier.Novice,             700},
         {SeriesTier.Amateur,            1000},
-        {SeriesTier.Pro,                1250},
+        {SeriesTier.Professional,       1250},
         {SeriesTier.Elite,              1500},
         {SeriesTier.Master,             1700},
         {SeriesTier.Prodigy,            1850},
@@ -146,29 +120,32 @@ public static class EventSeriesManager
 
 public class Event
 {
-    public string               name;
-    public EventType            eventType;
-    public EventDuration        eventDuration;
-    public EventSeries          parentEventSeries;
+    public string                   name;
+    public EventType                eventType;
+    public EventDuration            eventDuration;
+    public EventSeries              parentEventSeries;
 
-    public List<Cars.CarType>   typeWhitelist;
-    public List<Cars.CarClass>  classWhitelist;
-    public List<Cars.CarBrand>  brandWhitelist;
-    public List<string>         nameWhitelist;
+    public List<Cars.CarType>       typeWhitelist;
+    public List<Cars.CarClass>      classWhitelist;
+    public List<Cars.CarBrand>      brandWhitelist;
+    public List<string>             nameWhitelist;
 
-    private int                 topFameReward;
-    private int                 topMoneyReward;
-    private int                 finishPosition;
-    private int                 gridSize;
-    private bool                completed;
+    private int                     topFameReward;
+    private int                     topMoneyReward;
+    private int                     finishPosition;
+    private int                     gridSize;
+    private bool                    completed;
 
-    private List<EventEntry>    eventEntries;
+    private List<EventEntry>        eventEntries;
+    private Dictionary<string, int> champhionshipPoints;
 
     public Event(
                 string nameParam, EventType eventTypeParam, EventDuration eventDurationParam, EventSeries parentEventSeriesParam,
                 List<Cars.CarType> allowedTypes, List<Cars.CarClass> allowedClasses, List<Cars.CarBrand> allowedBrands, List<string> allowedNames,
                 int topFameRewardParam, int topMoneyRewardParam
                 ){
+        champhionshipPoints = new Dictionary<string, int>();
+
         name                = nameParam;
         eventType           = eventTypeParam;
         eventDuration       = eventDurationParam;
@@ -193,15 +170,25 @@ public class Event
     public void EventEntryCompleted(EventEntry eventEntryParam){
         int nextUpIndex = eventEntries.IndexOf(eventEntryParam) + 1;
 
+        // Depending on event type, something happens after an event entry is completed
+        switch(eventType){
+            case EventType.Championship:
+                UpdateChamphionshipPoints(eventEntryParam.driverResults);
+                break;
+            default:
+                break;
+        }
+
         if(nextUpIndex >= eventEntries.Count){
             Debug.Log("Event: " + name + " is complete!");
             // Depending on the event type, calculate final position
             switch(eventType){
                 case EventType.Race:
-                    finishPosition = eventEntryParam.playerResult.FinishingPositionInClass;
+                    finishPosition  = eventEntryParam.playerResult.FinishingPositionInClass;
                     break;
                 case EventType.Championship:
-                    // TODO championship points and whatnot
+                    // Calculate finish position
+                    finishPosition  = GetChampionshipFinishPosition();
                     break;
 
                 default:
@@ -230,13 +217,18 @@ public class Event
             // If this is a championship, make the lowest grid sized eventEntry the total gridSize for all entries (and for this event in general)
             switch(eventType){
                 case EventType.Championship:
-                    // Assume current gridSize is the lowest, so just check this one
-                    if(entryToAdd.gridSize < gridSize){
-                        // If it is a new low, edit the other event entries within this event to match this one (since a championship needs the same amount of drivers in every race)
+                    // Assume current gridSize is the highest, so just check this one
+                    if(entryToAdd.gridSize > gridSize){
+                        // If it is a new high, edit the other event entries within this event to match this one (since a championship needs the same amount of drivers in every race)
                         gridSize = entryToAdd.gridSize;
+
                         foreach(EventEntry entry in eventEntries){
                             entry.gridSize = gridSize;
                         }
+                    }
+                    else{
+                        // If it's lower (or equal), set the gridSize to the event's gridSize
+                        entryToAdd.gridSize = gridSize;
                     }
                     break;
 
@@ -256,6 +248,50 @@ public class Event
     public int GetEventEntryPosition(EventEntry eventEntryToCheck){
         // Returns the 'position number' for a given event entry
         return eventEntries.IndexOf(eventEntryToCheck) + 1;
+    }
+
+    // Will only return anything useful if at least one eventEntry has been completed from this event
+    public string GetPrintStandings(){
+        string toReturn     = "";
+
+        if(!eventEntries[0].attempted){
+            return toReturn;
+        }
+
+        string playerName   = eventEntries[0].playerResult.DriverLongName;
+
+        // Holds finishing positions
+        List<int> points                            = new List<int>();
+        // Matches finish pos to driver long name
+        Dictionary<int, List<string>> pointsToName  = new Dictionary<int, List<string>>();
+
+        foreach(KeyValuePair<string, int> entry in champhionshipPoints){
+            // First, need a sorted list of all points
+            // No dupes in points else we will see duplicate names
+            if(!points.Contains(entry.Value)){
+                points.Add(entry.Value);
+            }
+
+            if(!pointsToName.ContainsKey(entry.Value)){
+                pointsToName[entry.Value] = new List<string>();
+            }
+            pointsToName[entry.Value].Add(entry.Key);
+        }
+        // Sort in descending order
+        points = points.OrderByDescending(i => i).ToList();
+
+        int count = 1;
+
+        foreach(int pointEntry in points){
+            foreach(string driverName in pointsToName[pointEntry]){
+                // If this is the player, add a (You) suffix
+                string suffix       = driverName == playerName ? " (You)" : "";
+                toReturn += count.ToString() + ". " + driverName + suffix + " - " + pointEntry.ToString() + " Points\n";
+            }
+            count += pointsToName[pointEntry].Count;
+        }
+
+        return toReturn;
     }
 
     // Returns a string that includes details on all the whitelists for this event
@@ -323,7 +359,7 @@ public class Event
     public string GetRewardInfo(){
         return
             "You have finished the "    + GetPrintEventType()       + " event: " + name + "!" +
-            "\n\nSeries Tier: "         + EventSeriesManager.tierToString[parentEventSeries.seriesTier] +
+            "\n\nSeries Tier: "         + EventSeries.tierToString[parentEventSeries.seriesTier] +
             "\nTop Reward: "            + GetPrintTopMoneyReward()  + " and " + GetPrintTopFameReward() +
             "\n\nGrid Size: "           + gridSize.ToString()       +
             "\nYour Result: P"          + finishPosition.ToString() + " = " + ((int)(FinishPositionMultiplier()*100)).ToString() + "% of the Top Reward" +
@@ -375,9 +411,9 @@ public class Event
                 bool useLaps = true, List<Track> blacklistedTracks = null
                 ){
         // First pick the track depending on the tier and country
-        EventSeriesManager.SeriesTier   tier            = parentEventSeriesParam.seriesTier;
+        EventSeries.SeriesTier   tier                   = parentEventSeriesParam.seriesTier;
         Track                           trackToUse      = null;
-        List<Tracks.Grade>              allowedGrades   = EventSeriesManager.tierAllowedOnGrade[tier];
+        List<Tracks.Grade>              allowedGrades   = EventSeries.tierAllowedOnGrade[tier];
 
         // If any kart is in the event, only kart tracks can be raced
         if(allowedClasses.Contains(Cars.CarClass.Kart125cc) || allowedClasses.Contains(Cars.CarClass.KartGX390) || allowedClasses.Contains(Cars.CarClass.KartRental) || allowedClasses.Contains(Cars.CarClass.KartShifter) || allowedClasses.Contains(Cars.CarClass.KartSuper) || allowedBrands.Contains(Cars.CarBrand.Kart)){
@@ -591,6 +627,20 @@ public class Event
         {EventType.Championship,    "Championship"}
     };
 
+    public static Dictionary<int, int> pointsDict = new Dictionary<int, int>() {
+        {1,     25},
+        {2,     18},
+        {3,     15},
+        {4,     12},
+        {5,     10},
+        {6,     8},
+        {7,     6},
+        {8,     4},
+        {9,     2},
+        {10,    1},
+        {0,     0}
+    };
+
     // Generates a number of event entries to use given an event type and duration
     private static int GetNumEventEntries(EventType eventType, EventDuration duration){
         switch(eventType){
@@ -623,8 +673,8 @@ public class Event
     }
 
     // Generates a top fame reward given an event duration and tier
-    private static int GenerateTopFameReward(EventDuration duration, EventSeriesManager.SeriesTier seriesTier){
-        int baseReward      = EventSeriesManager.tierFameReward[seriesTier];
+    private static int GenerateTopFameReward(EventDuration duration, EventSeries.SeriesTier seriesTier){
+        int baseReward      = EventSeries.tierFameReward[seriesTier];
         float multiplier    = 1.0f + ((float)duration/2.0f);
 
         int rangeNum        = baseReward/3;
@@ -634,8 +684,8 @@ public class Event
         return (int)((float)realReward * multiplier);
     }
     // Generates a top money reward given an event duration and tier
-    private static int GenerateTopMoneyReward(EventDuration duration, EventSeriesManager.SeriesTier seriesTier){
-        int baseReward      = EventSeriesManager.tierMoneyReward[seriesTier];
+    private static int GenerateTopMoneyReward(EventDuration duration, EventSeries.SeriesTier seriesTier){
+        int baseReward      = EventSeries.tierMoneyReward[seriesTier];
         float multiplier    = 1.0f + ((float)duration/2.0f);
 
         int rangeNum        = baseReward/3;
@@ -643,6 +693,43 @@ public class Event
         int realReward      = baseReward + UnityEngine.Random.Range(-1*rangeNum, rangeNum+1);
 
         return (int)((float)realReward * multiplier);
+    }
+
+    private void UpdateChamphionshipPoints(List<ResultDriver> drivers){
+        int toAdd = 0;
+        // Update champhionship points
+        foreach(ResultDriver driver in drivers){
+            if(!champhionshipPoints.ContainsKey(driver.DriverLongName)){
+                champhionshipPoints[driver.DriverLongName] = 0;
+            }
+            toAdd = driver.FinishingPositionInClass > 10 ? 0 : pointsDict[driver.FinishingPositionInClass];
+            champhionshipPoints[driver.DriverLongName] = champhionshipPoints[driver.DriverLongName] + toAdd;
+        }
+    }
+
+    private int GetChampionshipFinishPosition(){
+        string playerName   = eventEntries[0].playerResult.DriverLongName;
+
+        List<int> points    = new List<int>();
+        int playerPoints    = -1;
+
+        foreach(KeyValuePair<string, int> entry in champhionshipPoints){
+            if(playerName == entry.Key){
+                // Is player, so store the points
+                playerPoints = entry.Value;
+            }
+
+            points.Add(entry.Value);
+        }
+
+        if(-1 == playerPoints){
+            Debug.LogError("Could not find player's champhionship points!");
+            return gridSize;
+        }
+
+        // Descending order
+        points = points.OrderByDescending(i => i).ToList();
+        return points.IndexOf(playerPoints) + 1;
     }
 }
 
@@ -694,7 +781,7 @@ public class EventEntry
             }
         }
 
-        // Notify the Event that this entry is done, return whether this finished up that event
+        // Notify the Event that this entry is done
         parentEvent.EventEntryCompleted(this);
     }
 
@@ -747,7 +834,7 @@ public class EventEntry
                 GetFinishStatusMoneyBonus().ToString("n0") + " and " + GetFinishStatusFameBonus().ToString("n0") + " Fame" +
             "\nDistance (KM) Traveled: " + playerResult.TotalDistance / 1000 + " = $" +
                 GetDistanceMoneyBonus().ToString("n0") + " and " + GetDistanceFameBonus().ToString("n0") + " Fame"+
-            "\n\nSeries Tier: " + EventSeriesManager.tierToString[parentEvent.parentEventSeries.seriesTier] + " = " +
+            "\n\nSeries Tier: " + EventSeries.tierToString[parentEvent.parentEventSeries.seriesTier] + " = " +
                 GetSeriesTierRewardMultiplier().ToString("n2") + "x Multiplier" +
             "\n\nTotal Rewards = $" + GetMoneyReward().ToString("n0") + " and " + GetFameReward().ToString("n0") + " Fame";
     }
@@ -759,15 +846,55 @@ public class EventEntry
                 "\nDriving the: "   + playerCar.GetPrintName();
     }
 
-    public static EventEntry GenerateNewEventEntry(Track track, Event.EventDuration duration, EventSeriesManager.SeriesTier tier, Event parentEventParam, bool useLaps){
+    public string GetPrintResults(){
+        switch(parentEvent.eventType){
+            case Event.EventType.Championship:
+                // Used as a replacement for '0' (dnf) in the ascending order list
+                const int ZERO                          = 999;
+
+                string toReturn                         = "";
+                // Holds finishing positions
+                List<int> finishingPositions            = new List<int>();
+                // Matches finish pos to driver long name
+                Dictionary<int, List<string>> posToName = new Dictionary<int, List<string>>();
+                int posToAdd;
+
+                foreach(ResultDriver driver in driverResults){
+                    // First, need a sorted list of all finishing positions (need to account for dupes (multiclass))
+                    posToAdd                            = driver.FinishingPositionInClass == 0 ? ZERO : driver.FinishingPositionInClass;
+                    finishingPositions.Add(posToAdd);
+                    if(!posToName.ContainsKey(posToAdd)){
+                        posToName[posToAdd] = new List<string>();
+                    }
+                    posToName[posToAdd].Add(driver.DriverLongName);
+                }
+                // Sort in ascending order
+                finishingPositions = finishingPositions.OrderBy(i => i).ToList();
+
+                foreach(int finishPos in finishingPositions){
+                    foreach(string driverName in posToName[finishPos]){
+                        // If this is the player, add a (You) suffix
+                        string suffix       = driverName == playerResult.DriverLongName ? " (You)" : "";
+                        int gainedPoints    = finishPos > 10 ? 0 : Event.pointsDict[finishPos];
+                        toReturn += "P" + finishPos.ToString() + ": " + driverName + suffix + " = " + gainedPoints.ToString() + " Points\n";
+                    }
+                }
+                return toReturn;
+
+            default:
+                return "GetPrintResults for event type: " + parentEvent.eventType.ToString() + " is Not Implemented";
+        }
+    }
+
+    public static EventEntry GenerateNewEventEntry(Track track, Event.EventDuration duration, EventSeries.SeriesTier tier, Event parentEventParam, bool useLaps){
         const int MIN_LAPS                  = 3;
 
-        // Get the grid size we shall use
-        int gridSize                        = (int)(track.maxGridSize / 2.50f) + UnityEngine.Random.Range(-4, 5);
+        // Get the grid size we shall use, minimum of 10
+        int gridSize                        = Mathf.Max((int)(track.maxGridSize / 2.50f) + UnityEngine.Random.Range(-4, 5), 10);
 
         // Either use laps or mins, depending on if useLaps is true or not
         if(useLaps){
-            float           lapTime         = (float)track.kmLength / (float)EventSeriesManager.tierToAvgKMPerMinuteSpeed[tier];
+            float           lapTime         = (float)track.kmLength / (float)EventSeries.tierToAvgKMPerMinuteSpeed[tier];
             int             numLaps         = (int)(Event.eventDurationToExpectedMins[duration] / lapTime);
 
             if(numLaps < MIN_LAPS){

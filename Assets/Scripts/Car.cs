@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System;
+using UnityEditor.Rendering;
 
 public class Car : Purchasable
 {
@@ -221,23 +222,26 @@ public static class Cars
 
 
     // Holds ALL cars in the database
-    private static List<Car>                                cars {get; set;}
+    private static List<Car>                                            cars {get; set;}
     // Will match unique name to car
-    private static Dictionary<string, Car>                  nameToCar {get; set;}
+    private static Dictionary<string, Car>                              nameToCar {get; set;}
     // Will match type to list of cars who are that type
-    private static Dictionary<CarType, List<Car>>           typeToCars {get; set;}
+    private static Dictionary<CarType, List<Car>>                       typeToCars {get; set;}
     // Will match class to list of cars who are that class
-    private static Dictionary<CarClass, List<Car>>          classToCars {get; set;}
+    private static Dictionary<CarClass, List<Car>>                      classToCars {get; set;}
     // Will match brand to list of cars who are that brand
-    private static Dictionary<CarBrand, List<Car>>          brandToCars {get; set;}
+    private static Dictionary<CarBrand, List<Car>>                      brandToCars {get; set;}
+
+    // Holds tiers to classes
+    private static Dictionary<EventSeries.SeriesTier, List<CarClass>>  tierToClasses;
 
     private static void InitializeCars(){
         // Init, add ALL of the game's cars here
 
         // Karts
         AddNewCar(new Car(KART_RENTAL_NAME,                 CarType.OpenWheeler,    new List<CarClass> {CarClass.KartRental},           CarBrand.Kart,              4000));
-        AddNewCar(new Car(KART_GX390_NAME,                  CarType.OpenWheeler,    new List<CarClass> {CarClass.KartGX390},            CarBrand.Kart,              4000));
-        AddNewCar(new Car(KART_125CC_NAME,                  CarType.OpenWheeler,    new List<CarClass> {CarClass.Kart125cc},            CarBrand.Kart,              5000));
+        AddNewCar(new Car(KART_GX390_NAME,                  CarType.OpenWheeler,    new List<CarClass> {CarClass.KartGX390},            CarBrand.Kart,              5000));
+        AddNewCar(new Car(KART_125CC_NAME,                  CarType.OpenWheeler,    new List<CarClass> {CarClass.Kart125cc},            CarBrand.Kart,              5500));
         AddNewCar(new Car(KART_SHIFTER_NAME,                CarType.OpenWheeler,    new List<CarClass> {CarClass.KartShifter},          CarBrand.Kart,              6000));
         AddNewCar(new Car(KART_SUPER_NAME,                  CarType.OpenWheeler,    new List<CarClass> {CarClass.KartSuper},            CarBrand.Kart,              8000));
 
@@ -275,7 +279,7 @@ public static class Cars
         AddNewCar(new Car(TSI_VIRTUS_GTS_NAME,              CarType.Road,           new List<CarClass> {CarClass.TSI},                  CarBrand.Volkswagen,        9000));
 
         // Street
-        AddNewCar(new Car(STREET_CAMARO_NAME,               CarType.Road,           new List<CarClass> {CarClass.Camaro},               CarBrand.Chevrolet,         12000));
+        AddNewCar(new Car(STREET_CAMARO_NAME,               CarType.Road,           new List<CarClass> {CarClass.StreetCars},           CarBrand.Chevrolet,         12000));
         AddNewCar(new Car(STREET_LANCER_R_NAME,             CarType.Road,           new List<CarClass> {CarClass.Lancer},               CarBrand.Mitsubishi,        13000));
         AddNewCar(new Car(STREET_LANCER_RS_NAME,            CarType.Road,           new List<CarClass> {CarClass.Lancer},               CarBrand.Mitsubishi,        14000));
 
@@ -380,11 +384,12 @@ public static class Cars
     }
 
     static Cars(){
-        cars         = new List<Car>();
-        nameToCar    = new Dictionary<string, Car>();
-        typeToCars   = new Dictionary<CarType, List<Car>>();
-        classToCars  = new Dictionary<CarClass, List<Car>>();
-        brandToCars  = new Dictionary<CarBrand, List<Car>>();
+        cars            = new List<Car>();
+        nameToCar       = new Dictionary<string, Car>();
+        typeToCars      = new Dictionary<CarType, List<Car>>();
+        classToCars     = new Dictionary<CarClass, List<Car>>();
+        brandToCars     = new Dictionary<CarBrand, List<Car>>();
+        tierToClasses   = new Dictionary<EventSeries.SeriesTier, List<CarClass>>();
 
         // Init our dicts with empty lists
         foreach(CarType carType in Enum.GetValues(typeof(CarType))){
@@ -398,6 +403,11 @@ public static class Cars
         }
 
         InitializeCars();
+        InitializeTierToClasses();
+    }
+
+    public static List<CarClass> GetClassesForTier(EventSeries.SeriesTier tier){
+        return tierToClasses[tier];
     }
 
     public static void AddNewCar(Car carToAdd)
@@ -539,7 +549,6 @@ public static class Cars
         GT1,
         Carrera,
         Lancer,
-        Camaro,
         FormulaTrainer,
         FormulaTrainerA,
         FormulaInter,
@@ -578,7 +587,6 @@ public static class Cars
         {CarClass.GT1,                  "GT1"},
         {CarClass.Carrera,              "Carrera"},
         {CarClass.Lancer,               "Lancer"},
-        {CarClass.Camaro,               "Camaro"},
         {CarClass.FormulaTrainer,       "Formula Trainer"},
         {CarClass.FormulaTrainerA,      "Formula Trainer Advanced"},
         {CarClass.FormulaInter,         "Formula Inter"},
@@ -590,6 +598,111 @@ public static class Cars
         {CarClass.P3,                   "P3"},
         {CarClass.P2,                   "P2"},
         {CarClass.P1Gen2,               "P1 Generation 2"}
+    };
+
+    public static Dictionary<CarClass, List<EventSeries.SeriesTier>> classToTiers = new Dictionary<CarClass, List<EventSeries.SeriesTier>>
+    {
+        {CarClass.None,                 new List<EventSeries.SeriesTier> ()
+        },
+        {CarClass.Kart125cc,            new List<EventSeries.SeriesTier> {
+            {EventSeries.SeriesTier.Rookie}, {EventSeries.SeriesTier.Novice}
+        }},
+        {CarClass.KartGX390,            new List<EventSeries.SeriesTier> {
+            {EventSeries.SeriesTier.Rookie}, {EventSeries.SeriesTier.Novice}
+        }},
+        {CarClass.KartRental,           new List<EventSeries.SeriesTier> {
+            {EventSeries.SeriesTier.Rookie}
+        }},
+        {CarClass.KartShifter,          new List<EventSeries.SeriesTier> {
+            {EventSeries.SeriesTier.Rookie}, {EventSeries.SeriesTier.Novice}
+        }},
+        {CarClass.KartSuper,            new List<EventSeries.SeriesTier> {
+            {EventSeries.SeriesTier.Rookie}, {EventSeries.SeriesTier.Novice}, {EventSeries.SeriesTier.Prodigy}, {EventSeries.SeriesTier.WorldRenowned}
+        }},
+        {CarClass.FormulaVee,           new List<EventSeries.SeriesTier> {
+            {EventSeries.SeriesTier.Rookie}, {EventSeries.SeriesTier.Novice}, {EventSeries.SeriesTier.Master}
+        }},
+        {CarClass.CopaUno,              new List<EventSeries.SeriesTier> {
+            {EventSeries.SeriesTier.Rookie}, {EventSeries.SeriesTier.Novice}, {EventSeries.SeriesTier.Master}
+        }},
+        {CarClass.CopaClassicB,         new List<EventSeries.SeriesTier> {
+            {EventSeries.SeriesTier.Rookie}, {EventSeries.SeriesTier.Novice}, {EventSeries.SeriesTier.Prodigy}
+        }},
+        {CarClass.CopaClassicFL,        new List<EventSeries.SeriesTier> {
+            {EventSeries.SeriesTier.Novice}, {EventSeries.SeriesTier.Amateur}, {EventSeries.SeriesTier.Legend}
+        }},
+        {CarClass.CopaTruck,            new List<EventSeries.SeriesTier> {
+            {EventSeries.SeriesTier.Rookie}, {EventSeries.SeriesTier.Amateur}, {EventSeries.SeriesTier.Elite}
+        }},
+        {CarClass.TSI,                  new List<EventSeries.SeriesTier> {
+            {EventSeries.SeriesTier.Novice}, {EventSeries.SeriesTier.Amateur}, {EventSeries.SeriesTier.Professional}
+        }},
+        {CarClass.Carrera,              new List<EventSeries.SeriesTier> {
+            {EventSeries.SeriesTier.Novice}, {EventSeries.SeriesTier.Amateur}, {EventSeries.SeriesTier.Elite}
+        }},
+        {CarClass.StreetCars,           new List<EventSeries.SeriesTier> {
+            {EventSeries.SeriesTier.Novice}, {EventSeries.SeriesTier.Amateur}, {EventSeries.SeriesTier.Professional}
+        }},
+        {CarClass.Lancer,               new List<EventSeries.SeriesTier> {
+            {EventSeries.SeriesTier.Novice}, {EventSeries.SeriesTier.Amateur}, {EventSeries.SeriesTier.Professional}
+        }},
+        {CarClass.SuperCars,            new List<EventSeries.SeriesTier> {
+            {EventSeries.SeriesTier.Amateur}, {EventSeries.SeriesTier.Professional}, {EventSeries.SeriesTier.Master}
+        }},
+        {CarClass.HyperCars,            new List<EventSeries.SeriesTier> {
+            {EventSeries.SeriesTier.Elite}, {EventSeries.SeriesTier.Master}, {EventSeries.SeriesTier.Prodigy}
+        }},
+        {CarClass.GTE,                  new List<EventSeries.SeriesTier> {
+            {EventSeries.SeriesTier.Elite}, {EventSeries.SeriesTier.Master}, {EventSeries.SeriesTier.Prodigy}
+        }},
+        {CarClass.GTOpen,               new List<EventSeries.SeriesTier> {
+            {EventSeries.SeriesTier.Professional}, {EventSeries.SeriesTier.Master}, {EventSeries.SeriesTier.Legend}
+        }},
+        {CarClass.GT5,                  new List<EventSeries.SeriesTier> {
+            {EventSeries.SeriesTier.Novice}, {EventSeries.SeriesTier.Amateur}
+        }},
+        {CarClass.GT4,                  new List<EventSeries.SeriesTier> {
+            {EventSeries.SeriesTier.Professional}, {EventSeries.SeriesTier.Elite}
+        }},
+        {CarClass.GT3,                  new List<EventSeries.SeriesTier> {
+            {EventSeries.SeriesTier.Elite}, {EventSeries.SeriesTier.Master}
+        }},
+        {CarClass.GT1,                  new List<EventSeries.SeriesTier> {
+            {EventSeries.SeriesTier.Master}, {EventSeries.SeriesTier.Prodigy}, {EventSeries.SeriesTier.Legend}, {EventSeries.SeriesTier.WorldRenowned}
+        }},
+        {CarClass.FormulaTrainer,       new List<EventSeries.SeriesTier> {
+            {EventSeries.SeriesTier.Rookie}, {EventSeries.SeriesTier.Novice}, {EventSeries.SeriesTier.Amateur}
+        }},
+        {CarClass.FormulaTrainerA,      new List<EventSeries.SeriesTier> {
+            {EventSeries.SeriesTier.Novice}, {EventSeries.SeriesTier.Amateur}, {EventSeries.SeriesTier.Professional}
+        }},
+        {CarClass.FormulaInter,         new List<EventSeries.SeriesTier> {
+            {EventSeries.SeriesTier.Amateur}, {EventSeries.SeriesTier.Professional}, {EventSeries.SeriesTier.Elite}
+        }},
+        {CarClass.F3,                   new List<EventSeries.SeriesTier> {
+            {EventSeries.SeriesTier.Professional}, {EventSeries.SeriesTier.Elite}, {EventSeries.SeriesTier.Master}
+        }},
+        {CarClass.FormulaReiza,         new List<EventSeries.SeriesTier> {
+            {EventSeries.SeriesTier.Elite}, {EventSeries.SeriesTier.Master}, {EventSeries.SeriesTier.Prodigy}
+        }},
+        {CarClass.FormulaUltimateGen2,  new List<EventSeries.SeriesTier> {
+            {EventSeries.SeriesTier.Prodigy}, {EventSeries.SeriesTier.Legend}, {EventSeries.SeriesTier.WorldRenowned}
+        }},
+        {CarClass.GroupC,               new List<EventSeries.SeriesTier> {
+            {EventSeries.SeriesTier.Prodigy}, {EventSeries.SeriesTier.Legend}, {EventSeries.SeriesTier.WorldRenowned}
+        }},
+        {CarClass.P4,                   new List<EventSeries.SeriesTier> {
+            {EventSeries.SeriesTier.Professional}, {EventSeries.SeriesTier.Elite}
+        }},
+        {CarClass.P3,                   new List<EventSeries.SeriesTier> {
+            {EventSeries.SeriesTier.Elite}, {EventSeries.SeriesTier.Master}, {EventSeries.SeriesTier.Prodigy}
+        }},
+        {CarClass.P2,                   new List<EventSeries.SeriesTier> {
+            {EventSeries.SeriesTier.Master}, {EventSeries.SeriesTier.Prodigy}, {EventSeries.SeriesTier.Legend}
+        }},
+        {CarClass.P1Gen2,               new List<EventSeries.SeriesTier> {
+            {EventSeries.SeriesTier.Prodigy}, {EventSeries.SeriesTier.Legend}, {EventSeries.SeriesTier.WorldRenowned}
+        }},
     };
 
     public enum CarBrand
@@ -624,13 +737,32 @@ public static class Cars
         Brabham
     }
 
-    public static Dictionary<CarClass, List<EventSeriesManager.SeriesTier>> classToSeries = new Dictionary<CarClass, List<EventSeriesManager.SeriesTier>>
+    public static Dictionary<CarClass, List<EventSeries.SeriesTier>> classToSeries = new Dictionary<CarClass, List<EventSeries.SeriesTier>>
     {
-        {CarClass.CopaClassicB,         new List<EventSeriesManager.SeriesTier> {
-            {EventSeriesManager.SeriesTier.Rookie}
+        {CarClass.CopaClassicB,         new List<EventSeries.SeriesTier> {
+            {EventSeries.SeriesTier.Rookie}
         }},
-        {CarClass.FormulaVee,           new List<EventSeriesManager.SeriesTier> {
-            {EventSeriesManager.SeriesTier.Rookie}
+        {CarClass.FormulaVee,           new List<EventSeries.SeriesTier> {
+            {EventSeries.SeriesTier.Rookie}
         }},
     };
+
+    private static void InitializeTierToClasses(){
+        CarClass carClass;
+        List<EventSeries.SeriesTier> tierList;
+
+        // For each entry in our classToTiers dict
+        foreach(KeyValuePair<CarClass, List<EventSeries.SeriesTier>> entry in classToTiers){
+            carClass = entry.Key;
+            tierList = entry.Value;
+
+            // Extract every tier from every class and organize a tierToClasses dict with the info gathered
+            foreach(EventSeries.SeriesTier tier in tierList){
+                if(!tierToClasses.ContainsKey(tier)){
+                    tierToClasses[tier] = new List<CarClass>();
+                }
+                tierToClasses[tier].Add(carClass);
+            }
+        }
+    }
 }
