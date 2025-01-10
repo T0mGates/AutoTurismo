@@ -53,10 +53,6 @@ public class Profile
     }
 
     public void BaseUnlocks(){
-        foreach(Cars.CarClass carClass in Enum.GetValues(typeof(Cars.CarClass))){
-            UnlockDealer(Dealers.GetDealer(Cars.classToString[carClass],   typeof(CarDealer)));
-            UnlockDealer(Dealers.GetDealer(Cars.classToString[carClass],   typeof(EntryPassDealer)));
-        }
     }
 
     public List<Purchasable> GetOwnedProducts(Type productType){
