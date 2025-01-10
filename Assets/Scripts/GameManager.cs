@@ -122,4 +122,54 @@ public class GameManager : MonoBehaviour
       }
       return false;
     }
+
+    public void UnlockRegionTier(Region.ClickableRegion region, EventSeries.SeriesTier tier){
+      // Check if we have enough
+      int cost    = Region.GetRenownCostForRegionTier(region, tier);
+
+      if(curProfile.GetRenown() >= cost){
+        // Make sure we own the prerequisites
+        List<Region.ClickableRegion> prereqs = Region.GetRegionPrereqs(region);
+        foreach(Region.ClickableRegion regionPrereq in prereqs){
+          if(!curProfile.GetUnlockedTiers(regionPrereq).Contains(tier)){
+            // Can't unlock, alert the user
+            menuManager.Notification("Alert",
+              "You don't own the prerequisites to unlock the " + EventSeries.tierToString[tier] + " series for " + Region.regionToString[region] +
+              ".\n\n You haven't unlocked the " + EventSeries.tierToString[tier] + " series for " + Region.regionToString[regionPrereq] + ", which is a prerequisite.");
+              return;
+          }
+        }
+
+        curProfile.LoseRenown(cost);
+        // Add the region/tier to our unlocked region/tier and generate a new series for that region/tier
+        if(!curProfile.HasUnlockedARegionTier()){
+          curProfile.UnlockRegionTier(region, tier);
+
+          Cars.CarClass carClass;
+          // Unlock 3 series total if it's the player's first unlock
+          // Unlock the dealers for those first 3 event series
+          for(int i = 0; i < 3; i++){
+            carClass = Region.regions[region].GenerateNewEventSeries(tier);
+            curProfile.UnlockDealer(Dealers.GetDealer(Cars.classToString[carClass],   typeof(CarDealer)));
+            curProfile.UnlockDealer(Dealers.GetDealer(Cars.classToString[carClass],   typeof(EntryPassDealer)));
+          }
+        }
+        else{
+          Region.regions[region].GenerateNewEventSeries(tier);
+        }
+
+        menuManager.UpdateMainUI();
+
+        // Refresh the region's page
+        menuManager.RegionSelect(region.ToString());
+
+        // Popup a success notification
+        menuManager.Notification("New Region Series Tier Unlocked!", "You've unlocked the " + EventSeries.tierToString[tier] + " series for " + Region.regionToString[region] + "!\n");
+      }
+      else{
+        // Can't afford, alert the user
+        menuManager.Notification("Alert",
+          "You don't have enough renown to unlock the " + EventSeries.tierToString[tier] + " series for " + Region.regionToString[region] + ".\n\nCurrent Renown: " + curProfile.GetRenown().ToString() + "\nRenown Cost: " + cost.ToString("n0"));
+      }
+    }
 }

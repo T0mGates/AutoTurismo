@@ -161,11 +161,11 @@ public static class Cars
 
 
     // Karts
-    public const string                     KART_125CC_NAME                         = "Kart 125cc 2STROKE";
-    public const string                     KART_GX390_NAME                         = "Kart GX390 Race";
-    public const string                     KART_RENTAL_NAME                        = "Kart GX390 Rental";
-    public const string                     KART_SHIFTER_NAME                       = "Kart 125cc Shifter";
-    public const string                     KART_SUPER_NAME                         = "Superkart 125cc";
+    public const string                     KART_125CC_NAME                         = "125cc 2STROKE";
+    public const string                     KART_GX390_NAME                         = "GX390 Race";
+    public const string                     KART_RENTAL_NAME                        = "GX390 Rental";
+    public const string                     KART_SHIFTER_NAME                       = "125cc Shifter";
+    public const string                     KART_SUPER_NAME                         = "Super 125cc";
 
     // FORMULA VEE
     public const string                     VEE_2011_NAME                           = "Formula Vee 2011";
@@ -524,6 +524,8 @@ public static class Cars
         {CarType.Road,                      "Road"}
     };
 
+    // Adding an entry here requires you to add to:
+    // classToString, classToTiers
     public enum CarClass
     {
         None,
@@ -736,16 +738,6 @@ public static class Cars
         Mitsubishi,
         Brabham
     }
-
-    public static Dictionary<CarClass, List<EventSeries.SeriesTier>> classToSeries = new Dictionary<CarClass, List<EventSeries.SeriesTier>>
-    {
-        {CarClass.CopaClassicB,         new List<EventSeries.SeriesTier> {
-            {EventSeries.SeriesTier.Rookie}
-        }},
-        {CarClass.FormulaVee,           new List<EventSeries.SeriesTier> {
-            {EventSeries.SeriesTier.Rookie}
-        }},
-    };
 
     private static void InitializeTierToClasses(){
         CarClass carClass;

@@ -19,7 +19,7 @@ public abstract class Dealer
 
     public Sprite GetSprite(){
         string imageName = name.Replace(" ", "") + "_Dealer";
-        return Resources.Load<Sprite>("Images/Logos/" + imageName);
+        return Resources.Load<Sprite>("Images/Dealers/" + imageName);
     }
 
     public void AddProduct(Purchasable product){

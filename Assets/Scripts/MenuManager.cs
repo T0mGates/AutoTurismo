@@ -35,6 +35,7 @@ public class MenuManager : MonoBehaviour
     public TMP_Text     moneyText;
     public TMP_Text     fameText;
     public TMP_Text     levelText;
+    public TMP_Text     renownText;
 
     [Header("Dealership")]
     public GameObject   dealerObjPrefab;
@@ -186,6 +187,7 @@ public class MenuManager : MonoBehaviour
         fameSlider.value    = 0 == gameManager.curProfile.GetCurrentFame() ? 0 : (float)gameManager.curProfile.GetCurrentFame() / (float)gameManager.curProfile.GetMaxFame();
         // Format as a number with 0 decimals
         moneyText.text      = gameManager.curProfile.GetPrintMoney();
+        renownText.text     = gameManager.curProfile.GetPrintRenown();
         fameText.text       = gameManager.curProfile.GetCurrentFame().ToString("n0") + " / " + gameManager.curProfile.GetMaxFame().ToString("n0");
         levelText.text      = "Level: " + gameManager.curProfile.GetLevel().ToString("n0");
     }
@@ -496,20 +498,21 @@ public class MenuManager : MonoBehaviour
 
         if(rewardSprite != null){
             notificationMenu.transform.Find(REWARD_IMG_NAME).GetComponent<Image>().sprite       = rewardSprite;
-            notificationMenu.transform.Find(REWARD_IMG_NAME).gameObject.SetActive(true);
+
+            bool useBGImg                                                                           = null != rewardBGSprite;
+            if(useBGImg){
+                notificationMenu.transform.Find(REWARD_IMG_BG_NAME).GetComponent<Image>().sprite    = rewardBGSprite;
+                notificationMenu.transform.Find(REWARD_INNER_NAME).GetComponent<Image>().sprite     = rewardSprite;
+            }
+            notificationMenu.transform.Find(REWARD_INNER_NAME).gameObject.SetActive(useBGImg);
+            notificationMenu.transform.Find(REWARD_IMG_BG_NAME).gameObject.SetActive(useBGImg);
+            notificationMenu.transform.Find(REWARD_IMG_NAME).gameObject.SetActive(!useBGImg);
         }
         else{
             notificationMenu.transform.Find(REWARD_IMG_NAME).gameObject.SetActive(false);
+            notificationMenu.transform.Find(REWARD_INNER_NAME).gameObject.SetActive(false);
+            notificationMenu.transform.Find(REWARD_IMG_BG_NAME).gameObject.SetActive(false);
         }
-
-        bool useBGImg                                                                           = null != rewardBGSprite;
-        if(useBGImg){
-            notificationMenu.transform.Find(REWARD_IMG_BG_NAME).GetComponent<Image>().sprite    = rewardBGSprite;
-            notificationMenu.transform.Find(REWARD_INNER_NAME).GetComponent<Image>().sprite     = rewardSprite;
-        }
-        notificationMenu.transform.Find(REWARD_INNER_NAME).gameObject.SetActive(useBGImg);
-        notificationMenu.transform.Find(REWARD_IMG_BG_NAME).gameObject.SetActive(useBGImg);
-        notificationMenu.transform.Find(REWARD_IMG_NAME).gameObject.SetActive(!useBGImg);
 
         notificationMenu.transform.Find(NORMAL_NOTI_NAME).gameObject.SetActive(notificationType == NotificationType.Normal);
         notificationMenu.transform.Find(CONFIRMATION_NAME).gameObject.SetActive(notificationType == NotificationType.PurchaseConfirmation);
@@ -725,13 +728,16 @@ public class MenuManager : MonoBehaviour
     }
 
     private void PopulateRegionTiers(Region.ClickableRegion region){
-        const string        REGION_TITLE_TXT_NAME   = "RegionTitleTxt";
+        const string        REGION_TITLE_TXT_NAME       = "RegionTitleTxt";
 
         // These are for the prefab
-        const string        TIER_TXT_NAME           = "TierTxt";
+        const string        TIER_TXT_NAME               = "TierTxt";
+        const string        LOCK_IMG_NAME               = "LockImg";
 
         GameObject                      newObj;
-        List<EventSeries.SeriesTier>    tierList    = Enum.GetValues(typeof(EventSeries.SeriesTier)).Cast<EventSeries.SeriesTier>().ToList();
+        List<EventSeries.SeriesTier>    tierList        = Enum.GetValues(typeof(EventSeries.SeriesTier)).Cast<EventSeries.SeriesTier>().ToList();
+
+        List<EventSeries.SeriesTier>    unlockedTiers   = gameManager.curProfile.GetUnlockedTiers(region);
 
         // Change the title depending on what the country type is
         regionTiersMenu.transform.Find(REGION_TITLE_TXT_NAME).GetComponent<TextMeshProUGUI>().text = Region.regionToString[region];
@@ -750,7 +756,18 @@ public class MenuManager : MonoBehaviour
             Button btn                                                                          = newObj.GetComponent<Button>();
 
             btn.onClick.RemoveAllListeners();
-            btn.onClick.AddListener(() => { RegionSeries(region, tier); });
+
+            // Action depends on if we own the tier for that region or not
+            if(unlockedTiers.Contains(tier)){
+                // We own the tier
+                newObj.transform.Find(LOCK_IMG_NAME).gameObject.SetActive(false);
+                btn.onClick.AddListener(() => { RegionSeries(region, tier); });
+            }
+            else{
+                // We do not own the tier
+                newObj.transform.Find(LOCK_IMG_NAME).gameObject.SetActive(true);
+                btn.onClick.AddListener(() => { ConfirmRegionTierUnlockPopup(region, tier); });
+            }
         }
     }
 
@@ -1130,5 +1147,26 @@ public class MenuManager : MonoBehaviour
         }
 
         Notification("Confirm Transaction", bodyText, product.GetSprite(), product.GetBGSprite(), NotificationType.PurchaseConfirmation);
+    }
+
+    private void ConfirmRegionTierUnlockPopup(Region.ClickableRegion region, EventSeries.SeriesTier tier){
+        // Either buying or selling
+
+        const string BUY_BTN_NAME   = "PurchaseConfirmation/YesBtn";
+
+        BlockNavButtons();
+
+        // Set the onclick event of the buy button on the notification screen
+        // Unlock tier and clear the notification
+        notificationMenu.transform.Find(BUY_BTN_NAME).GetComponent<Button>().onClick.RemoveAllListeners();
+        notificationMenu.transform.Find(BUY_BTN_NAME).GetComponent<Button>().onClick.AddListener(() => { gameManager.UnlockRegionTier(region, tier); });
+
+        int price                   = Region.GetRenownCostForRegionTier(region, tier);
+        int curRenown               = gameManager.curProfile.GetRenown();
+
+        string remainingBalance     = (curRenown - price).ToString("n0");
+        string bodyText             = "Are you sure you want to unlock the " + EventSeries.tierToString[tier] + " series for " + Region.regionToString[region] + "?\n\nRenown Cost: " + price.ToString("n0") + "\nRemaining renown after unlock: " + remainingBalance + "\n";
+
+        Notification("Confirm Unlock", bodyText, notificationType:NotificationType.PurchaseConfirmation);
     }
 }

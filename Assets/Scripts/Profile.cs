@@ -8,13 +8,15 @@ using UnityEngine.UIElements;
 
 public class Profile
 {
-    private string                              driverName;
-    private int                                 money;
-    private int                                 fame;
-    private int                                 maxFame;
-    private int                                 level;
-    private Dictionary<Type, List<Dealer>>      unlockedDealersDict;
-    private Dictionary<Type, List<Purchasable>> ownedProductsDict;
+    private string                                                              driverName;
+    private int                                                                 money;
+    private int                                                                 fame;
+    private int                                                                 maxFame;
+    private int                                                                 level;
+    private int                                                                 renown;
+    private Dictionary<Type, List<Dealer>>                                      unlockedDealersDict;
+    private Dictionary<Type, List<Purchasable>>                                 ownedProductsDict;
+    private Dictionary<Region.ClickableRegion, List<EventSeries.SeriesTier>>    unlockedRegionTiers;
 
     public Profile(string driverNameParam){
         // Initialize our dealers dict
@@ -24,9 +26,15 @@ public class Profile
         }
 
         // Initialize our owned products dict
-        ownedProductsDict = new Dictionary<Type, List<Purchasable>>();
+        ownedProductsDict   = new Dictionary<Type, List<Purchasable>>();
         foreach(Type productType in Purchasable.productTypes){
-            ownedProductsDict[productType] = new List<Purchasable>();
+            ownedProductsDict[productType]  = new List<Purchasable>();
+        }
+
+        // Initialize our unlocked tiers dict
+        unlockedRegionTiers = new Dictionary<Region.ClickableRegion, List<EventSeries.SeriesTier>>();
+        foreach(Region.ClickableRegion region in Enum.GetValues(typeof(Region.ClickableRegion))){
+            unlockedRegionTiers[region]           = new List<EventSeries.SeriesTier>();
         }
 
         // Base values
@@ -38,112 +46,16 @@ public class Profile
     private void SetBaseValues(){
         money               = 50000;
         fame                = 0;
+        renown              = 11;
         level               = 1;
         SetMaxFameBasedOnLevel();
         BaseUnlocks();
     }
 
     public void BaseUnlocks(){
-        // Base unlocks (DEALERS)
-        UnlockDealer(Dealers.GetDealer(Cars.classToString[Cars.CarClass.FormulaVee],                    typeof(CarDealer)));
-        UnlockDealer(Dealers.GetDealer(Cars.CarBrand.Volkswagen.ToString(),             typeof(CarDealer)));
-        UnlockDealer(Dealers.GetDealer(Cars.classToString[Cars.CarClass.CopaClassicB],         typeof(CarDealer)));
-        UnlockDealer(Dealers.GetDealer(Cars.classToString[Cars.CarClass.FormulaVee],                    typeof(EntryPassDealer)));
-        UnlockDealer(Dealers.GetDealer(Cars.CarBrand.Volkswagen.ToString(),             typeof(EntryPassDealer)));
-        UnlockDealer(Dealers.GetDealer(Cars.classToString[Cars.CarClass.CopaClassicB],         typeof(EntryPassDealer)));
-
-        // Base unlocks (EVENTS)
-
-        foreach(Region.ClickableRegion region in Enum.GetValues(typeof(Region.ClickableRegion))){
-            EventSeries newSeriesCopa   = new EventSeries("Copa Classic B for Dummies"  , EventSeries.SeriesTier.Rookie, region);
-            EventSeries newSeriesVee    = new EventSeries("Formula Vee for Dummies"     , EventSeries.SeriesTier.Amateur, region);
-            EventSeries newSeriesCopaFL   = new EventSeries("Copa Classic FL for Gods" , EventSeries.SeriesTier.Elite, region);
-
-            Event.GenerateNewEvent(
-                "Weekend Race - Copa Classic B",
-                Event.EventType.Race,
-                Event.EventDuration.Mini,
-                newSeriesCopa,
-                Tracks.GetCountries(region),
-                new List<Cars.CarType>(),
-                new List<Cars.CarClass>() { {Cars.CarClass.CopaClassicB} },
-                new List<Cars.CarBrand>(),
-                new List<string>(),
-                useLaps:true
-            );
-            Event.GenerateNewEvent(
-                "Weekend Race - Copa Classic B",
-                Event.EventType.Race,
-                Event.EventDuration.Long,
-                newSeriesCopa,
-                Tracks.GetCountries(region),
-                new List<Cars.CarType>(),
-                new List<Cars.CarClass>() { {Cars.CarClass.CopaClassicB} },
-                new List<Cars.CarBrand>(),
-                new List<string>(),
-                false
-            );
-            Event.GenerateNewEvent(
-                "Sunday Cup - Copa Classic B vs Formula Vee",
-                Event.EventType.Championship,
-                Event.EventDuration.Mini,
-                newSeriesCopa,
-                Tracks.GetCountries(region),
-                new List<Cars.CarType>() { },
-                new List<Cars.CarClass>() { {Cars.CarClass.CopaClassicB}, {Cars.CarClass.FormulaVee} },
-                new List<Cars.CarBrand>() { {Cars.CarBrand.Chevrolet}, {Cars.CarBrand.Volkswagen} },
-                new List<string>(),
-                false
-            );
-
-            Event.GenerateNewEvent(
-                "Weekend Race - Formula Vee",
-                Event.EventType.Race,
-                Event.EventDuration.Mini,
-                newSeriesVee,
-                Tracks.GetCountries(region),
-                new List<Cars.CarType>(),
-                new List<Cars.CarClass>() { {Cars.CarClass.FormulaVee} },
-                new List<Cars.CarBrand>(),
-                new List<string>(),
-                true
-            );
-            Event.GenerateNewEvent(
-                "Weekend Race - Formula Vee",
-                Event.EventType.Race,
-                Event.EventDuration.Long,
-                newSeriesVee,
-                Tracks.GetCountries(region),
-                new List<Cars.CarType>(),
-                new List<Cars.CarClass>() { {Cars.CarClass.FormulaVee} },
-                new List<Cars.CarBrand>(),
-                new List<string>(),
-                false
-            );
-            Event.GenerateNewEvent(
-                "Endurance Championship - Formula Vee",
-                Event.EventType.Championship,
-                Event.EventDuration.Endurance,
-                newSeriesVee,
-                Tracks.GetCountries(region),
-                new List<Cars.CarType>(),
-                new List<Cars.CarClass>() { {Cars.CarClass.FormulaVee} },
-                new List<Cars.CarBrand>(),
-                new List<string>(),
-                false
-            );
-            Event.GenerateNewEvent(
-                "Sunday Cup - Copa Classic FL",
-                Event.EventType.Championship,
-                Event.EventDuration.Average,
-                newSeriesCopaFL,
-                Tracks.GetCountries(region),
-                new List<Cars.CarType>(),
-                new List<Cars.CarClass>() { {Cars.CarClass.CopaClassicFL} },
-                new List<Cars.CarBrand>(),
-                new List<string>(),
-                false
-            );
+        foreach(Cars.CarClass carClass in Enum.GetValues(typeof(Cars.CarClass))){
+            UnlockDealer(Dealers.GetDealer(Cars.classToString[carClass],   typeof(CarDealer)));
+            UnlockDealer(Dealers.GetDealer(Cars.classToString[carClass],   typeof(EntryPassDealer)));
         }
     }
 
@@ -156,6 +68,12 @@ public class Profile
             if(dealerType == dealerToAdd.GetType()){
                 unlockedDealersDict[dealerType].Add(dealerToAdd);
             }
+        }
+    }
+
+    public void UnlockRegionTier(Region.ClickableRegion region, EventSeries.SeriesTier tier){
+        if(!unlockedRegionTiers[region].Contains(tier)){
+            unlockedRegionTiers[region].Add(tier);
         }
     }
 
@@ -192,6 +110,10 @@ public class Profile
         return unlockedDealersDict[dealerType];
     }
 
+    public List<EventSeries.SeriesTier> GetUnlockedTiers(Region.ClickableRegion region){
+        return unlockedRegionTiers[region];
+    }
+
     public int GetCurrentFame(){
         return fame;
     }
@@ -207,6 +129,13 @@ public class Profile
         }
     }
 
+    public void LoseRenown(int toLose){
+        renown -= toLose;
+        if(renown < 0){
+            renown = 0;
+        }
+    }
+
     public void GainMoney(int toGain){
         money += toGain;
     }
@@ -215,12 +144,20 @@ public class Profile
         return "$" + GetMoney().ToString("n0");
     }
 
+    public string GetPrintRenown(){
+        return GetRenown().ToString("n0") + " Renown";
+    }
+
     public int GetMoney(){
         return money;
     }
 
     public int GetLevel(){
         return level;
+    }
+
+    public int GetRenown(){
+        return renown;
     }
 
     // Used to detect which cars are legal for an event
@@ -254,13 +191,23 @@ public class Profile
         return toReturn;
     }
 
+    public bool HasUnlockedARegionTier(){
+        foreach(KeyValuePair<Region.ClickableRegion, List<EventSeries.SeriesTier>> entry in unlockedRegionTiers){
+            if(entry.Value.Count > 0){
+                return true;
+            }
+        }
+        return false;
+    }
+
     private void SetMaxFameBasedOnLevel(){
-        maxFame = 100 * level;
+        maxFame = 100 +  (5 * (level-1));
     }
 
     private void LevelUp(){
         fame -= maxFame;
         ++level;
+        ++renown;
         SetMaxFameBasedOnLevel();
     }
 }
