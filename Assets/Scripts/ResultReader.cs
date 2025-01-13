@@ -52,13 +52,44 @@ public class ResultDriver
     public float Rating { get; set; }
     public float RatingRelativeToPlayer { get; set; }
     public string GapToPlayerByTiming { get; set; }
+
+    public ResultDriver(){}
+
+    public ResultDriver(SerializableResultDriver serDriver){
+        ClassName                   = serDriver.ClassName;
+        ClassId                     = serDriver.ClassId;
+        DriverId                    = serDriver.DriverId;
+        DriverLongName              = serDriver.DriverLongName;
+        FinishingPosition           = serDriver.FinishingPosition;
+        FinishingPositionInClass    = serDriver.FinishingPositionInClass;
+        AveragePosition             = serDriver.AveragePosition;
+        InitialPosition             = serDriver.InitialPosition;
+        InitialPositionInClass      = serDriver.InitialPositionInClass;
+        CarName                     = serDriver.CarName;
+        TotalLaps                   = serDriver.TotalLaps;
+        TotalDistance               = serDriver.TotalDistance;
+        GapToPlayerRelative         = serDriver.GapToPlayerRelative;
+        LapsDifferenceToPlayer      = serDriver.LapsDifferenceToPlayer;
+        TopSpeed                    = serDriver.TopSpeed;
+
+        Laps                        = serDriver.Laps.GetList().ToArray();
+
+        IsPlayer                    = serDriver.IsPlayer;
+        Finished                    = serDriver.Finished;
+        FinishStatus                = serDriver.FinishStatus;
+        Rating                      = serDriver.Rating;
+        RatingRelativeToPlayer      = serDriver.RatingRelativeToPlayer;
+        GapToPlayerByTiming         = serDriver.GapToPlayerByTiming;
+    }
 }
 
+[System.Serializable]
 public class ResultTopSpeed
 {
     public float InMs { get; set; }
 }
 
+[System.Serializable]
 public class ResultLap
 {
     public bool IsPitLap { get; set; }

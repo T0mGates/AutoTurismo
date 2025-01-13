@@ -43,16 +43,28 @@ public class Profile
         SetBaseValues();
     }
 
+    public void SetValues(int moneyParam, int fameParam, int renownParam, int levelParam){
+        money               = moneyParam;
+        fame                = fameParam;
+        renown              = renownParam;
+        level               = levelParam;
+        SetMaxFameBasedOnLevel();
+    }
+
     private void SetBaseValues(){
-        money               = 50000;
+        money               = 8000;
         fame                = 0;
-        renown              = 11;
+        renown              = 1;
         level               = 1;
         SetMaxFameBasedOnLevel();
         BaseUnlocks();
     }
 
     public void BaseUnlocks(){
+    }
+
+    public string GetName(){
+        return driverName;
     }
 
     public List<Purchasable> GetOwnedProducts(Type productType){
@@ -62,7 +74,9 @@ public class Profile
     public void UnlockDealer(Dealer dealerToAdd){
         foreach(Type dealerType in Dealers.dealerTypes){
             if(dealerType == dealerToAdd.GetType()){
-                unlockedDealersDict[dealerType].Add(dealerToAdd);
+                if(!unlockedDealersDict[dealerType].Contains(dealerToAdd)){
+                    unlockedDealersDict[dealerType].Add(dealerToAdd);
+                }
             }
         }
     }

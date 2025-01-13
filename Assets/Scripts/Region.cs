@@ -6,6 +6,7 @@ using Unity.VisualScripting.Antlr3.Runtime;
 public class Region
 {
     public static Dictionary<ClickableRegion, Region>               regions;
+    public static int                                               MAX_EVENTS_PER_REGION = 5;
 
     public List<EventSeries>                                        series;
     public Dictionary<EventSeries.SeriesTier, List<EventSeries>>    tierToSeries;
@@ -67,7 +68,7 @@ public class Region
         }
 
         if(classToUse == Cars.CarClass.None){
-            Debug.LogError("No valid car classes were found!");
+            Debug.Log("No valid car classes were found, perhaps due to already exhasuting all duplicates.");
             return classToUse;
         }
 

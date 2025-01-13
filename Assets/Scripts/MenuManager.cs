@@ -29,6 +29,7 @@ public class MenuManager : MonoBehaviour
     public GameObject   eventEntryRaceMenu;
     public GameObject   eventEntryCompleteMenu;
     public GameObject   earnRewardMenu;
+    public GameObject   profileMenu;
 
     [Header("Player Info")]
     public Slider       fameSlider;
@@ -71,6 +72,10 @@ public class MenuManager : MonoBehaviour
     public GameObject       chooseCarPrefab;
     public Transform        chooseCarContentTransform;
 
+    [Header("Profile")]
+    public GameObject       profileObjPrefab;
+    public Transform        profileObjContentTransform;
+
     void Start(){
         eventContentTransforms  = new List<Transform>();
 
@@ -101,6 +106,7 @@ public class MenuManager : MonoBehaviour
         eventEntryRaceMenu.SetActive(false);
         eventEntryCompleteMenu.SetActive(false);
         earnRewardMenu.SetActive(false);
+        profileMenu.SetActive(false);
 
         // Destroy objects
         foreach(Transform child in dealershipContentTransform)
@@ -135,6 +141,10 @@ public class MenuManager : MonoBehaviour
         }
         eventContentTransforms.Clear();
         foreach(Transform child in chooseCarContentTransform)
+        {
+            Destroy(child.gameObject);
+        }
+        foreach(Transform child in profileObjContentTransform)
         {
             Destroy(child.gameObject);
         }
@@ -175,7 +185,7 @@ public class MenuManager : MonoBehaviour
 
         // Validate name
         if(text.Length > 0){
-            gameManager.SetProfile(text);
+            gameManager.MakeNewProfile(text);
             Home(false);
         }
         else{
@@ -244,6 +254,14 @@ public class MenuManager : MonoBehaviour
         TurnAllOff();
         navigationMenu.SetActive(true);
         racingMenu.SetActive(true);
+    }
+
+    public void Profile(){
+        TurnAllOff();
+        profileMenu.SetActive(true);
+        navigationMenu.SetActive(true);
+        BlockNavButtons();
+        PopulateProfiles();
     }
 
     public void RegionSelect(string clickableRegionName){
@@ -473,11 +491,11 @@ public class MenuManager : MonoBehaviour
 
     public enum NotificationType
     {
-        Normal,
+        Notification,
         PurchaseConfirmation
     }
 
-    public void Notification(string title, string bodyText, Sprite rewardSprite = null, Sprite rewardBGSprite = null, NotificationType notificationType = NotificationType.Normal){
+    public void Notification(string title, string bodyText, Sprite rewardSprite = null, Sprite rewardBGSprite = null, NotificationType notificationType = NotificationType.Notification){
         const string TITLE_TEXT_NAME        = "TitleTxt";
         const string BODY_TEXT_NAME         = "NotificationTxt";
         const string REWARD_IMG_NAME        = "RewardImg";
@@ -514,7 +532,7 @@ public class MenuManager : MonoBehaviour
             notificationMenu.transform.Find(REWARD_IMG_BG_NAME).gameObject.SetActive(false);
         }
 
-        notificationMenu.transform.Find(NORMAL_NOTI_NAME).gameObject.SetActive(notificationType == NotificationType.Normal);
+        notificationMenu.transform.Find(NORMAL_NOTI_NAME).gameObject.SetActive(notificationType == NotificationType.Notification);
         notificationMenu.transform.Find(CONFIRMATION_NAME).gameObject.SetActive(notificationType == NotificationType.PurchaseConfirmation);
 
         notificationMenu.SetActive(true);
@@ -1087,6 +1105,85 @@ public class MenuManager : MonoBehaviour
         backBtn.onClick.AddListener(()                  => { Series(eventEntry.parentEvent.parentEventSeries); });
     }
 
+    private void PopulateProfiles(){
+        // Within the prefab
+        const string PROFILE_TEXT_NAME  = "ProfileNameTxt";
+        const string LEVEL_TEXT_NAME    = "LevelTxt";
+        const string RENOWN_TEXT_NAME   = "RenownTxt";
+        const string MONEY_TEXT_NAME    = "MoneyTxt";
+        const string SELECT_BTN_NAME    = "SelectBtn";
+        const string DELETE_BTN_NAME    = "DeleteBtn";
+
+
+        GameObject      newObj;
+        List<string>    profileNames    =  SaveSystem.profileNames;
+
+        // For every profile, make a profile obj prefab
+        for(int i = 1; i <= profileNames.Count; i++){
+            string  profileName     = profileNames[i-1];
+            int     profileLevel    = SaveSystem.profileLevels[i-1];
+            int     profileRenown   = SaveSystem.profileRenown[i-1];
+            int     profileMoney    = SaveSystem.profileMoney[i-1];
+
+            int     curInt          = i;
+
+            newObj                  = (GameObject)Instantiate(profileObjPrefab, profileObjContentTransform);
+            newObj.transform.Find(PROFILE_TEXT_NAME).GetComponent<TextMeshProUGUI>().text       = profileName;
+
+            newObj.transform.Find(LEVEL_TEXT_NAME).GetComponent<TextMeshProUGUI>().text         = "Level: " + profileLevel.ToString("n0");
+            newObj.transform.Find(RENOWN_TEXT_NAME).GetComponent<TextMeshProUGUI>().text        = "Renown: " + profileRenown.ToString("n0");
+            newObj.transform.Find(MONEY_TEXT_NAME).GetComponent<TextMeshProUGUI>().text         = "$" + profileMoney.ToString("n0");
+
+            newObj.transform.Find(SELECT_BTN_NAME).GetComponent<Button>().onClick.RemoveAllListeners();
+            newObj.transform.Find(SELECT_BTN_NAME).GetComponent<Button>().onClick.AddListener(() => { SelectProfileSlot(curInt); });
+
+            if(SaveSystem.DEFAULT_NAME == profileName){
+                newObj.transform.Find(DELETE_BTN_NAME).gameObject.SetActive(false);
+                newObj.transform.Find(LEVEL_TEXT_NAME).gameObject.SetActive(false);
+                newObj.transform.Find(RENOWN_TEXT_NAME).gameObject.SetActive(false);
+                newObj.transform.Find(MONEY_TEXT_NAME).gameObject.SetActive(false);
+                continue;
+            }
+
+            newObj.transform.Find(DELETE_BTN_NAME).GetComponent<Button>().onClick.RemoveAllListeners();
+            newObj.transform.Find(DELETE_BTN_NAME).GetComponent<Button>().onClick.AddListener(() => { ConfirmDeleteProfile(curInt, profileName); });
+        }
+    }
+
+    private void ConfirmDeleteProfile(int profileSlot, string profileName){
+        const string BUY_BTN_NAME   = "PurchaseConfirmation/YesBtn";
+
+        BlockNavButtons();
+
+        // Set the onclick event of the buy button on the notification screen
+        // Delete profile and clear the notification
+        notificationMenu.transform.Find(BUY_BTN_NAME).GetComponent<Button>().onClick.RemoveAllListeners();
+        notificationMenu.transform.Find(BUY_BTN_NAME).GetComponent<Button>().onClick.AddListener(() => { DeleteProfileSlot(profileSlot); });
+
+        string bodyText             = "Are you sure you want to delete the profile: " + profileName + " and all of its' associated data?";
+
+        Notification("Delete the Profile?", bodyText, notificationType:NotificationType.PurchaseConfirmation);
+    }
+
+    private void DeleteProfileSlot(int profileSlot){
+        // Delete the profile and refresh the profile page
+        SaveSystem.DeleteProfile(profileSlot);
+        Profile();
+    }
+
+    private void SelectProfileSlot(int profileSlot){
+        PlayerData data = SaveSystem.LoadPlayerData(profileSlot);
+        if(data != null){
+            gameManager.SetProfile(data.MakeProfile(), profileSlot);
+        }
+        else{
+            gameManager.SetProfileSlot(profileSlot);
+        }
+
+        ActivateNavButtons();
+        Home(data == null);
+    }
+
     // Final click before actually 'racing'
     private void ChooseCarClicked(EventEntry eventEntry, Car car, bool ownEntryPassForCar){
         // First check if we can actually use our selected car for the event
@@ -1159,7 +1256,7 @@ public class MenuManager : MonoBehaviour
         // Set the onclick event of the buy button on the notification screen
         // Unlock tier and clear the notification
         notificationMenu.transform.Find(BUY_BTN_NAME).GetComponent<Button>().onClick.RemoveAllListeners();
-        notificationMenu.transform.Find(BUY_BTN_NAME).GetComponent<Button>().onClick.AddListener(() => { gameManager.UnlockRegionTier(region, tier); });
+        notificationMenu.transform.Find(BUY_BTN_NAME).GetComponent<Button>().onClick.AddListener(() => { gameManager.BuyRegionTier(region, tier); });
 
         int price                   = Region.GetRenownCostForRegionTier(region, tier);
         int curRenown               = gameManager.curProfile.GetRenown();

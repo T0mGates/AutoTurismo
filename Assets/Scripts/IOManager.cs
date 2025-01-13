@@ -1,6 +1,5 @@
 using System.IO;
 using Newtonsoft.Json;
-using UnityEditor;
 using UnityEngine;
 
 public static class IOManager
@@ -22,7 +21,7 @@ public static class IOManager
               RaceResult result = JsonConvert.DeserializeObject<RaceResult>(File.ReadAllText(filePath));
               // Delete the json file since this function is 'while trued' until it does not find a json file
               Debug.Log("Deleting file found at: " + filePath);
-              FileUtil.DeleteFileOrDirectory(filePath);
+              File.Delete(filePath);
               return result;
             }
         }

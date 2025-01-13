@@ -1,7 +1,6 @@
 using UnityEngine;
 using System;
 using System.Collections.Generic;
-using UnityEditor.PackageManager;
 using System.Linq;
 
 public class EventSeries
@@ -36,6 +35,7 @@ public class EventSeries
         return name.GetHashCode() + seriesTier.GetHashCode();
     }
 
+    [System.Serializable]
     public enum SeriesTier
     {
         Rookie          = 0,
@@ -62,18 +62,31 @@ public class EventSeries
         {SeriesTier.WorldRenowned,      "World-Renowned"}
     };
 
+    public static Dictionary<SeriesTier, List<Event.EventDuration>> tierDurationWhitelist = new Dictionary<SeriesTier, List<Event.EventDuration>>
+    {
+        {SeriesTier.Rookie,             new List<Event.EventDuration>() { {Event.EventDuration.Mini}, {Event.EventDuration.Short}, {Event.EventDuration.Average} } },
+        {SeriesTier.Novice,             new List<Event.EventDuration>() { {Event.EventDuration.Mini}, {Event.EventDuration.Short}, {Event.EventDuration.Average} } },
+        {SeriesTier.Amateur,            new List<Event.EventDuration>() { {Event.EventDuration.Mini}, {Event.EventDuration.Short}, {Event.EventDuration.Average} } },
+        {SeriesTier.Professional,       new List<Event.EventDuration>() { {Event.EventDuration.Mini}, {Event.EventDuration.Short}, {Event.EventDuration.Average}, {Event.EventDuration.FairlyLong} } },
+        {SeriesTier.Elite,              new List<Event.EventDuration>() { {Event.EventDuration.Mini}, {Event.EventDuration.Short}, {Event.EventDuration.Average}, {Event.EventDuration.FairlyLong} } },
+        {SeriesTier.Master,             new List<Event.EventDuration>() { {Event.EventDuration.Mini}, {Event.EventDuration.Short}, {Event.EventDuration.Average}, {Event.EventDuration.FairlyLong}, {Event.EventDuration.Long} } },
+        {SeriesTier.Prodigy,            new List<Event.EventDuration>() { {Event.EventDuration.Mini}, {Event.EventDuration.Short}, {Event.EventDuration.Average}, {Event.EventDuration.FairlyLong}, {Event.EventDuration.Long} } },
+        {SeriesTier.Legend,             new List<Event.EventDuration>() { {Event.EventDuration.Mini}, {Event.EventDuration.Short}, {Event.EventDuration.Average}, {Event.EventDuration.FairlyLong}, {Event.EventDuration.Long}, {Event.EventDuration.Endurance} } },
+        {SeriesTier.WorldRenowned,      new List<Event.EventDuration>() { {Event.EventDuration.Mini}, {Event.EventDuration.Short}, {Event.EventDuration.Average}, {Event.EventDuration.FairlyLong}, {Event.EventDuration.Long}, {Event.EventDuration.Endurance} } }
+    };
+
     // Used for race length calculations
     public static Dictionary<SeriesTier, int> tierToAvgKMPerMinuteSpeed = new Dictionary<SeriesTier, int>
     {
         {SeriesTier.Rookie,             100/60},
-        {SeriesTier.Novice,             125/60},
-        {SeriesTier.Amateur,            150/60},
-        {SeriesTier.Professional,       175/60},
-        {SeriesTier.Elite,              200/60},
-        {SeriesTier.Master,             210/60},
-        {SeriesTier.Prodigy,            220/60},
-        {SeriesTier.Legend,             235/60},
-        {SeriesTier.WorldRenowned,      250/60}
+        {SeriesTier.Novice,             105/60},
+        {SeriesTier.Amateur,            110/60},
+        {SeriesTier.Professional,       115/60},
+        {SeriesTier.Elite,              120/60},
+        {SeriesTier.Master,             125/60},
+        {SeriesTier.Prodigy,            130/60},
+        {SeriesTier.Legend,             135/60},
+        {SeriesTier.WorldRenowned,      140/60}
     };
 
     // Set restrictions on what grade tracks each tier drivers can race on
@@ -130,14 +143,14 @@ public class Event
     public List<Cars.CarBrand>      brandWhitelist;
     public List<string>             nameWhitelist;
 
-    private int                     topFameReward;
-    private int                     topMoneyReward;
-    private int                     finishPosition;
-    private int                     gridSize;
-    private bool                    completed;
+    public int                      topFameReward;
+    public int                      topMoneyReward;
+    public int                      finishPosition;
+    public int                      gridSize;
+    public bool                     completed;
 
-    private List<EventEntry>        eventEntries;
-    private Dictionary<string, int> champhionshipPoints;
+    public List<EventEntry>         eventEntries;
+    public Dictionary<string, int>  champhionshipPoints;
 
     public Event(
                 string nameParam, EventType eventTypeParam, EventDuration eventDurationParam, EventSeries parentEventSeriesParam,
@@ -179,6 +192,7 @@ public class Event
                 break;
         }
 
+        // Completed the event
         if(nextUpIndex >= eventEntries.Count){
             Debug.Log("Event: " + name + " is complete!");
             // Depending on the event type, calculate final position
@@ -209,8 +223,8 @@ public class Event
         }
 
         // Need to figure out gridSize of the whole 'event'
-        // If it is still the default (first event entry to be added)
-        if(-1 == gridSize){
+        // If it is the first event entry to be added, set it to that event entry's grid size
+        if(eventEntries.Count == 0){
             gridSize = entryToAdd.gridSize;
         }
         else{
@@ -411,7 +425,7 @@ public class Event
                 bool useLaps = true, List<Track> blacklistedTracks = null
                 ){
         // First pick the track depending on the tier and country
-        EventSeries.SeriesTier   tier                   = parentEventSeriesParam.seriesTier;
+        EventSeries.SeriesTier          tier            = parentEventSeriesParam.seriesTier;
         Track                           trackToUse      = null;
         List<Tracks.Grade>              allowedGrades   = EventSeries.tierAllowedOnGrade[tier];
 
@@ -591,7 +605,7 @@ public class Event
     }
 
     // Holds how long in minutes an event is supposed to take for each duration
-    public static Dictionary<EventDuration, int>    eventDurationToExpectedMins = new Dictionary<EventDuration, int>
+    public static Dictionary<EventDuration, int>    eventDurationToExpectedMins         = new Dictionary<EventDuration, int>
     {
         {EventDuration.Mini,            6},
         {EventDuration.Short,           11},
@@ -601,7 +615,7 @@ public class Event
         {EventDuration.Endurance,       60}
     };
 
-    public static Dictionary<EventDuration, string> eventDurationToString       = new Dictionary<EventDuration, string>
+    public static Dictionary<EventDuration, string> eventDurationToString               = new Dictionary<EventDuration, string>
     {
         {EventDuration.Mini,            "Mini"},
         {EventDuration.Short,           "Short"},
@@ -759,6 +773,7 @@ public class EventEntry
         attempted       = false;
         nextUp          = false;
         parentEvent     = parentEventParam;
+        playerCar       = null;
 
         driverResults   = new List<ResultDriver>();
 
@@ -890,7 +905,7 @@ public class EventEntry
         const int MIN_LAPS                  = 3;
 
         // Get the grid size we shall use, minimum of 10
-        int gridSize                        = Mathf.Max((int)(track.maxGridSize / 2.50f) + UnityEngine.Random.Range(-4, 5), 10);
+        int gridSize                        = Mathf.Max((int)(track.maxGridSize / 2.50f) + UnityEngine.Random.Range(1, 6), 12);
 
         // Either use laps or mins, depending on if useLaps is true or not
         if(useLaps){

@@ -1,0 +1,798 @@
+{
+  "SessionRunTime": "2024-12-26T21:42:21.5954012-05:00",
+  "SessionType": "Race",
+  "WasGreen": true,
+  "Simulator": "AMS 2",
+  "SessionLengthType": "Laps",
+  "TotalNumberOfLaps": 1,
+  "SessionLength": "00:00:00",
+  "SessionRunDuration": "00:07:09.4939998",
+  "TrackInfo": {
+    "TrackName": "Adelaide",
+    "TrackLayoutName": "Adelaide",
+    "LayoutLength": {
+      "InMeters": 3228.195556640625
+    }
+  },
+  "Drivers": [
+    {
+      "ClassName": "F-3",
+      "ClassId": "F-3",
+      "DriverId": "GatesF-3",
+      "DriverLongName": "Gates",
+      "FinishingPosition": 14,
+      "FinishingPositionInClass": 1,
+      "AveragePosition": 2147483647.0,
+      "InitialPosition": 0,
+      "InitialPositionInClass": 0,
+      "CarName": "Dallara F301",
+      "TotalLaps": 0,
+      "TotalDistance": 3228.195556640625,
+      "GapToPlayerRelative": "00:00:00",
+      "LapsDifferenceToPlayer": 0,
+      "TopSpeed": {
+        "InMs": 0.06353748589754105
+      },
+      "Laps": [],
+      "IsPlayer": true,
+      "Finished": true,
+      "FinishStatus": "Finished",
+      "Rating": 0.0,
+      "RatingRelativeToPlayer": 0.0,
+      "GapToPlayerByTiming": "00:00:00"
+    },
+    {
+      "ClassName": "F-3",
+      "ClassId": "F-3",
+      "DriverId": "Marcio JamirezF-3",
+      "DriverLongName": "Marcio Jamirez",
+      "FinishingPosition": 11,
+      "FinishingPositionInClass": 2,
+      "AveragePosition": 11.0,
+      "InitialPosition": 11,
+      "InitialPositionInClass": 11,
+      "CarName": "Dallara F301",
+      "TotalLaps": 1,
+      "TotalDistance": 3228.195556640625,
+      "GapToPlayerRelative": "-00:01:25.3740000",
+      "LapsDifferenceToPlayer": -1,
+      "TopSpeed": {
+        "InMs": 66.64466094970703
+      },
+      "Laps": [
+        {
+          "IsPitLap": false,
+          "LapNumber": 1,
+          "IsValid": false,
+          "LapStartPosition": 11,
+          "LapStartPositionClass": 11,
+          "LapTime": "00:01:35.0569305",
+          "Sector1": "00:00:34.5155487",
+          "Sector2": "00:00:34.2824096",
+          "Sector3": "00:00:26.2589721"
+        }
+      ],
+      "IsPlayer": false,
+      "Finished": true,
+      "FinishStatus": "Finished",
+      "Rating": 0.0,
+      "RatingRelativeToPlayer": 0.0,
+      "GapToPlayerByTiming": "-00:01:25.3740000"
+    },
+    {
+      "ClassName": "F-3",
+      "ClassId": "F-3",
+      "DriverId": "Karl AndersonF-3",
+      "DriverLongName": "Karl Anderson",
+      "FinishingPosition": 12,
+      "FinishingPositionInClass": 3,
+      "AveragePosition": 12.0,
+      "InitialPosition": 13,
+      "InitialPositionInClass": 13,
+      "CarName": "Dallara F301",
+      "TotalLaps": 1,
+      "TotalDistance": 3228.195556640625,
+      "GapToPlayerRelative": "-00:01:25.3270000",
+      "LapsDifferenceToPlayer": -1,
+      "TopSpeed": {
+        "InMs": 66.45276641845703
+      },
+      "Laps": [
+        {
+          "IsPitLap": false,
+          "LapNumber": 1,
+          "IsValid": false,
+          "LapStartPosition": 13,
+          "LapStartPositionClass": 13,
+          "LapTime": "00:01:35.3918609",
+          "Sector1": "00:00:34.8626403",
+          "Sector2": "00:00:34.2794647",
+          "Sector3": "00:00:26.2497558"
+        }
+      ],
+      "IsPlayer": false,
+      "Finished": true,
+      "FinishStatus": "Finished",
+      "Rating": 0.0,
+      "RatingRelativeToPlayer": 0.0,
+      "GapToPlayerByTiming": "-00:01:25.3270000"
+    },
+    {
+      "ClassName": "F-3",
+      "ClassId": "F-3",
+      "DriverId": "Renato ShizuoF-3",
+      "DriverLongName": "Renato Shizuo",
+      "FinishingPosition": 13,
+      "FinishingPositionInClass": 4,
+      "AveragePosition": 13.0,
+      "InitialPosition": 12,
+      "InitialPositionInClass": 12,
+      "CarName": "Dallara F301",
+      "TotalLaps": 1,
+      "TotalDistance": 3228.195556640625,
+      "GapToPlayerRelative": "-00:01:25.9330000",
+      "LapsDifferenceToPlayer": -1,
+      "TopSpeed": {
+        "InMs": 64.56005859375
+      },
+      "Laps": [
+        {
+          "IsPitLap": false,
+          "LapNumber": 1,
+          "IsValid": false,
+          "LapStartPosition": 12,
+          "LapStartPositionClass": 12,
+          "LapTime": "00:01:36.1553192",
+          "Sector1": "00:00:35.3202514",
+          "Sector2": "00:00:34.6097259",
+          "Sector3": "00:00:26.2253417"
+        }
+      ],
+      "IsPlayer": false,
+      "Finished": true,
+      "FinishStatus": "Finished",
+      "Rating": 0.0,
+      "RatingRelativeToPlayer": 0.0,
+      "GapToPlayerByTiming": "-00:01:25.9330000"
+    },
+    {
+      "ClassName": "F-3",
+      "ClassId": "F-3",
+      "DriverId": "Michel FaustoF-3",
+      "DriverLongName": "Michel Fausto",
+      "FinishingPosition": 10,
+      "FinishingPositionInClass": 5,
+      "AveragePosition": 10.0,
+      "InitialPosition": 10,
+      "InitialPositionInClass": 10,
+      "CarName": "Dallara F301",
+      "TotalLaps": 1,
+      "TotalDistance": 3228.195556640625,
+      "GapToPlayerRelative": "-00:01:25.7000000",
+      "LapsDifferenceToPlayer": -1,
+      "TopSpeed": {
+        "InMs": 66.50032043457031
+      },
+      "Laps": [
+        {
+          "IsPitLap": false,
+          "LapNumber": 1,
+          "IsValid": false,
+          "LapStartPosition": 10,
+          "LapStartPositionClass": 10,
+          "LapTime": "00:01:34.6132354",
+          "Sector1": "00:00:34.2719726",
+          "Sector2": "00:00:34.2003021",
+          "Sector3": "00:00:26.1409606"
+        }
+      ],
+      "IsPlayer": false,
+      "Finished": true,
+      "FinishStatus": "Finished",
+      "Rating": 0.0,
+      "RatingRelativeToPlayer": 0.0,
+      "GapToPlayerByTiming": "-00:01:25.7000000"
+    },
+    {
+      "ClassName": "F-3",
+      "ClassId": "F-3",
+      "DriverId": "Fabio BartelloF-3",
+      "DriverLongName": "Fabio Bartello",
+      "FinishingPosition": 6,
+      "FinishingPositionInClass": 6,
+      "AveragePosition": 6.0,
+      "InitialPosition": 6,
+      "InitialPositionInClass": 6,
+      "CarName": "Dallara F309",
+      "TotalLaps": 1,
+      "TotalDistance": 3228.195556640625,
+      "GapToPlayerRelative": "-00:01:23.7620000",
+      "LapsDifferenceToPlayer": -1,
+      "TopSpeed": {
+        "InMs": 64.41063690185547
+      },
+      "Laps": [
+        {
+          "IsPitLap": false,
+          "LapNumber": 1,
+          "IsValid": false,
+          "LapStartPosition": 6,
+          "LapStartPositionClass": 6,
+          "LapTime": "00:01:32.0302581",
+          "Sector1": "00:00:32.4010925",
+          "Sector2": "00:00:33.7919158",
+          "Sector3": "00:00:25.8372497"
+        }
+      ],
+      "IsPlayer": false,
+      "Finished": true,
+      "FinishStatus": "Finished",
+      "Rating": 0.0,
+      "RatingRelativeToPlayer": 0.0,
+      "GapToPlayerByTiming": "-00:01:23.7620000"
+    },
+    {
+      "ClassName": "F-3",
+      "ClassId": "F-3",
+      "DriverId": "Rodrigo CascaesF-3",
+      "DriverLongName": "Rodrigo Cascaes",
+      "FinishingPosition": 5,
+      "FinishingPositionInClass": 7,
+      "AveragePosition": 5.0,
+      "InitialPosition": 5,
+      "InitialPositionInClass": 5,
+      "CarName": "Dallara F309",
+      "TotalLaps": 1,
+      "TotalDistance": 3228.195556640625,
+      "GapToPlayerRelative": "-00:01:23.8870000",
+      "LapsDifferenceToPlayer": -1,
+      "TopSpeed": {
+        "InMs": 64.11722564697266
+      },
+      "Laps": [
+        {
+          "IsPitLap": false,
+          "LapNumber": 1,
+          "IsValid": false,
+          "LapStartPosition": 5,
+          "LapStartPositionClass": 5,
+          "LapTime": "00:01:31.6746673",
+          "Sector1": "00:00:31.9499816",
+          "Sector2": "00:00:33.7633819",
+          "Sector3": "00:00:25.9613037"
+        }
+      ],
+      "IsPlayer": false,
+      "Finished": true,
+      "FinishStatus": "Finished",
+      "Rating": 0.0,
+      "RatingRelativeToPlayer": 0.0,
+      "GapToPlayerByTiming": "-00:01:23.8870000"
+    },
+    {
+      "ClassName": "F-3",
+      "ClassId": "F-3",
+      "DriverId": "Georgio HandaF-3",
+      "DriverLongName": "Georgio Handa",
+      "FinishingPosition": 8,
+      "FinishingPositionInClass": 8,
+      "AveragePosition": 8.0,
+      "InitialPosition": 8,
+      "InitialPositionInClass": 8,
+      "CarName": "Dallara F309",
+      "TotalLaps": 1,
+      "TotalDistance": 3228.195556640625,
+      "GapToPlayerRelative": "-00:01:24.9350000",
+      "LapsDifferenceToPlayer": -1,
+      "TopSpeed": {
+        "InMs": 64.67250061035156
+      },
+      "Laps": [
+        {
+          "IsPitLap": false,
+          "LapNumber": 1,
+          "IsValid": false,
+          "LapStartPosition": 8,
+          "LapStartPositionClass": 8,
+          "LapTime": "00:01:33.5503997",
+          "Sector1": "00:00:33.6699829",
+          "Sector2": "00:00:34.1020050",
+          "Sector3": "00:00:25.7784118"
+        }
+      ],
+      "IsPlayer": false,
+      "Finished": true,
+      "FinishStatus": "Finished",
+      "Rating": 0.0,
+      "RatingRelativeToPlayer": 0.0,
+      "GapToPlayerByTiming": "-00:01:24.9350000"
+    },
+    {
+      "ClassName": "F-3",
+      "ClassId": "F-3",
+      "DriverId": "Theo StraploF-3",
+      "DriverLongName": "Theo Straplo",
+      "FinishingPosition": 9,
+      "FinishingPositionInClass": 9,
+      "AveragePosition": 9.0,
+      "InitialPosition": 9,
+      "InitialPositionInClass": 9,
+      "CarName": "Dallara F309",
+      "TotalLaps": 1,
+      "TotalDistance": 3228.195556640625,
+      "GapToPlayerRelative": "-00:01:24.7180000",
+      "LapsDifferenceToPlayer": -1,
+      "TopSpeed": {
+        "InMs": 65.17972564697266
+      },
+      "Laps": [
+        {
+          "IsPitLap": false,
+          "LapNumber": 1,
+          "IsValid": false,
+          "LapStartPosition": 9,
+          "LapStartPositionClass": 9,
+          "LapTime": "00:01:33.8899688",
+          "Sector1": "00:00:34.0299835",
+          "Sector2": "00:00:34.0739746",
+          "Sector3": "00:00:25.7860107"
+        }
+      ],
+      "IsPlayer": false,
+      "Finished": true,
+      "FinishStatus": "Finished",
+      "Rating": 0.0,
+      "RatingRelativeToPlayer": 0.0,
+      "GapToPlayerByTiming": "-00:01:24.7180000"
+    },
+    {
+      "ClassName": "F-3",
+      "ClassId": "F-3",
+      "DriverId": "Leo NogueiraF-3",
+      "DriverLongName": "Leo Nogueira",
+      "FinishingPosition": 2,
+      "FinishingPositionInClass": 10,
+      "AveragePosition": 2.0,
+      "InitialPosition": 1,
+      "InitialPositionInClass": 1,
+      "CarName": "Dallara F309",
+      "TotalLaps": 1,
+      "TotalDistance": 3228.195556640625,
+      "GapToPlayerRelative": "-00:01:21.5480000",
+      "LapsDifferenceToPlayer": -1,
+      "TopSpeed": {
+        "InMs": 63.73004150390625
+      },
+      "Laps": [
+        {
+          "IsPitLap": false,
+          "LapNumber": 1,
+          "IsValid": false,
+          "LapStartPosition": 1,
+          "LapStartPositionClass": 1,
+          "LapTime": "00:01:28.4099884",
+          "Sector1": "00:00:30.6299896",
+          "Sector2": "00:00:32.9285888",
+          "Sector3": "00:00:24.8514099"
+        }
+      ],
+      "IsPlayer": false,
+      "Finished": true,
+      "FinishStatus": "Finished",
+      "Rating": 0.0,
+      "RatingRelativeToPlayer": 0.0,
+      "GapToPlayerByTiming": "-00:01:21.5480000"
+    },
+    {
+      "ClassName": "F-3",
+      "ClassId": "F-3",
+      "DriverId": "Christian KortesF-3",
+      "DriverLongName": "Christian Kortes",
+      "FinishingPosition": 4,
+      "FinishingPositionInClass": 11,
+      "AveragePosition": 4.0,
+      "InitialPosition": 4,
+      "InitialPositionInClass": 4,
+      "CarName": "Dallara F309",
+      "TotalLaps": 1,
+      "TotalDistance": 3228.195556640625,
+      "GapToPlayerRelative": "-00:01:23.1380000",
+      "LapsDifferenceToPlayer": -1,
+      "TopSpeed": {
+        "InMs": 66.20568084716797
+      },
+      "Laps": [
+        {
+          "IsPitLap": false,
+          "LapNumber": 1,
+          "IsValid": false,
+          "LapStartPosition": 4,
+          "LapStartPositionClass": 4,
+          "LapTime": "00:01:30.4299774",
+          "Sector1": "00:00:31.2726440",
+          "Sector2": "00:00:33.5102386",
+          "Sector3": "00:00:25.6470947"
+        }
+      ],
+      "IsPlayer": false,
+      "Finished": true,
+      "FinishStatus": "Finished",
+      "Rating": 0.0,
+      "RatingRelativeToPlayer": 0.0,
+      "GapToPlayerByTiming": "-00:01:23.1380000"
+    },
+    {
+      "ClassName": "F-3",
+      "ClassId": "F-3",
+      "DriverId": "Elvis LimaF-3",
+      "DriverLongName": "Elvis Lima",
+      "FinishingPosition": 1,
+      "FinishingPositionInClass": 12,
+      "AveragePosition": 1.0,
+      "InitialPosition": 2,
+      "InitialPositionInClass": 2,
+      "CarName": "Dallara F309",
+      "TotalLaps": 1,
+      "TotalDistance": 3228.195556640625,
+      "GapToPlayerRelative": "-00:01:20.6420000",
+      "LapsDifferenceToPlayer": -1,
+      "TopSpeed": {
+        "InMs": 63.61420440673828
+      },
+      "Laps": [
+        {
+          "IsPitLap": false,
+          "LapNumber": 1,
+          "IsValid": false,
+          "LapStartPosition": 2,
+          "LapStartPositionClass": 2,
+          "LapTime": "00:01:28.1299896",
+          "Sector1": "00:00:30.4383850",
+          "Sector2": "00:00:32.8865203",
+          "Sector3": "00:00:24.8050842"
+        }
+      ],
+      "IsPlayer": false,
+      "Finished": true,
+      "FinishStatus": "Finished",
+      "Rating": 0.0,
+      "RatingRelativeToPlayer": 0.0,
+      "GapToPlayerByTiming": "-00:01:20.6420000"
+    },
+    {
+      "ClassName": "F-3",
+      "ClassId": "F-3",
+      "DriverId": "Carlos ZemantesF-3",
+      "DriverLongName": "Carlos Zemantes",
+      "FinishingPosition": 3,
+      "FinishingPositionInClass": 13,
+      "AveragePosition": 3.0,
+      "InitialPosition": 3,
+      "InitialPositionInClass": 3,
+      "CarName": "Dallara F309",
+      "TotalLaps": 1,
+      "TotalDistance": 3228.195556640625,
+      "GapToPlayerRelative": "-00:01:22.4060000",
+      "LapsDifferenceToPlayer": -1,
+      "TopSpeed": {
+        "InMs": 66.04473114013672
+      },
+      "Laps": [
+        {
+          "IsPitLap": false,
+          "LapNumber": 1,
+          "IsValid": false,
+          "LapStartPosition": 3,
+          "LapStartPositionClass": 3,
+          "LapTime": "00:01:29.4299774",
+          "Sector1": "00:00:30.9612274",
+          "Sector2": "00:00:33.0763244",
+          "Sector3": "00:00:25.3924255"
+        }
+      ],
+      "IsPlayer": false,
+      "Finished": true,
+      "FinishStatus": "Finished",
+      "Rating": 0.0,
+      "RatingRelativeToPlayer": 0.0,
+      "GapToPlayerByTiming": "-00:01:22.4060000"
+    },
+    {
+      "ClassName": "F-3",
+      "ClassId": "F-3",
+      "DriverId": "Enrique LoumiosF-3",
+      "DriverLongName": "Enrique Loumios",
+      "FinishingPosition": 7,
+      "FinishingPositionInClass": 14,
+      "AveragePosition": 7.0,
+      "InitialPosition": 7,
+      "InitialPositionInClass": 7,
+      "CarName": "Dallara F309",
+      "TotalLaps": 1,
+      "TotalDistance": 3228.195556640625,
+      "GapToPlayerRelative": "-00:01:24.0100000",
+      "LapsDifferenceToPlayer": -1,
+      "TopSpeed": {
+        "InMs": 63.171993255615234
+      },
+      "Laps": [
+        {
+          "IsPitLap": false,
+          "LapNumber": 1,
+          "IsValid": false,
+          "LapStartPosition": 7,
+          "LapStartPositionClass": 7,
+          "LapTime": "00:01:33.1776580",
+          "Sector1": "00:00:33.1903381",
+          "Sector2": "00:00:34.2555084",
+          "Sector3": "00:00:25.7318115"
+        }
+      ],
+      "IsPlayer": false,
+      "Finished": true,
+      "FinishStatus": "Finished",
+      "Rating": 0.0,
+      "RatingRelativeToPlayer": 0.0,
+      "GapToPlayerByTiming": "-00:01:24.0100000"
+    },
+    {
+      "ClassName": "F-3",
+      "ClassId": "F-3",
+      "DriverId": "RandomGuyF-3",
+      "DriverLongName": "RandomGuy",
+      "FinishingPosition": 7,
+      "FinishingPositionInClass": 15,
+      "AveragePosition": 7.0,
+      "InitialPosition": 7,
+      "InitialPositionInClass": 7,
+      "CarName": "Dallara F309",
+      "TotalLaps": 1,
+      "TotalDistance": 3228.195556640625,
+      "GapToPlayerRelative": "-00:01:24.0100000",
+      "LapsDifferenceToPlayer": -1,
+      "TopSpeed": {
+        "InMs": 63.171993255615234
+      },
+      "Laps": [
+        {
+          "IsPitLap": false,
+          "LapNumber": 1,
+          "IsValid": false,
+          "LapStartPosition": 7,
+          "LapStartPositionClass": 7,
+          "LapTime": "00:01:33.1776580",
+          "Sector1": "00:00:33.1903381",
+          "Sector2": "00:00:34.2555084",
+          "Sector3": "00:00:25.7318115"
+        }
+      ],
+      "IsPlayer": false,
+      "Finished": true,
+      "FinishStatus": "Finished",
+      "Rating": 0.0,
+      "RatingRelativeToPlayer": 0.0,
+      "GapToPlayerByTiming": "-00:01:24.0100000"
+    },
+    {
+      "ClassName": "F-3",
+      "ClassId": "F-3",
+      "DriverId": "RandomGuyLolF-3",
+      "DriverLongName": "RandomGuyLol",
+      "FinishingPosition": 7,
+      "FinishingPositionInClass": 16,
+      "AveragePosition": 7.0,
+      "InitialPosition": 7,
+      "InitialPositionInClass": 7,
+      "CarName": "Dallara F309",
+      "TotalLaps": 1,
+      "TotalDistance": 3228.195556640625,
+      "GapToPlayerRelative": "-00:01:24.0100000",
+      "LapsDifferenceToPlayer": -1,
+      "TopSpeed": {
+        "InMs": 63.171993255615234
+      },
+      "Laps": [
+        {
+          "IsPitLap": false,
+          "LapNumber": 1,
+          "IsValid": false,
+          "LapStartPosition": 7,
+          "LapStartPositionClass": 7,
+          "LapTime": "00:01:33.1776580",
+          "Sector1": "00:00:33.1903381",
+          "Sector2": "00:00:34.2555084",
+          "Sector3": "00:00:25.7318115"
+        }
+      ],
+      "IsPlayer": false,
+      "Finished": true,
+      "FinishStatus": "Finished",
+      "Rating": 0.0,
+      "RatingRelativeToPlayer": 0.0,
+      "GapToPlayerByTiming": "-00:01:24.0100000"
+    },
+    {
+      "ClassName": "F-3",
+      "ClassId": "F-3",
+      "DriverId": "RandomGuyLolHahaF-3",
+      "DriverLongName": "RandomGuyLolHaha",
+      "FinishingPosition": 7,
+      "FinishingPositionInClass": 17,
+      "AveragePosition": 7.0,
+      "InitialPosition": 7,
+      "InitialPositionInClass": 7,
+      "CarName": "Dallara F309",
+      "TotalLaps": 1,
+      "TotalDistance": 3228.195556640625,
+      "GapToPlayerRelative": "-00:01:24.0100000",
+      "LapsDifferenceToPlayer": -1,
+      "TopSpeed": {
+        "InMs": 63.171993255615234
+      },
+      "Laps": [
+        {
+          "IsPitLap": false,
+          "LapNumber": 1,
+          "IsValid": false,
+          "LapStartPosition": 7,
+          "LapStartPositionClass": 7,
+          "LapTime": "00:01:33.1776580",
+          "Sector1": "00:00:33.1903381",
+          "Sector2": "00:00:34.2555084",
+          "Sector3": "00:00:25.7318115"
+        }
+      ],
+      "IsPlayer": false,
+      "Finished": true,
+      "FinishStatus": "Finished",
+      "Rating": 0.0,
+      "RatingRelativeToPlayer": 0.0,
+      "GapToPlayerByTiming": "-00:01:24.0100000"
+    },
+    {
+      "ClassName": "F-3",
+      "ClassId": "F-3",
+      "DriverId": "RandomGuyLolHahaAgainF-3",
+      "DriverLongName": "RandomGuyLolHahaAgain",
+      "FinishingPosition": 7,
+      "FinishingPositionInClass": 18,
+      "AveragePosition": 7.0,
+      "InitialPosition": 7,
+      "InitialPositionInClass": 7,
+      "CarName": "Dallara F309",
+      "TotalLaps": 1,
+      "TotalDistance": 3228.195556640625,
+      "GapToPlayerRelative": "-00:01:24.0100000",
+      "LapsDifferenceToPlayer": -1,
+      "TopSpeed": {
+        "InMs": 63.171993255615234
+      },
+      "Laps": [
+        {
+          "IsPitLap": false,
+          "LapNumber": 1,
+          "IsValid": false,
+          "LapStartPosition": 7,
+          "LapStartPositionClass": 7,
+          "LapTime": "00:01:33.1776580",
+          "Sector1": "00:00:33.1903381",
+          "Sector2": "00:00:34.2555084",
+          "Sector3": "00:00:25.7318115"
+        }
+      ],
+      "IsPlayer": false,
+      "Finished": true,
+      "FinishStatus": "Finished",
+      "Rating": 0.0,
+      "RatingRelativeToPlayer": 0.0,
+      "GapToPlayerByTiming": "-00:01:24.0100000"
+    },
+    {
+      "ClassName": "F-3",
+      "ClassId": "F-3",
+      "DriverId": "RandomGuyLolHahaAgainBRUHF-3",
+      "DriverLongName": "RandomGuyLolHahaAgainBRUH",
+      "FinishingPosition": 7,
+      "FinishingPositionInClass": 19,
+      "AveragePosition": 7.0,
+      "InitialPosition": 7,
+      "InitialPositionInClass": 7,
+      "CarName": "Dallara F309",
+      "TotalLaps": 1,
+      "TotalDistance": 3228.195556640625,
+      "GapToPlayerRelative": "-00:01:24.0100000",
+      "LapsDifferenceToPlayer": -1,
+      "TopSpeed": {
+        "InMs": 63.171993255615234
+      },
+      "Laps": [
+        {
+          "IsPitLap": false,
+          "LapNumber": 1,
+          "IsValid": false,
+          "LapStartPosition": 7,
+          "LapStartPositionClass": 7,
+          "LapTime": "00:01:33.1776580",
+          "Sector1": "00:00:33.1903381",
+          "Sector2": "00:00:34.2555084",
+          "Sector3": "00:00:25.7318115"
+        }
+      ],
+      "IsPlayer": false,
+      "Finished": true,
+      "FinishStatus": "Finished",
+      "Rating": 0.0,
+      "RatingRelativeToPlayer": 0.0,
+      "GapToPlayerByTiming": "-00:01:24.0100000"
+    },
+    {
+      "ClassName": "F-3",
+      "ClassId": "F-3",
+      "DriverId": "RandomGuyLolHahaMyGodF-3",
+      "DriverLongName": "RandomGuyLolHahaMyGod",
+      "FinishingPosition": 7,
+      "FinishingPositionInClass": 20,
+      "AveragePosition": 7.0,
+      "InitialPosition": 7,
+      "InitialPositionInClass": 7,
+      "CarName": "Dallara F309",
+      "TotalLaps": 1,
+      "TotalDistance": 3228.195556640625,
+      "GapToPlayerRelative": "-00:01:24.0100000",
+      "LapsDifferenceToPlayer": -1,
+      "TopSpeed": {
+        "InMs": 63.171993255615234
+      },
+      "Laps": [
+        {
+          "IsPitLap": false,
+          "LapNumber": 1,
+          "IsValid": false,
+          "LapStartPosition": 7,
+          "LapStartPositionClass": 7,
+          "LapTime": "00:01:33.1776580",
+          "Sector1": "00:00:33.1903381",
+          "Sector2": "00:00:34.2555084",
+          "Sector3": "00:00:25.7318115"
+        }
+      ],
+      "IsPlayer": false,
+      "Finished": true,
+      "FinishStatus": "Finished",
+      "Rating": 0.0,
+      "RatingRelativeToPlayer": 0.0,
+      "GapToPlayerByTiming": "-00:01:24.0100000"
+    }
+  ],
+  "IsMultiClass": false,
+  "SessionGuid": "835e3a5c-9777-42bf-b528-7f153afbc284",
+  "PitStops": [
+    {
+      "EntryLapNumber": 1,
+      "OverallDuration": "00:00:00.8420000",
+      "StallDuration": "00:00:00.7790000",
+      "WasDriverThrough": false,
+      "FuelTaken": {
+        "InLiters": 0.0
+      },
+      "NewFrontCompound": "",
+      "NewRearCompound": "",
+      "IsFrontTyresChanged": false,
+      "IsRearTyresChanged": false
+    },
+    {
+      "EntryLapNumber": 0,
+      "OverallDuration": "00:00:07.0850000",
+      "StallDuration": "00:00:07.0540000",
+      "WasDriverThrough": false,
+      "FuelTaken": {
+        "InLiters": 0.0
+      },
+      "NewFrontCompound": "",
+      "NewRearCompound": "",
+      "IsFrontTyresChanged": false,
+      "IsRearTyresChanged": false
+    }
+  ],
+  "FuelConsumptionInformation": null
+}

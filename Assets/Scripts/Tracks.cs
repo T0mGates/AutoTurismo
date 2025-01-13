@@ -27,8 +27,8 @@ public class Track
 
 public static class Tracks
 {
-    private static Dictionary<Country, List<Track>>             countryTracks;
-    private static Dictionary<Region.ClickableRegion, List<Country>>   regionToCountries;
+    private static Dictionary<Country, List<Track>>                     countryTracks;
+    private static Dictionary<Region.ClickableRegion, List<Country>>    regionToCountries;
 
     static Tracks(){
         // Initialize our Tracks DB
@@ -63,6 +63,18 @@ public static class Tracks
         foreach(Region.ClickableRegion region in Enum.GetValues(typeof(Region.ClickableRegion))){
             regionToCountries[region]                               = GetCountries(region);
         }
+    }
+
+    public static Track GetTrack(string trackName, string trackLayout, Country trackCountry){
+        List<Track> tracks = GetTracks(trackCountry);
+
+        foreach(Track track in tracks){
+            if(track.name == trackName && track.layout == trackLayout){
+                return track;
+            }
+        }
+
+        return null;
     }
 
     public static List<Track> GetTracks(Country country){
@@ -102,6 +114,7 @@ public static class Tracks
         return tracks;
     }
 
+    [System.Serializable]
     public enum Country
     {
         Argentina,
@@ -140,6 +153,7 @@ public static class Tracks
         {Country.USA,                   "USA"}
     };
 
+    [System.Serializable]
     public enum Grade
     {
         Kart = 0,

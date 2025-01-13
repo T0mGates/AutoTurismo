@@ -91,7 +91,6 @@ public static class Dealers
     private static Dictionary<Type, Dictionary<string, dynamic>>    dealerDict {get; set;}
 
     static Dealers(){
-
         dealerDict                                          = new Dictionary<Type, Dictionary<string, dynamic>>();
 
         foreach(Type dealerType in dealerTypes){

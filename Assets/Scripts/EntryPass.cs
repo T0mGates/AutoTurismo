@@ -38,7 +38,6 @@ public class EntryPass : Purchasable
     public override Sprite GetSprite(){
         string brandString  = carBrand == Cars.CarBrand.None ? "" : carBrand.ToString().Replace(" ", "");
         string imageName    = Cars.typeToString[carType].Replace(" ", "") + Cars.classToString[carClass].Replace(" ", "") + brandString + "_Dealer";
-        Debug.Log("Looking for image: " + imageName);
         return Resources.Load<Sprite>("Images/Dealers/" + imageName);
     }
 

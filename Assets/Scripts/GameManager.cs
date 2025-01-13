@@ -10,6 +10,7 @@ public class GameManager : MonoBehaviour
     private MenuManager   menuManager;
     private const string  PATH_TO_JSONS  = @"C:\Users\Vitaly\Documents\SecondMonitor\Reports";
     public Profile        curProfile;
+    public int            curProfileSlot;
 
     // Start is called before the first frame update
     void Start()
@@ -24,6 +25,12 @@ public class GameManager : MonoBehaviour
     void Update()
     {
 
+    }
+
+    void OnApplicationQuit(){
+      if(curProfile != null){
+        SaveSystem.SaveProfile(curProfile, curProfileSlot);
+      }
     }
 
     public void CheckRaceCompletion(EventEntry eventEntry, Car car, Button checkResultBtn){
@@ -65,13 +72,74 @@ public class GameManager : MonoBehaviour
 
       menuManager.CompleteEventEntry(eventEntry);
 
-      // TODO: check if event is done. If so, figure out a system to delete it from the series and add in a new one to replace it or something
-      // maybe completing a rookie formula vee event adds another rookie formula vee event and also adds a novice formula vee event, if there isn't already one
+      // If event is finished
+      // No matter what, regenerate an event with a similar duration, same classes/brands/names and type
+      if(eventEntry.parentEvent.GetCompletedStatus()){
+        MakeNewEventForSeries(eventEntry.parentEvent, eventEntry.parentEvent.eventType);
+
+        // Delete the event from the pool
+        eventEntry.parentEvent.parentEventSeries.events.Remove(eventEntry.parentEvent);
+
+        // Potentially add a new event (if this was a top 3) - with a max of 5
+        if(eventEntry.parentEvent.finishPosition <= 3 && eventEntry.parentEvent.finishPosition > 0){
+          if(eventEntry.parentEvent.parentEventSeries.events.Count < Region.MAX_EVENTS_PER_REGION){
+            // For now, just flip-flop between race and champhionship
+            Event.EventType eventType = eventEntry.parentEvent.eventType == Event.EventType.Race ? Event.EventType.Championship : Event.EventType.Race;
+            MakeNewEventForSeries(eventEntry.parentEvent, eventType);
+          }
+
+          // Potentially add a whole new series to the region (if this was a top 3 in a championship)
+          if(eventEntry.parentEvent.eventType == Event.EventType.Championship){
+            GenerateNewEventSeries(eventEntry.parentEvent.parentEventSeries.partOfRegion, eventEntry.parentEvent.parentEventSeries.seriesTier);
+          }
+        }
+      }
     }
 
-    public void SetProfile(string profileName){
+    public void MakeNewEventForSeries(Event eventObj, Event.EventType eventType = Event.EventType.Race){
+      Event.EventDuration       durationToUse;
+      Event.EventDuration       oldDuration         = eventObj.eventDuration;
+
+      List<Event.EventDuration> availableDurations  = EventSeries.tierDurationWhitelist[eventObj.parentEventSeries.seriesTier];
+
+      // -1, 0, 1
+      int                       modifier            = UnityEngine.Random.Range(-1, 2);
+
+      int                       index               = availableDurations.IndexOf(oldDuration);
+      if(-1 == index || modifier + index < 0 || modifier + index >= availableDurations.Count){
+        durationToUse = oldDuration;
+      }
+      else{
+        durationToUse = availableDurations[modifier + index];
+      }
+
+      // Generate an event with a similar duration, same classes/brands/names and type
+      Event.GenerateNewEvent(
+            eventObj.name,
+            eventType,
+            durationToUse,
+            eventObj.parentEventSeries,
+            Tracks.GetCountries(eventObj.parentEventSeries.partOfRegion),
+            eventObj.typeWhitelist,
+            eventObj.classWhitelist,
+            eventObj.brandWhitelist,
+            eventObj.nameWhitelist,
+            useLaps:eventObj.eventEntries[0].laps == -1 ? false : true
+      );
+    }
+
+    public void MakeNewProfile(string profileName){
       // Check if profile exists, if it does, load it, else create a new profile
-      curProfile = new Profile(profileName);
+      curProfile      = new Profile(profileName);
+    }
+
+    public void SetProfile(Profile profile, int newProfileSlot){
+      curProfile      = profile;
+      SetProfileSlot(newProfileSlot);
+    }
+
+    public void SetProfileSlot(int newProfileSlot){
+      curProfileSlot  = newProfileSlot;
     }
 
     public void BuyProduct(Purchasable product, Dealer dealer){
@@ -123,7 +191,13 @@ public class GameManager : MonoBehaviour
       return false;
     }
 
-    public void UnlockRegionTier(Region.ClickableRegion region, EventSeries.SeriesTier tier){
+    public void GenerateNewEventSeries(Region.ClickableRegion region, EventSeries.SeriesTier tier){
+      Cars.CarClass carClass = Region.regions[region].GenerateNewEventSeries(tier);
+      curProfile.UnlockDealer(Dealers.GetDealer(Cars.classToString[carClass],   typeof(CarDealer)));
+      curProfile.UnlockDealer(Dealers.GetDealer(Cars.classToString[carClass],   typeof(EntryPassDealer)));
+    }
+
+    public void BuyRegionTier(Region.ClickableRegion region, EventSeries.SeriesTier tier){
       // Check if we have enough
       int cost    = Region.GetRenownCostForRegionTier(region, tier);
 
@@ -141,21 +215,21 @@ public class GameManager : MonoBehaviour
         }
 
         curProfile.LoseRenown(cost);
+
         // Add the region/tier to our unlocked region/tier and generate a new series for that region/tier
         if(!curProfile.HasUnlockedARegionTier()){
           curProfile.UnlockRegionTier(region, tier);
 
-          Cars.CarClass carClass;
           // Unlock 3 series total if it's the player's first unlock
           // Unlock the dealers for those first 3 event series
           for(int i = 0; i < 3; i++){
-            carClass = Region.regions[region].GenerateNewEventSeries(tier);
-            curProfile.UnlockDealer(Dealers.GetDealer(Cars.classToString[carClass],   typeof(CarDealer)));
-            curProfile.UnlockDealer(Dealers.GetDealer(Cars.classToString[carClass],   typeof(EntryPassDealer)));
+            GenerateNewEventSeries(region, tier);
           }
         }
+
         else{
-          Region.regions[region].GenerateNewEventSeries(tier);
+          curProfile.UnlockRegionTier(region, tier);
+          GenerateNewEventSeries(region, tier);
         }
 
         menuManager.UpdateMainUI();

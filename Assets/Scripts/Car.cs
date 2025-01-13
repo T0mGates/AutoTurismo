@@ -1,7 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System;
-using UnityEditor.Rendering;
 
 public class Car : Purchasable
 {
@@ -526,6 +525,7 @@ public static class Cars
 
     // Adding an entry here requires you to add to:
     // classToString, classToTiers
+    [System.Serializable]
     public enum CarClass
     {
         None,
