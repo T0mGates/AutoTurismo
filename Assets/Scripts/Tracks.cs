@@ -2,9 +2,10 @@ using UnityEngine;
 using System;
 using System.Collections.Generic;
 
-public class Track
+[System.Serializable]
+public class Track : UnityEngine.Object
 {
-    public string               name;
+    public string               trackName;
     public string               layout;
     public Tracks.Country       country;
     public Tracks.Grade         grade;
@@ -12,7 +13,7 @@ public class Track
     public float                kmLength;
 
     public Track(string nameParam, string layoutParam, int maxGridSizeParam, float kmLengthParam, Tracks.Grade gradeParam, Tracks.Country countryParam){
-        name        = nameParam;
+        trackName   = nameParam;
         layout      = layoutParam;
         maxGridSize = maxGridSizeParam;
         kmLength    = kmLengthParam;
@@ -21,14 +22,14 @@ public class Track
     }
 
     public string GetPrintName(){
-        return name + " " + layout;
+        return trackName + " " + layout;
     }
 }
 
 public static class Tracks
 {
-    private static Dictionary<Country, List<Track>>             countryTracks;
-    private static Dictionary<Region.ClickableRegion, List<Country>>   regionToCountries;
+    private static Dictionary<Country, List<Track>>                     countryTracks;
+    private static Dictionary<Region.ClickableRegion, List<Country>>    regionToCountries;
 
     static Tracks(){
         // Initialize our Tracks DB
@@ -61,7 +62,7 @@ public static class Tracks
 
         // (Clickable) Regions setup
         foreach(Region.ClickableRegion region in Enum.GetValues(typeof(Region.ClickableRegion))){
-            regionToCountries[region]                               = GetCountries(region);
+            regionToCountries[region]                               = GetCountries(region).GetList();
         }
     }
 
@@ -165,22 +166,22 @@ public static class Tracks
         {Grade.Kart,                "Kart"}
     };
 
-    public static List<Country> GetCountries(Region.ClickableRegion region){
-        List<Country> countries;
+    public static SerializableList<Country> GetCountries(Region.ClickableRegion region){
+        SerializableList<Country> countries;
 
         switch(region){
             case Region.ClickableRegion.NorthAmerica:
-                return new List<Country>() { {Country.USA}, {Country.Canada} };
+                return new SerializableList<Country>() { {Country.USA}, {Country.Canada} };
             case Region.ClickableRegion.SouthAmerica:
-                return new List<Country>() { {Country.Ecuador}, {Country.Brazil}, {Country.Argentina} };
+                return new SerializableList<Country>() { {Country.Ecuador}, {Country.Brazil}, {Country.Argentina} };
             case Region.ClickableRegion.Europe:
-                return new List<Country>() { {Country.Norway}, {Country.Austria}, {Country.England}, {Country.Monaco}, {Country.Italy}, {Country.Spain}, {Country.Portugal} };
+                return new SerializableList<Country>() { {Country.Norway}, {Country.Austria}, {Country.England}, {Country.Monaco}, {Country.Italy}, {Country.Spain}, {Country.Portugal} };
             case Region.ClickableRegion.Africa:
-                return new List<Country>() { {Country.SouthAfrica} };
+                return new SerializableList<Country>() { {Country.SouthAfrica} };
             case Region.ClickableRegion.Asia:
-                return new List<Country>() { {Country.Japan} };
+                return new SerializableList<Country>() { {Country.Japan} };
             case Region.ClickableRegion.Australia:
-                return new List<Country>() { {Country.Australia} };
+                return new SerializableList<Country>() { {Country.Australia} };
 
             case Region.ClickableRegion.NorthAmericaSouthAmerica:
                 countries = GetCountries(Region.ClickableRegion.NorthAmerica);
@@ -228,7 +229,7 @@ public static class Tracks
 
             default:
                 Debug.LogError("Region: " + region.ToString() + " is not supported for 'GetCountries'.");
-                return new List<Country>();
+                return new SerializableList<Country>();
         }
     }
 

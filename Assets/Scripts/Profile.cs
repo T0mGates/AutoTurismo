@@ -5,63 +5,46 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Reflection;
 using UnityEngine.UIElements;
+using Unity.Collections.LowLevel.Unsafe;
 
 public class Profile
 {
-    private string                                                              driverName;
-    private int                                                                 money;
-    private int                                                                 fame;
-    private int                                                                 maxFame;
-    private int                                                                 level;
-    private int                                                                 renown;
-    private Dictionary<Type, List<Dealer>>                                      unlockedDealersDict;
-    private Dictionary<Type, List<Purchasable>>                                 ownedProductsDict;
-    private Dictionary<Region.ClickableRegion, List<EventSeries.SeriesTier>>    unlockedRegionTiers;
+    public string                                                                                       driverName;
+    public int                                                                                          money;
+    public int                                                                                          fame;
+    public int                                                                                          maxFame;
+    public int                                                                                          level;
+    public int                                                                                          renown;
+    [field:SerializeField]
+    public SerializableDictionary<SerializableType, SerializableList<Dealer>>                           unlockedDealersDict;
+    [field:SerializeField]
+    public SerializableDictionary<SerializableType, SerializableList<Purchasable>>                      ownedProductsDict;
+    [field:SerializeField]
+    public SerializableDictionary<Region.ClickableRegion, SerializableList<EventSeries.SeriesTier>>     unlockedRegionTiers;
 
-    public Profile(string driverNameParam){
-        // Initialize our dealers dict
-        unlockedDealersDict = new Dictionary<Type, List<Dealer>>();
-        foreach(Type dealerType in Dealers.dealerTypes){
-            unlockedDealersDict[dealerType] = new List<Dealer>();
-        }
-
-        // Initialize our owned products dict
-        ownedProductsDict   = new Dictionary<Type, List<Purchasable>>();
-        foreach(Type productType in Purchasable.productTypes){
-            ownedProductsDict[productType]  = new List<Purchasable>();
-        }
-
-        // Initialize our unlocked tiers dict
-        unlockedRegionTiers = new Dictionary<Region.ClickableRegion, List<EventSeries.SeriesTier>>();
-        foreach(Region.ClickableRegion region in Enum.GetValues(typeof(Region.ClickableRegion))){
-            unlockedRegionTiers[region]           = new List<EventSeries.SeriesTier>();
-        }
-
-        // Base values
+    public Profile( string driverNameParam, int moneyParam, int fameParam, int maxFameParam, int levelParam, int renownParam,
+                    SerializableDictionary<SerializableType, SerializableList<Dealer>> unlockedDealersDictParam, SerializableDictionary<SerializableType,
+                    SerializableList<Purchasable>> ownedProductsDictParam, SerializableDictionary<Region.ClickableRegion,
+                    SerializableList<EventSeries.SeriesTier>> unlockedRegionTiersParam ){
         driverName          = driverNameParam;
-
-        SetBaseValues();
-    }
-
-    private void SetBaseValues(){
-        money               = 50000;
-        fame                = 0;
-        renown              = 11;
-        level               = 1;
-        SetMaxFameBasedOnLevel();
-        BaseUnlocks();
-    }
-
-    public void BaseUnlocks(){
+        money               = moneyParam;
+        fame                = fameParam;
+        maxFame             = maxFameParam;
+        level               = levelParam;
+        renown              = renownParam;
+        unlockedDealersDict = unlockedDealersDictParam;
+        ownedProductsDict   = ownedProductsDictParam;
+        unlockedRegionTiers = unlockedRegionTiersParam;
     }
 
     public List<Purchasable> GetOwnedProducts(Type productType){
-        return ownedProductsDict[productType];
+        SerializableType serType = SerializableType.GetSerializableTypeFromPurchasableType(productType);
+        return ownedProductsDict[serType].GetList();
     }
 
     public void UnlockDealer(Dealer dealerToAdd){
-        foreach(Type dealerType in Dealers.dealerTypes){
-            if(dealerType == dealerToAdd.GetType()){
+        foreach(SerializableType dealerType in Dealers.dealerTypes){
+            if(dealerType.GetAssemblyQualifiedName() == dealerToAdd.GetType().AssemblyQualifiedName){
                 unlockedDealersDict[dealerType].Add(dealerToAdd);
             }
         }
@@ -74,15 +57,15 @@ public class Profile
     }
 
     public void AddNewProduct(Purchasable toAdd){
-        ownedProductsDict[toAdd.GetType()].Add(toAdd);
+        ownedProductsDict[SerializableType.GetSerializableTypeFromPurchasableType(toAdd.GetType())].Add(toAdd);
     }
 
     public void RemoveOwnedProduct(Purchasable toRemove){
-        ownedProductsDict[toRemove.GetType()].Remove(toRemove);
+        ownedProductsDict[SerializableType.GetSerializableTypeFromPurchasableType(toRemove.GetType())].Remove(toRemove);
     }
 
     public bool OwnsProduct(Purchasable toCheck){
-        foreach(Purchasable product in ownedProductsDict[toCheck.GetType()]){
+        foreach(Purchasable product in ownedProductsDict[SerializableType.GetSerializableTypeFromPurchasableType(toCheck.GetType())]){
             if(product.Equals(toCheck)){
                 return true;
             }
@@ -103,11 +86,14 @@ public class Profile
     }
 
     public List<Dealer> GetUnlockedDealers(Type dealerType){
-        return unlockedDealersDict[dealerType];
+        SerializableType serType            = Dealers.dealerTypeToSerialized[dealerType];
+        SerializableList<Dealer> dealerss   = unlockedDealersDict[serType];
+
+        return dealerss.GetList();
     }
 
     public List<EventSeries.SeriesTier> GetUnlockedTiers(Region.ClickableRegion region){
-        return unlockedRegionTiers[region];
+        return unlockedRegionTiers[region].GetList();
     }
 
     public int GetCurrentFame(){
@@ -188,7 +174,7 @@ public class Profile
     }
 
     public bool HasUnlockedARegionTier(){
-        foreach(KeyValuePair<Region.ClickableRegion, List<EventSeries.SeriesTier>> entry in unlockedRegionTiers){
+        foreach(KeyValuePair<Region.ClickableRegion, SerializableList<EventSeries.SeriesTier>> entry in unlockedRegionTiers){
             if(entry.Value.Count > 0){
                 return true;
             }

@@ -5,10 +5,10 @@ using UnityEngine.Playables;
 using UnityEngine.UI;
 
 
-public class GameManager : MonoBehaviour
+public class GameManager : MonoBehaviour, IDataPersistence
 {
     private MenuManager   menuManager;
-    private const string  PATH_TO_JSONS  = @"C:\Users\Vitaly\Documents\SecondMonitor\Reports";
+    private string        pathToJsons  = @"C:\Users\Vitaly\Documents\SecondMonitor\Reports";
     public Profile        curProfile;
 
     // Start is called before the first frame update
@@ -16,7 +16,7 @@ public class GameManager : MonoBehaviour
     {
       menuManager = GameObject.FindWithTag("MenuManager").GetComponent<MenuManager>();
 
-      IOManager.SetJsonDir(PATH_TO_JSONS);
+      IOManager.SetJsonDir(pathToJsons);
 
     }
 
@@ -54,7 +54,7 @@ public class GameManager : MonoBehaviour
       if(null == result){
         checkResultBtn.interactable = true;
         menuManager.Notification("Alert",
-          "Could not find an AMS 2 race session result that had a grid size (including the player) of " + eventEntry.gridSize.ToString() + " in directory: " + PATH_TO_JSONS +
+          "Could not find an AMS 2 race session result that had a grid size (including the player) of " + eventEntry.gridSize.ToString() + " in directory: " + pathToJsons +
           ".\nMake sure Second Monitor is running before, during and after the race, and make sure the race settings shown in AutoTurismo match the in-game race settings!");
         return;
       }
@@ -67,11 +67,6 @@ public class GameManager : MonoBehaviour
 
       // TODO: check if event is done. If so, figure out a system to delete it from the series and add in a new one to replace it or something
       // maybe completing a rookie formula vee event adds another rookie formula vee event and also adds a novice formula vee event, if there isn't already one
-    }
-
-    public void SetProfile(string profileName){
-      // Check if profile exists, if it does, load it, else create a new profile
-      curProfile = new Profile(profileName);
     }
 
     public void BuyProduct(Purchasable product, Dealer dealer){
@@ -171,5 +166,24 @@ public class GameManager : MonoBehaviour
         menuManager.Notification("Alert",
           "You don't have enough renown to unlock the " + EventSeries.tierToString[tier] + " series for " + Region.regionToString[region] + ".\n\nCurrent Renown: " + curProfile.GetRenown().ToString() + "\nRenown Cost: " + cost.ToString("n0"));
       }
+    }
+
+    public void LoadData(GameData data){
+        curProfile                = new Profile(data.driverName, data.money, data.fame, data.maxFame, data.level, data.renown, data.unlockedDealersDict, data.ownedProductsDict, data.unlockedRegionTiers);
+        pathToJsons               = data.pathToJsons;
+    }
+
+    public void SaveData(GameData data){
+        data.driverName           = curProfile.driverName;
+        data.money                = curProfile.money;
+        data.fame                 = curProfile.fame;
+        data.maxFame              = curProfile.maxFame;
+        data.level                = curProfile.level;
+        data.renown               = curProfile.renown;
+        data.unlockedDealersDict  = curProfile.unlockedDealersDict;
+        data.ownedProductsDict    = curProfile.ownedProductsDict;
+        data.unlockedRegionTiers  = curProfile.unlockedRegionTiers;
+
+        data.pathToJsons          = pathToJsons;
     }
 }

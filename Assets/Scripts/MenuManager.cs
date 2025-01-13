@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using System;
 using System.Linq;
 using System.Collections;
+using System.Runtime.CompilerServices;
 
 
 public class MenuManager : MonoBehaviour
@@ -29,6 +30,7 @@ public class MenuManager : MonoBehaviour
     public GameObject   eventEntryRaceMenu;
     public GameObject   eventEntryCompleteMenu;
     public GameObject   earnRewardMenu;
+    public GameObject   profileMenu;
 
     [Header("Player Info")]
     public Slider       fameSlider;
@@ -71,6 +73,11 @@ public class MenuManager : MonoBehaviour
     public GameObject       chooseCarPrefab;
     public Transform        chooseCarContentTransform;
 
+    [Header("Profile")]
+    public GameObject       profilePrefab;
+    public Transform        profileContentTransform;
+
+
     void Start(){
         eventContentTransforms  = new List<Transform>();
 
@@ -101,6 +108,7 @@ public class MenuManager : MonoBehaviour
         eventEntryRaceMenu.SetActive(false);
         eventEntryCompleteMenu.SetActive(false);
         earnRewardMenu.SetActive(false);
+        profileMenu.SetActive(false);
 
         // Destroy objects
         foreach(Transform child in dealershipContentTransform)
@@ -138,6 +146,10 @@ public class MenuManager : MonoBehaviour
         {
             Destroy(child.gameObject);
         }
+        foreach(Transform child in profileContentTransform)
+        {
+            Destroy(child.gameObject);
+        }
     }
 
     public void BlockNavButtons(){
@@ -162,6 +174,8 @@ public class MenuManager : MonoBehaviour
 
         if(newPlayer){
             BlockNavButtons();
+            string bodyText = "You have been given $" + GameData.STARTING_MONEY.ToString("n0") + " and 1 renown to start your career.\nMake sure to use your renown to unlock the Rookie series for a region of your choice, and then make sure to visit the car dealership and entry pass vendors to get your first car and entry pass into the rookie series!\n\nAfter telling me your driver name, of course:";
+            newPlayerMenu.transform.Find("NotificationTxt").GetComponent<TextMeshProUGUI>().text = bodyText;
         }
         else{
             // Re-activate buttons
@@ -175,7 +189,7 @@ public class MenuManager : MonoBehaviour
 
         // Validate name
         if(text.Length > 0){
-            gameManager.SetProfile(text);
+            gameManager.curProfile.driverName = text;
             Home(false);
         }
         else{
@@ -244,6 +258,14 @@ public class MenuManager : MonoBehaviour
         TurnAllOff();
         navigationMenu.SetActive(true);
         racingMenu.SetActive(true);
+    }
+
+    public void Profile(){
+        TurnAllOff();
+        profileMenu.SetActive(true);
+        navigationMenu.SetActive(true);
+        BlockNavButtons();
+        PopulateProfiles();
     }
 
     public void RegionSelect(string clickableRegionName){
@@ -473,11 +495,11 @@ public class MenuManager : MonoBehaviour
 
     public enum NotificationType
     {
-        Normal,
-        PurchaseConfirmation
+        Notification,
+        Confirmation
     }
 
-    public void Notification(string title, string bodyText, Sprite rewardSprite = null, Sprite rewardBGSprite = null, NotificationType notificationType = NotificationType.Normal){
+    public void Notification(string title, string bodyText, Sprite rewardSprite = null, Sprite rewardBGSprite = null, NotificationType notificationType = NotificationType.Notification){
         const string TITLE_TEXT_NAME        = "TitleTxt";
         const string BODY_TEXT_NAME         = "NotificationTxt";
         const string REWARD_IMG_NAME        = "RewardImg";
@@ -514,8 +536,8 @@ public class MenuManager : MonoBehaviour
             notificationMenu.transform.Find(REWARD_IMG_BG_NAME).gameObject.SetActive(false);
         }
 
-        notificationMenu.transform.Find(NORMAL_NOTI_NAME).gameObject.SetActive(notificationType == NotificationType.Normal);
-        notificationMenu.transform.Find(CONFIRMATION_NAME).gameObject.SetActive(notificationType == NotificationType.PurchaseConfirmation);
+        notificationMenu.transform.Find(NORMAL_NOTI_NAME).gameObject.SetActive(notificationType == NotificationType.Notification);
+        notificationMenu.transform.Find(CONFIRMATION_NAME).gameObject.SetActive(notificationType == NotificationType.Confirmation);
 
         notificationMenu.SetActive(true);
     }
@@ -543,7 +565,7 @@ public class MenuManager : MonoBehaviour
             Dealer dealer   = dealers[i];
             newObj          = (GameObject)Instantiate(dealerObjPrefab, dealershipContentTransform);
             newObj.transform.Find(BG_IMAGE_NAME).GetComponent<Image>().sprite                   = dealer.GetSprite();
-            newObj.transform.Find(DEALER_TEXT_NAME).GetComponent<TextMeshProUGUI>().text        = dealer.name;
+            newObj.transform.Find(DEALER_TEXT_NAME).GetComponent<TextMeshProUGUI>().text        = dealer.dealerName;
 
             newObj.transform.Find(DEALER_BTN_NAME).GetComponent<Button>().onClick.RemoveAllListeners();
             newObj.transform.Find(DEALER_BTN_NAME).GetComponent<Button>().onClick.AddListener(() => { Dealer(dealer); });
@@ -551,24 +573,24 @@ public class MenuManager : MonoBehaviour
     }
 
     private void PopulateDealer(Dealer dealer){
-        const string PRODUCT_IMAGE_NAME = "ProductImg";
-        const string PRODUCT_INNER_NAME = "ProductImgInner";
-        const string PRODUCT_BG_NAME    = "ProductImgBG";
-        const string NAME_TEXT_NAME     = "ProductNameTxt";
-        const string CLASSES_TEXT_NAME  = "ProductClassesTxt";
-        const string TYPE_TEXT_NAME     = "ProductTypeTxt";
-        const string BUY_BTN_NAME       = "PriceBuy/BuyBtn";
-        const string BUY_BTN_TEXT_NAME  = "PriceBuy/BuyBtn/BuyTxt";
-        const string PRICE_TEXT_NAME    = "PriceBuy/PriceTxt";
+        const string PRODUCT_IMAGE_NAME             = "ProductImg";
+        const string PRODUCT_INNER_NAME             = "ProductImgInner";
+        const string PRODUCT_BG_NAME                = "ProductImgBG";
+        const string NAME_TEXT_NAME                 = "ProductNameTxt";
+        const string CLASSES_TEXT_NAME              = "ProductClassesTxt";
+        const string TYPE_TEXT_NAME                 = "ProductTypeTxt";
+        const string BUY_BTN_NAME                   = "PriceBuy/BuyBtn";
+        const string BUY_BTN_TEXT_NAME              = "PriceBuy/BuyBtn/BuyTxt";
+        const string PRICE_TEXT_NAME                = "PriceBuy/PriceTxt";
 
-        const string DEALER_TEXT_NAME   = "DealerTxt";
-        const string BACK_BTN_NAME      = "BackBtn";
+        const string DEALER_TEXT_NAME               = "DealerTxt";
+        const string BACK_BTN_NAME                  = "BackBtn";
 
-        GameObject          newObj;
-        List<Purchasable>   products            = dealer.products;
+        GameObject                      newObj;
+        SerializableList<Purchasable>   products    = dealer.products;
 
         // Set dealer title
-        dealerMenu.transform.Find(DEALER_TEXT_NAME).GetComponent<TextMeshProUGUI>().text        = dealer.name;
+        dealerMenu.transform.Find(DEALER_TEXT_NAME).GetComponent<TextMeshProUGUI>().text        = dealer.dealerName;
         // Set onclick for the back button, depending on what kind of dealer this is
         if(dealer       is CarDealer){
             dealerMenu.transform.Find(BACK_BTN_NAME).GetComponent<Button>().onClick.RemoveAllListeners();
@@ -787,7 +809,7 @@ public class MenuManager : MonoBehaviour
         // Don't forget image later on
 
         GameObject          newObj;
-        List<EventSeries>   seriesList          = Region.regions[region].tierToSeries[tier];
+        List<EventSeries>   seriesList          = Region.regions[region].tierToSeries[tier].GetList();
 
         // Change the title depending on what the region is
         regionSeriesMenu.transform.Find(REGION_TEXT_NAME).GetComponent<TextMeshProUGUI>().text  = Region.regionToString[region];
@@ -807,7 +829,7 @@ public class MenuManager : MonoBehaviour
             //newObj.transform.Find(PRODUCT_IMAGE_NAME).GetComponent<Image>().sprite              = product.GetSprite();
 
             // Change the series name
-            newObj.transform.Find(SERIES_TITLE_NAME).GetComponent<TextMeshProUGUI>().text       = series.name;
+            newObj.transform.Find(SERIES_TITLE_NAME).GetComponent<TextMeshProUGUI>().text       = series.seriesName;
 
             // Change the tier text
             newObj.transform.Find(SERIES_TIER_NAME).GetComponent<TextMeshProUGUI>().text        = SERIES_TIER_PREFIX + EventSeries.tierToString[series.seriesTier] + SERIES_TIER_SUFFIX;
@@ -841,7 +863,7 @@ public class MenuManager : MonoBehaviour
         GameObject          newObj;
 
         // Change the series title
-        seriesMenu.transform.Find(SERIES_TITLE_NAME).GetComponent<TextMeshProUGUI>().text       = series.name;
+        seriesMenu.transform.Find(SERIES_TITLE_NAME).GetComponent<TextMeshProUGUI>().text       = series.seriesName;
         // Change the series tier
         seriesMenu.transform.Find(SERIES_TIER_NAME).GetComponent<TextMeshProUGUI>().text        = EventSeries.tierToString[series.seriesTier] + " Drivers Only";
 
@@ -857,7 +879,7 @@ public class MenuManager : MonoBehaviour
             //newObj.transform.Find(PRODUCT_IMAGE_NAME).GetComponent<Image>().sprite              = product.GetSprite();
 
             // Change the event name
-            newObj.transform.Find(EVENT_TITLE_NAME).GetComponent<TextMeshProUGUI>().text        = seriesEvent.name;
+            newObj.transform.Find(EVENT_TITLE_NAME).GetComponent<TextMeshProUGUI>().text        = seriesEvent.eventName;
 
             // Change the event type text
             newObj.transform.Find(EVENT_TYPE_NAME).GetComponent<TextMeshProUGUI>().text         = seriesEvent.GetPrintEventType();
@@ -950,11 +972,11 @@ public class MenuManager : MonoBehaviour
 
         GameObject          newObj;
 
-        EventSeries.SeriesTier   seriesTier                     = eventEntry.parentEvent.parentEventSeries.seriesTier;
-        List<Cars.CarType>              allowedCarTypes         = eventEntry.parentEvent.typeWhitelist;
-        List<Cars.CarClass>             allowedCarClasses       = eventEntry.parentEvent.classWhitelist;
-        List<Cars.CarBrand>             allowedCarBrands        = eventEntry.parentEvent.brandWhitelist;
-        List<string>                    allowedCarNames         = eventEntry.parentEvent.nameWhitelist;
+        EventSeries.SeriesTier   seriesTier                                 = eventEntry.parentEvent.parentEventSeries.seriesTier;
+        SerializableList<Cars.CarType>              allowedCarTypes         = eventEntry.parentEvent.typeWhitelist;
+        SerializableList<Cars.CarClass>             allowedCarClasses       = eventEntry.parentEvent.classWhitelist;
+        SerializableList<Cars.CarBrand>             allowedCarBrands        = eventEntry.parentEvent.brandWhitelist;
+        SerializableList<string>                    allowedCarNames         = eventEntry.parentEvent.nameWhitelist;
 
         // Change the back button onclick action
         Button backBtn = chooseCarMenu.transform.Find(BACK_BTN_NAME).GetComponent<Button>();
@@ -964,9 +986,9 @@ public class MenuManager : MonoBehaviour
 
         // Get your owned cars that you can race in this event entry
         // These are the cars you own that fit in this event (but you may or may not have the proper entry pass)
-        List<Car>           legalOwnedCars                  = gameManager.curProfile.GetOwnedCarsFiltered(allowedCarNames, allowedCarTypes, allowedCarClasses, allowedCarBrands);
+        List<Car>           legalOwnedCars                  = gameManager.curProfile.GetOwnedCarsFiltered(allowedCarNames.GetList(), allowedCarTypes.GetList(), allowedCarClasses.GetList(), allowedCarBrands.GetList());
         // These are the cars that you own that fit in this event, that you do have an entry pass for
-        List<Car>           legalRaceableOwnedCars          = gameManager.curProfile.GetOwnedCarsThatCanRaceEvent(allowedCarNames, allowedCarTypes, allowedCarClasses, allowedCarBrands, seriesTier);
+        List<Car>           legalRaceableOwnedCars          = gameManager.curProfile.GetOwnedCarsThatCanRaceEvent(allowedCarNames.GetList(), allowedCarTypes.GetList(), allowedCarClasses.GetList(), allowedCarBrands.GetList(), seriesTier);
 
         GameObject          noCarObj                        = chooseCarMenu.transform.Find(NO_CAR_OBJ_NAME).gameObject;
         // If we don't have any valid cars, alert the user in some way
@@ -1046,7 +1068,7 @@ public class MenuManager : MonoBehaviour
         const string        RESULTS_STANDINGS_TXT_NAME  = "ChampionshipStandingsTxt";
 
         // Change all the text
-        menuToEdit.transform.Find(ENTRY_TITLE_NAME).GetComponent<TextMeshProUGUI>().text        = eventEntry.parentEvent.name;
+        menuToEdit.transform.Find(ENTRY_TITLE_NAME).GetComponent<TextMeshProUGUI>().text        = eventEntry.parentEvent.eventName;
         menuToEdit.transform.Find(ENTRY_NUM_TEXT_NAME).GetComponent<TextMeshProUGUI>().text     = "Race "                           + eventEntry.parentEvent.GetEventEntryPosition(eventEntry).ToString() + " of " + eventEntry.parentEvent.GetEventEntries().Count.ToString();
         menuToEdit.transform.Find(TRACK_TEXT_NAME).GetComponent<TextMeshProUGUI>().text         = "Name: "                          + eventEntry.track.GetPrintName();
         menuToEdit.transform.Find(COUNTRY_TEXT_NAME).GetComponent<TextMeshProUGUI>().text       = "Country: "                       + Tracks.countryToString[eventEntry.track.country];
@@ -1087,6 +1109,37 @@ public class MenuManager : MonoBehaviour
         backBtn.onClick.AddListener(()                  => { Series(eventEntry.parentEvent.parentEventSeries); });
     }
 
+    private void PopulateProfiles(){
+        // Within the prefab
+        const string PROFILE_TEXT_NAME  = "ProfileName";
+        const string SELECT_BTN_NAME    = "SelectBtn";
+        const string DELETE_BTN_NAME    = "DeleteBtn";
+
+
+        GameObject      newObj;
+        List<string>    profileNames    =  DataPersistenceManager.profileNames;
+
+        // For every profile, make a profile obj prefab
+        for(int i = 1; i <= profileNames.Count; i++){
+            string profileName  = profileNames[i-1];
+            int curInt          = i;
+
+            newObj              = (GameObject)Instantiate(profilePrefab, profileContentTransform);
+            newObj.transform.Find(PROFILE_TEXT_NAME).GetComponent<TextMeshProUGUI>().text        = profileName;
+
+            newObj.transform.Find(SELECT_BTN_NAME).GetComponent<Button>().onClick.RemoveAllListeners();
+            newObj.transform.Find(SELECT_BTN_NAME).GetComponent<Button>().onClick.AddListener(() => { SelectProfileSlot(curInt); });
+
+            if(DataPersistenceManager.DEFAULT_NAME == profileName){
+                newObj.transform.Find(DELETE_BTN_NAME).gameObject.SetActive(false);
+                continue;
+            }
+
+            newObj.transform.Find(DELETE_BTN_NAME).GetComponent<Button>().onClick.RemoveAllListeners();
+            newObj.transform.Find(DELETE_BTN_NAME).GetComponent<Button>().onClick.AddListener(() => { ConfirmDeleteProfile(curInt, profileName); });
+        }
+    }
+
     // Final click before actually 'racing'
     private void ChooseCarClicked(EventEntry eventEntry, Car car, bool ownEntryPassForCar){
         // First check if we can actually use our selected car for the event
@@ -1103,7 +1156,7 @@ public class MenuManager : MonoBehaviour
         if(!eventEntry.nextUp){
             // Alert the user
             Notification("Alert",
-            "This event entry is not the next one up in the " + eventEntry.parentEvent.name + " event.\nMake sure to complete the event in sequential order!");
+            "This event entry is not the next one up in the " + eventEntry.parentEvent.eventName + " event.\nMake sure to complete the event in sequential order!");
             return;
         }
 
@@ -1146,12 +1199,10 @@ public class MenuManager : MonoBehaviour
             bodyText = "Are you sure you want to sell a " + product.GetPrintName() + " for " + product.GetSellPrice() + "?\nBalance after transaction: " + remainingBalance + "\n" + product.GetInfoBlurb();
         }
 
-        Notification("Confirm Transaction", bodyText, product.GetSprite(), product.GetBGSprite(), NotificationType.PurchaseConfirmation);
+        Notification("Confirm Transaction", bodyText, product.GetSprite(), product.GetBGSprite(), NotificationType.Confirmation);
     }
 
     private void ConfirmRegionTierUnlockPopup(Region.ClickableRegion region, EventSeries.SeriesTier tier){
-        // Either buying or selling
-
         const string BUY_BTN_NAME   = "PurchaseConfirmation/YesBtn";
 
         BlockNavButtons();
@@ -1167,6 +1218,34 @@ public class MenuManager : MonoBehaviour
         string remainingBalance     = (curRenown - price).ToString("n0");
         string bodyText             = "Are you sure you want to unlock the " + EventSeries.tierToString[tier] + " series for " + Region.regionToString[region] + "?\n\nRenown Cost: " + price.ToString("n0") + "\nRemaining renown after unlock: " + remainingBalance + "\n";
 
-        Notification("Confirm Unlock", bodyText, notificationType:NotificationType.PurchaseConfirmation);
+        Notification("Confirm Unlock", bodyText, notificationType:NotificationType.Confirmation);
+    }
+
+    private void ConfirmDeleteProfile(int profileSlot, string profileName){
+        const string BUY_BTN_NAME   = "PurchaseConfirmation/YesBtn";
+
+        BlockNavButtons();
+
+        // Set the onclick event of the buy button on the notification screen
+        // Delete profile and clear the notification
+        notificationMenu.transform.Find(BUY_BTN_NAME).GetComponent<Button>().onClick.RemoveAllListeners();
+        notificationMenu.transform.Find(BUY_BTN_NAME).GetComponent<Button>().onClick.AddListener(() => { DeleteProfileSlot(profileSlot); });
+
+        string bodyText             = "Are you sure you want to delete the profile (and all of its' associated data): " + profileName + "?";
+
+        Notification("Delete the Profile?", bodyText, notificationType:NotificationType.Confirmation);
+    }
+
+    private void DeleteProfileSlot(int profileSlot){
+        // Delete the profile and refresh the profile page
+        DataPersistenceManager.instance.DeleteGame(profileSlot);
+        Profile();
+    }
+
+    private void SelectProfileSlot(int profileSlot){
+        bool newGame  = DataPersistenceManager.instance.LoadProfile(profileSlot);
+
+        ActivateNavButtons();
+        Home(newGame);
     }
 }

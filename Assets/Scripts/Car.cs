@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System;
 using UnityEditor.Rendering;
 
+[System.Serializable]
 public class Car : Purchasable
 {
-    public Cars.CarType         type;
-    public List<Cars.CarClass>  classes;
-    public Cars.CarBrand        brand;
+    public Cars.CarType                     type;
+    public SerializableList<Cars.CarClass>  classes;
+    public Cars.CarBrand                    brand;
 
-    public Car(string nameParam, Cars.CarType typeParam, List<Cars.CarClass> classesParam, Cars.CarBrand brandParam, int priceParam, int sellPriceParam = -1) : base(nameParam, priceParam, sellPriceParam)
+    public Car(string nameParam, Cars.CarType typeParam, SerializableList<Cars.CarClass> classesParam, Cars.CarBrand brandParam, int priceParam, int sellPriceParam = -1) : base(nameParam, priceParam, sellPriceParam)
     {
         type        = typeParam;
         classes     = classesParam;
@@ -17,12 +18,12 @@ public class Car : Purchasable
     }
 
     public override Sprite GetSprite(){
-        string imageName = name.Replace(" ", "") + "_Car";
+        string imageName = productName.Replace(" ", "") + "_Car";
         return Resources.Load<Sprite>("Images/Cars/" + imageName);
     }
 
     public override string GetPrintName(){
-        return brand.ToString() == "" ?  name : brand.ToString() + " " + name;
+        return brand.ToString() == "" ?  productName : brand.ToString() + " " + productName;
     }
 
     public override string GetInfoBlurb()
@@ -56,11 +57,11 @@ public class Car : Purchasable
         }
 
         Car carToCompare = (Car)obj;
-        return carToCompare.name == name;
+        return carToCompare.productName == productName;
     }
     public override int GetHashCode()
     {
-        return name.GetHashCode();
+        return productName.GetHashCode();
     }
 }
 
@@ -239,148 +240,148 @@ public static class Cars
         // Init, add ALL of the game's cars here
 
         // Karts
-        AddNewCar(new Car(KART_RENTAL_NAME,                 CarType.OpenWheeler,    new List<CarClass> {CarClass.KartRental},           CarBrand.Kart,              4000));
-        AddNewCar(new Car(KART_GX390_NAME,                  CarType.OpenWheeler,    new List<CarClass> {CarClass.KartGX390},            CarBrand.Kart,              5000));
-        AddNewCar(new Car(KART_125CC_NAME,                  CarType.OpenWheeler,    new List<CarClass> {CarClass.Kart125cc},            CarBrand.Kart,              5500));
-        AddNewCar(new Car(KART_SHIFTER_NAME,                CarType.OpenWheeler,    new List<CarClass> {CarClass.KartShifter},          CarBrand.Kart,              6000));
-        AddNewCar(new Car(KART_SUPER_NAME,                  CarType.OpenWheeler,    new List<CarClass> {CarClass.KartSuper},            CarBrand.Kart,              8000));
+        AddNewCar(new Car(KART_RENTAL_NAME,                 CarType.OpenWheeler,    new SerializableList<CarClass> {CarClass.KartRental},           CarBrand.Kart,              4000));
+        AddNewCar(new Car(KART_GX390_NAME,                  CarType.OpenWheeler,    new SerializableList<CarClass> {CarClass.KartGX390},            CarBrand.Kart,              5000));
+        AddNewCar(new Car(KART_125CC_NAME,                  CarType.OpenWheeler,    new SerializableList<CarClass> {CarClass.Kart125cc},            CarBrand.Kart,              5500));
+        AddNewCar(new Car(KART_SHIFTER_NAME,                CarType.OpenWheeler,    new SerializableList<CarClass> {CarClass.KartShifter},          CarBrand.Kart,              6000));
+        AddNewCar(new Car(KART_SUPER_NAME,                  CarType.OpenWheeler,    new SerializableList<CarClass> {CarClass.KartSuper},            CarBrand.Kart,              8000));
 
         // FORMULA VEE
-        AddNewCar(new Car(VEE_2011_NAME,                    CarType.OpenWheeler,    new List<CarClass> {CarClass.FormulaVee},           CarBrand.Volkswagen,        6000));
-        AddNewCar(new Car(VEE_FIN_NAME,                     CarType.OpenWheeler,    new List<CarClass> {CarClass.FormulaVee},           CarBrand.Volkswagen,        7500));
+        AddNewCar(new Car(VEE_2011_NAME,                    CarType.OpenWheeler,    new SerializableList<CarClass> {CarClass.FormulaVee},           CarBrand.Volkswagen,        6000));
+        AddNewCar(new Car(VEE_FIN_NAME,                     CarType.OpenWheeler,    new SerializableList<CarClass> {CarClass.FormulaVee},           CarBrand.Volkswagen,        7500));
 
-        AddNewCar(new Car(COPA_UNO,                         CarType.Touring,        new List<CarClass> {CarClass.CopaUno},              CarBrand.Fiat,              7000));
+        AddNewCar(new Car(COPA_UNO,                         CarType.Touring,        new SerializableList<CarClass> {CarClass.CopaUno},              CarBrand.Fiat,              7000));
 
         // COPA CLASSIC B
-        AddNewCar(new Car(COPA_B_CHEVETTE_NAME,             CarType.Touring,        new List<CarClass> {CarClass.CopaClassicB},         CarBrand.Chevrolet,         6500));
-        AddNewCar(new Car(COPA_B_COOPER_NAME,               CarType.Touring,        new List<CarClass> {CarClass.CopaClassicB},         CarBrand.Mini,              7000));
-        AddNewCar(new Car(COPA_B_GOL_NAME,                  CarType.Touring,        new List<CarClass> {CarClass.CopaClassicB},         CarBrand.Volkswagen,        7500));
-        AddNewCar(new Car(COPA_B_GTE_NAME,                  CarType.Touring,        new List<CarClass> {CarClass.CopaClassicB},         CarBrand.Puma,              8000));
-        AddNewCar(new Car(COPA_B_PASSAT_NAME,               CarType.Touring,        new List<CarClass> {CarClass.CopaClassicB},         CarBrand.Volkswagen,        8500));
-        AddNewCar(new Car(COPA_B_UNO_NAME,                  CarType.Touring,        new List<CarClass> {CarClass.CopaClassicB},         CarBrand.Fiat,              7000));
+        AddNewCar(new Car(COPA_B_CHEVETTE_NAME,             CarType.Touring,        new SerializableList<CarClass> {CarClass.CopaClassicB},         CarBrand.Chevrolet,         6500));
+        AddNewCar(new Car(COPA_B_COOPER_NAME,               CarType.Touring,        new SerializableList<CarClass> {CarClass.CopaClassicB},         CarBrand.Mini,              7000));
+        AddNewCar(new Car(COPA_B_GOL_NAME,                  CarType.Touring,        new SerializableList<CarClass> {CarClass.CopaClassicB},         CarBrand.Volkswagen,        7500));
+        AddNewCar(new Car(COPA_B_GTE_NAME,                  CarType.Touring,        new SerializableList<CarClass> {CarClass.CopaClassicB},         CarBrand.Puma,              8000));
+        AddNewCar(new Car(COPA_B_PASSAT_NAME,               CarType.Touring,        new SerializableList<CarClass> {CarClass.CopaClassicB},         CarBrand.Volkswagen,        8500));
+        AddNewCar(new Car(COPA_B_UNO_NAME,                  CarType.Touring,        new SerializableList<CarClass> {CarClass.CopaClassicB},         CarBrand.Fiat,              7000));
 
         // COPA CLASSIC FL
-        AddNewCar(new Car(COPA_FL_FUSCA_NAME,               CarType.Touring,        new List<CarClass> {CarClass.CopaClassicFL},        CarBrand.Volkswagen,        9000));
-        AddNewCar(new Car(COPA_FL_GOL_NAME,                 CarType.Touring,        new List<CarClass> {CarClass.CopaClassicFL},        CarBrand.Volkswagen,        9500));
-        AddNewCar(new Car(COPA_FL_PASSAT_NAME,              CarType.Touring,        new List<CarClass> {CarClass.CopaClassicFL},        CarBrand.Volkswagen,        10000));
-        AddNewCar(new Car(COPA_FL_GTB_NAME,                 CarType.Touring,        new List<CarClass> {CarClass.CopaClassicFL},        CarBrand.Puma,              10500));
+        AddNewCar(new Car(COPA_FL_FUSCA_NAME,               CarType.Touring,        new SerializableList<CarClass> {CarClass.CopaClassicFL},        CarBrand.Volkswagen,        9000));
+        AddNewCar(new Car(COPA_FL_GOL_NAME,                 CarType.Touring,        new SerializableList<CarClass> {CarClass.CopaClassicFL},        CarBrand.Volkswagen,        9500));
+        AddNewCar(new Car(COPA_FL_PASSAT_NAME,              CarType.Touring,        new SerializableList<CarClass> {CarClass.CopaClassicFL},        CarBrand.Volkswagen,        10000));
+        AddNewCar(new Car(COPA_FL_GTB_NAME,                 CarType.Touring,        new SerializableList<CarClass> {CarClass.CopaClassicFL},        CarBrand.Puma,              10500));
 
         // COPA TRUCK
-        AddNewCar(new Car(COPA_TRUCK_STRALIS_NAME,          CarType.Truck,          new List<CarClass> {CarClass.CopaTruck},            CarBrand.Iveco,             7000));
-        AddNewCar(new Car(COPA_TRUCK_TGX_NAME,              CarType.Truck,          new List<CarClass> {CarClass.CopaTruck},            CarBrand.MAN,               7500));
-        AddNewCar(new Car(COPA_TRUCK_ACTROS_NAME,           CarType.Truck,          new List<CarClass> {CarClass.CopaTruck},            CarBrand.Mercedes,          8000));
-        AddNewCar(new Car(COPA_TRUCK_CONSTELLATION_NAME,    CarType.Truck,          new List<CarClass> {CarClass.CopaTruck},            CarBrand.Volkswagen,        8500));
-        AddNewCar(new Car(COPA_TRUCK_TRUCK,                 CarType.Truck,          new List<CarClass> {CarClass.CopaTruck},            CarBrand.Vulkan,            9000));
+        AddNewCar(new Car(COPA_TRUCK_STRALIS_NAME,          CarType.Truck,          new SerializableList<CarClass> {CarClass.CopaTruck},            CarBrand.Iveco,             7000));
+        AddNewCar(new Car(COPA_TRUCK_TGX_NAME,              CarType.Truck,          new SerializableList<CarClass> {CarClass.CopaTruck},            CarBrand.MAN,               7500));
+        AddNewCar(new Car(COPA_TRUCK_ACTROS_NAME,           CarType.Truck,          new SerializableList<CarClass> {CarClass.CopaTruck},            CarBrand.Mercedes,          8000));
+        AddNewCar(new Car(COPA_TRUCK_CONSTELLATION_NAME,    CarType.Truck,          new SerializableList<CarClass> {CarClass.CopaTruck},            CarBrand.Volkswagen,        8500));
+        AddNewCar(new Car(COPA_TRUCK_TRUCK,                 CarType.Truck,          new SerializableList<CarClass> {CarClass.CopaTruck},            CarBrand.Vulkan,            9000));
 
         // TSI
-        AddNewCar(new Car(TSI_POLO_NAME,                    CarType.Road,           new List<CarClass> {CarClass.TSI},                  CarBrand.Volkswagen,        7500));
-        AddNewCar(new Car(TSI_POLO_GTS_NAME,                CarType.Road,           new List<CarClass> {CarClass.TSI},                  CarBrand.Volkswagen,        8000));
-        AddNewCar(new Car(TSI_VIRTUS_NAME,                  CarType.Road,           new List<CarClass> {CarClass.TSI},                  CarBrand.Volkswagen,        8500));
-        AddNewCar(new Car(TSI_VIRTUS_GTS_NAME,              CarType.Road,           new List<CarClass> {CarClass.TSI},                  CarBrand.Volkswagen,        9000));
+        AddNewCar(new Car(TSI_POLO_NAME,                    CarType.Road,           new SerializableList<CarClass> {CarClass.TSI},                  CarBrand.Volkswagen,        7500));
+        AddNewCar(new Car(TSI_POLO_GTS_NAME,                CarType.Road,           new SerializableList<CarClass> {CarClass.TSI},                  CarBrand.Volkswagen,        8000));
+        AddNewCar(new Car(TSI_VIRTUS_NAME,                  CarType.Road,           new SerializableList<CarClass> {CarClass.TSI},                  CarBrand.Volkswagen,        8500));
+        AddNewCar(new Car(TSI_VIRTUS_GTS_NAME,              CarType.Road,           new SerializableList<CarClass> {CarClass.TSI},                  CarBrand.Volkswagen,        9000));
 
         // Street
-        AddNewCar(new Car(STREET_CAMARO_NAME,               CarType.Road,           new List<CarClass> {CarClass.StreetCars},           CarBrand.Chevrolet,         12000));
-        AddNewCar(new Car(STREET_LANCER_R_NAME,             CarType.Road,           new List<CarClass> {CarClass.Lancer},               CarBrand.Mitsubishi,        13000));
-        AddNewCar(new Car(STREET_LANCER_RS_NAME,            CarType.Road,           new List<CarClass> {CarClass.Lancer},               CarBrand.Mitsubishi,        14000));
+        AddNewCar(new Car(STREET_CAMARO_NAME,               CarType.Road,           new SerializableList<CarClass> {CarClass.StreetCars},           CarBrand.Chevrolet,         12000));
+        AddNewCar(new Car(STREET_LANCER_R_NAME,             CarType.Road,           new SerializableList<CarClass> {CarClass.Lancer},               CarBrand.Mitsubishi,        13000));
+        AddNewCar(new Car(STREET_LANCER_RS_NAME,            CarType.Road,           new SerializableList<CarClass> {CarClass.Lancer},               CarBrand.Mitsubishi,        14000));
 
         // Street: Super cars
-        AddNewCar(new Car(SUPER_CORVETTE_NAME,              CarType.Road,           new List<CarClass> {CarClass.SuperCars},            CarBrand.Chevrolet,         16000));
-        AddNewCar(new Car(SUPER_F1_NAME,                    CarType.Road,           new List<CarClass> {CarClass.SuperCars},            CarBrand.McLaren,           16500));
-        AddNewCar(new Car(SUPER_GTR_NAME,                   CarType.Road,           new List<CarClass> {CarClass.SuperCars},            CarBrand.Ultima,            17000));
+        AddNewCar(new Car(SUPER_CORVETTE_NAME,              CarType.Road,           new SerializableList<CarClass> {CarClass.SuperCars},            CarBrand.Chevrolet,         16000));
+        AddNewCar(new Car(SUPER_F1_NAME,                    CarType.Road,           new SerializableList<CarClass> {CarClass.SuperCars},            CarBrand.McLaren,           16500));
+        AddNewCar(new Car(SUPER_GTR_NAME,                   CarType.Road,           new SerializableList<CarClass> {CarClass.SuperCars},            CarBrand.Ultima,            17000));
 
         // Street: Hyper cars
-        AddNewCar(new Car(HYPER_BT62_NAME,                  CarType.Road,           new List<CarClass> {CarClass.HyperCars},            CarBrand.Brabham,           50000));
-        AddNewCar(new Car(HYPER_SENNA_NAME,                 CarType.Road,           new List<CarClass> {CarClass.HyperCars},            CarBrand.McLaren,           55000));
+        AddNewCar(new Car(HYPER_BT62_NAME,                  CarType.Road,           new SerializableList<CarClass> {CarClass.HyperCars},            CarBrand.Brabham,           50000));
+        AddNewCar(new Car(HYPER_SENNA_NAME,                 CarType.Road,           new SerializableList<CarClass> {CarClass.HyperCars},            CarBrand.McLaren,           55000));
 
         // GT Open
-        AddNewCar(new Car(GTO_G55_NAME,                     CarType.GT,             new List<CarClass> {CarClass.GTOpen},               CarBrand.Ginetta,           16000));
-        AddNewCar(new Car(GTO_GTR_NAME,                     CarType.GT,             new List<CarClass> {CarClass.GTOpen},               CarBrand.Ultima,            20000));
+        AddNewCar(new Car(GTO_G55_NAME,                     CarType.GT,             new SerializableList<CarClass> {CarClass.GTOpen},               CarBrand.Ginetta,           16000));
+        AddNewCar(new Car(GTO_GTR_NAME,                     CarType.GT,             new SerializableList<CarClass> {CarClass.GTOpen},               CarBrand.Ultima,            20000));
 
         // GTE
-        AddNewCar(new Car(GTE_C8R_NAME,                     CarType.GT,             new List<CarClass> {CarClass.GTE},                  CarBrand.Chevrolet,         15000));
-        AddNewCar(new Car(GTE_911_NAME,                     CarType.GT,             new List<CarClass> {CarClass.GTE},                  CarBrand.Porsche,           15000));
-        AddNewCar(new Car(GTE_M8_NAME,                      CarType.GT,             new List<CarClass> {CarClass.GTE},                  CarBrand.BMW,               15000));
+        AddNewCar(new Car(GTE_C8R_NAME,                     CarType.GT,             new SerializableList<CarClass> {CarClass.GTE},                  CarBrand.Chevrolet,         15000));
+        AddNewCar(new Car(GTE_911_NAME,                     CarType.GT,             new SerializableList<CarClass> {CarClass.GTE},                  CarBrand.Porsche,           15000));
+        AddNewCar(new Car(GTE_M8_NAME,                      CarType.GT,             new SerializableList<CarClass> {CarClass.GTE},                  CarBrand.BMW,               15000));
 
         // GT5
-        AddNewCar(new Car(GT5_G40_NAME,                     CarType.GT,             new List<CarClass> {CarClass.GT5},                  CarBrand.Ginetta,           8500));
-        AddNewCar(new Car(GT5_P052_NAME,                    CarType.GT,             new List<CarClass> {CarClass.GT5},                  CarBrand.Puma,              9000));
+        AddNewCar(new Car(GT5_G40_NAME,                     CarType.GT,             new SerializableList<CarClass> {CarClass.GT5},                  CarBrand.Ginetta,           8500));
+        AddNewCar(new Car(GT5_P052_NAME,                    CarType.GT,             new SerializableList<CarClass> {CarClass.GT5},                  CarBrand.Puma,              9000));
 
         // GT4
-        AddNewCar(new Car(GT4_M4_NAME,                      CarType.GT,             new List<CarClass> {CarClass.GT4},                  CarBrand.BMW,               12000));
-        AddNewCar(new Car(GT4_CAMARO_NAME,                  CarType.GT,             new List<CarClass> {CarClass.GT4},                  CarBrand.Chevrolet,         12000));
-        AddNewCar(new Car(GT4_G55_NAME,                     CarType.GT,             new List<CarClass> {CarClass.GT4},                  CarBrand.Ginetta,           12500));
-        AddNewCar(new Car(GT4_570S_NAME,                    CarType.GT,             new List<CarClass> {CarClass.GT4},                  CarBrand.McLaren,           12500));
-        AddNewCar(new Car(GT4_AMG_NAME,                     CarType.GT,             new List<CarClass> {CarClass.GT4},                  CarBrand.Mercedes,          13000));
-        AddNewCar(new Car(GT4_CAYMAN_NAME,                  CarType.GT,             new List<CarClass> {CarClass.GT4},                  CarBrand.Porsche,           13000));
-        AddNewCar(new Car(GT4_R8_NAME,                      CarType.GT,             new List<CarClass> {CarClass.GT4},                  CarBrand.Audi,              13000));
+        AddNewCar(new Car(GT4_M4_NAME,                      CarType.GT,             new SerializableList<CarClass> {CarClass.GT4},                  CarBrand.BMW,               12000));
+        AddNewCar(new Car(GT4_CAMARO_NAME,                  CarType.GT,             new SerializableList<CarClass> {CarClass.GT4},                  CarBrand.Chevrolet,         12000));
+        AddNewCar(new Car(GT4_G55_NAME,                     CarType.GT,             new SerializableList<CarClass> {CarClass.GT4},                  CarBrand.Ginetta,           12500));
+        AddNewCar(new Car(GT4_570S_NAME,                    CarType.GT,             new SerializableList<CarClass> {CarClass.GT4},                  CarBrand.McLaren,           12500));
+        AddNewCar(new Car(GT4_AMG_NAME,                     CarType.GT,             new SerializableList<CarClass> {CarClass.GT4},                  CarBrand.Mercedes,          13000));
+        AddNewCar(new Car(GT4_CAYMAN_NAME,                  CarType.GT,             new SerializableList<CarClass> {CarClass.GT4},                  CarBrand.Porsche,           13000));
+        AddNewCar(new Car(GT4_R8_NAME,                      CarType.GT,             new SerializableList<CarClass> {CarClass.GT4},                  CarBrand.Audi,              13000));
 
         // GT3
-        AddNewCar(new Car(GT3_M6_NAME,                      CarType.GT,             new List<CarClass> {CarClass.GT3},                  CarBrand.BMW,               16000));
-        AddNewCar(new Car(GT3_R8_NAME,                      CarType.GT,             new List<CarClass> {CarClass.GT3},                  CarBrand.Audi,              16000));
-        AddNewCar(new Car(GT3_720S_NAME,                    CarType.GT,             new List<CarClass> {CarClass.GT3},                  CarBrand.McLaren,           16500));
-        AddNewCar(new Car(GT3_AMG_NAME,                     CarType.GT,             new List<CarClass> {CarClass.GT3},                  CarBrand.Mercedes,          16500));
-        AddNewCar(new Car(GT3_GTR_NAME,                     CarType.GT,             new List<CarClass> {CarClass.GT3},                  CarBrand.Nissan,            17000));
-        AddNewCar(new Car(GT3_911_NAME,                     CarType.GT,             new List<CarClass> {CarClass.GT3},                  CarBrand.Porsche,           17000));
+        AddNewCar(new Car(GT3_M6_NAME,                      CarType.GT,             new SerializableList<CarClass> {CarClass.GT3},                  CarBrand.BMW,               16000));
+        AddNewCar(new Car(GT3_R8_NAME,                      CarType.GT,             new SerializableList<CarClass> {CarClass.GT3},                  CarBrand.Audi,              16000));
+        AddNewCar(new Car(GT3_720S_NAME,                    CarType.GT,             new SerializableList<CarClass> {CarClass.GT3},                  CarBrand.McLaren,           16500));
+        AddNewCar(new Car(GT3_AMG_NAME,                     CarType.GT,             new SerializableList<CarClass> {CarClass.GT3},                  CarBrand.Mercedes,          16500));
+        AddNewCar(new Car(GT3_GTR_NAME,                     CarType.GT,             new SerializableList<CarClass> {CarClass.GT3},                  CarBrand.Nissan,            17000));
+        AddNewCar(new Car(GT3_911_NAME,                     CarType.GT,             new SerializableList<CarClass> {CarClass.GT3},                  CarBrand.Porsche,           17000));
 
         // CARRERA
-        AddNewCar(new Car(CARRERA_911_38_NAME,              CarType.Sportscar,      new List<CarClass> {CarClass.Carrera},              CarBrand.Porsche,           16000));
-        AddNewCar(new Car(CARRERA_911_40_NAME,              CarType.Sportscar,      new List<CarClass> {CarClass.Carrera},              CarBrand.Porsche,           18000));
+        AddNewCar(new Car(CARRERA_911_38_NAME,              CarType.Sportscar,      new SerializableList<CarClass> {CarClass.Carrera},              CarBrand.Porsche,           16000));
+        AddNewCar(new Car(CARRERA_911_40_NAME,              CarType.Sportscar,      new SerializableList<CarClass> {CarClass.Carrera},              CarBrand.Porsche,           18000));
 
         // GT1
-        AddNewCar(new Car(GT1_GTR_NAME,                     CarType.GT,             new List<CarClass> {CarClass.GT1},                  CarBrand.McLaren,           22500));
-        AddNewCar(new Car(GT1_CLK_NAME,                     CarType.GT,             new List<CarClass> {CarClass.GT1},                  CarBrand.Mercedes,          23000));
-        AddNewCar(new Car(GT1_R390_NAME,                    CarType.GT,             new List<CarClass> {CarClass.GT1},                  CarBrand.Nissan,            23500));
-        AddNewCar(new Car(GT1_911_NAME,                     CarType.GT,             new List<CarClass> {CarClass.GT1},                  CarBrand.Porsche,           24000));
+        AddNewCar(new Car(GT1_GTR_NAME,                     CarType.GT,             new SerializableList<CarClass> {CarClass.GT1},                  CarBrand.McLaren,           22500));
+        AddNewCar(new Car(GT1_CLK_NAME,                     CarType.GT,             new SerializableList<CarClass> {CarClass.GT1},                  CarBrand.Mercedes,          23000));
+        AddNewCar(new Car(GT1_R390_NAME,                    CarType.GT,             new SerializableList<CarClass> {CarClass.GT1},                  CarBrand.Nissan,            23500));
+        AddNewCar(new Car(GT1_911_NAME,                     CarType.GT,             new SerializableList<CarClass> {CarClass.GT1},                  CarBrand.Porsche,           24000));
 
 
         // Formula Trainer
-        AddNewCar(new Car(F_TRAINER_NAME,                   CarType.OpenWheeler,    new List<CarClass> {CarClass.FormulaTrainer},       CarBrand.Formula,           8000));
+        AddNewCar(new Car(F_TRAINER_NAME,                   CarType.OpenWheeler,    new SerializableList<CarClass> {CarClass.FormulaTrainer},       CarBrand.Formula,           8000));
 
         // Formula Trainer Advanced
-        AddNewCar(new Car(F_TRAINER_ADVANCED_NAME,          CarType.OpenWheeler,    new List<CarClass> {CarClass.FormulaTrainerA},      CarBrand.Formula,           9500));
+        AddNewCar(new Car(F_TRAINER_ADVANCED_NAME,          CarType.OpenWheeler,    new SerializableList<CarClass> {CarClass.FormulaTrainerA},      CarBrand.Formula,           9500));
 
         // Formula Inter
-        AddNewCar(new Car(F_INTER_NAME,                     CarType.OpenWheeler,    new List<CarClass> {CarClass.FormulaInter},         CarBrand.Formula,           11500));
+        AddNewCar(new Car(F_INTER_NAME,                     CarType.OpenWheeler,    new SerializableList<CarClass> {CarClass.FormulaInter},         CarBrand.Formula,           11500));
 
         // F3
-        AddNewCar(new Car(F3_F301_NAME,                     CarType.OpenWheeler,    new List<CarClass> {CarClass.F3},                   CarBrand.Dallara,           13500));
-        AddNewCar(new Car(F3_F309_NAME,                     CarType.OpenWheeler,    new List<CarClass> {CarClass.F3},                   CarBrand.Dallara,           14000));
+        AddNewCar(new Car(F3_F301_NAME,                     CarType.OpenWheeler,    new SerializableList<CarClass> {CarClass.F3},                   CarBrand.Dallara,           13500));
+        AddNewCar(new Car(F3_F309_NAME,                     CarType.OpenWheeler,    new SerializableList<CarClass> {CarClass.F3},                   CarBrand.Dallara,           14000));
 
         // Formula Reiza
-        AddNewCar(new Car(F_REIZA_NAME,                     CarType.OpenWheeler,    new List<CarClass> {CarClass.FormulaReiza},         CarBrand.Formula,           17000));
+        AddNewCar(new Car(F_REIZA_NAME,                     CarType.OpenWheeler,    new SerializableList<CarClass> {CarClass.FormulaReiza},         CarBrand.Formula,           17000));
 
         // Formula Ultimate Gen 2
-        AddNewCar(new Car(F_GEN2_NAME,                      CarType.OpenWheeler,    new List<CarClass> {CarClass.FormulaUltimateGen2},  CarBrand.Formula,           23000));
+        AddNewCar(new Car(F_GEN2_NAME,                      CarType.OpenWheeler,    new SerializableList<CarClass> {CarClass.FormulaUltimateGen2},  CarBrand.Formula,           23000));
 
 
         // Prototype
 
         // Group C
-        AddNewCar(new Car(GROUP_C_CORVETTE_NAME,            CarType.Prototype,      new List<CarClass> {CarClass.GroupC},               CarBrand.Chevrolet,         18000));
-        AddNewCar(new Car(GROUP_C_R89C_NAME,                CarType.Prototype,      new List<CarClass> {CarClass.GroupC},               CarBrand.Nissan,            18000));
-        AddNewCar(new Car(GROUP_C_962C_NAME,                CarType.Prototype,      new List<CarClass> {CarClass.GroupC},               CarBrand.Porsche,           18500));
-        AddNewCar(new Car(GROUP_C_C9_NAME,                  CarType.Prototype,      new List<CarClass> {CarClass.GroupC},               CarBrand.Mercedes,          18500));
+        AddNewCar(new Car(GROUP_C_CORVETTE_NAME,            CarType.Prototype,      new SerializableList<CarClass> {CarClass.GroupC},               CarBrand.Chevrolet,         18000));
+        AddNewCar(new Car(GROUP_C_R89C_NAME,                CarType.Prototype,      new SerializableList<CarClass> {CarClass.GroupC},               CarBrand.Nissan,            18000));
+        AddNewCar(new Car(GROUP_C_962C_NAME,                CarType.Prototype,      new SerializableList<CarClass> {CarClass.GroupC},               CarBrand.Porsche,           18500));
+        AddNewCar(new Car(GROUP_C_C9_NAME,                  CarType.Prototype,      new SerializableList<CarClass> {CarClass.GroupC},               CarBrand.Mercedes,          18500));
 
         // P4
-        AddNewCar(new Car(P4_S2000_NAME,                    CarType.Prototype,      new List<CarClass> {CarClass.P4},                   CarBrand.MCR,               20500));
-        AddNewCar(new Car(P4_MRX_DURATEC_NAME,              CarType.Prototype,      new List<CarClass> {CarClass.P4},                   CarBrand.MetalMoro,         20500));
+        AddNewCar(new Car(P4_S2000_NAME,                    CarType.Prototype,      new SerializableList<CarClass> {CarClass.P4},                   CarBrand.MCR,               20500));
+        AddNewCar(new Car(P4_MRX_DURATEC_NAME,              CarType.Prototype,      new SerializableList<CarClass> {CarClass.P4},                   CarBrand.MetalMoro,         20500));
 
         // P3
-        AddNewCar(new Car(P3_MRX_HONDA_NAME,                CarType.Prototype,      new List<CarClass> {CarClass.P3},                   CarBrand.MetalMoro,         23000));
-        AddNewCar(new Car(P3_MRX_DURATEC_NAME,              CarType.Prototype,      new List<CarClass> {CarClass.P3},                   CarBrand.MetalMoro,         23000));
-        AddNewCar(new Car(P3_ROCO_NAME,                     CarType.Prototype,      new List<CarClass> {CarClass.P3},                   CarBrand.Roco,              23500));
+        AddNewCar(new Car(P3_MRX_HONDA_NAME,                CarType.Prototype,      new SerializableList<CarClass> {CarClass.P3},                   CarBrand.MetalMoro,         23000));
+        AddNewCar(new Car(P3_MRX_DURATEC_NAME,              CarType.Prototype,      new SerializableList<CarClass> {CarClass.P3},                   CarBrand.MetalMoro,         23000));
+        AddNewCar(new Car(P3_ROCO_NAME,                     CarType.Prototype,      new SerializableList<CarClass> {CarClass.P3},                   CarBrand.Roco,              23500));
 
         // P2
-        AddNewCar(new Car(P2_MRX_DURATEC_NAME,              CarType.Prototype,      new List<CarClass> {CarClass.P2},                   CarBrand.MetalMoro,         26000));
-        AddNewCar(new Car(P2_SIGMA_NAME,                    CarType.Prototype,      new List<CarClass> {CarClass.P2},                   CarBrand.Sigma,             26500));
+        AddNewCar(new Car(P2_MRX_DURATEC_NAME,              CarType.Prototype,      new SerializableList<CarClass> {CarClass.P2},                   CarBrand.MetalMoro,         26000));
+        AddNewCar(new Car(P2_SIGMA_NAME,                    CarType.Prototype,      new SerializableList<CarClass> {CarClass.P2},                   CarBrand.Sigma,             26500));
 
         // P1 Gen 2
-        AddNewCar(new Car(P1_G58_NAME,                      CarType.Prototype,      new List<CarClass> {CarClass.P1Gen2},               CarBrand.Ginetta,           30000));
-        AddNewCar(new Car(P1_JS_NAME,                       CarType.Prototype,      new List<CarClass> {CarClass.P1Gen2},               CarBrand.Ligier,            30000));
-        AddNewCar(new Car(P1_AJR_CHEVROLET_NAME,            CarType.Prototype,      new List<CarClass> {CarClass.P1Gen2},               CarBrand.MetalMoro,         31000));
-        AddNewCar(new Car(P1_AJR_HONDA_NAME,                CarType.Prototype,      new List<CarClass> {CarClass.P1Gen2},               CarBrand.MetalMoro,         31000));
-        AddNewCar(new Car(P1_AJR_NISSAN_NAME,               CarType.Prototype,      new List<CarClass> {CarClass.P1Gen2},               CarBrand.MetalMoro,         31000));
-        AddNewCar(new Car(P1_G5_NAME,                       CarType.Prototype,      new List<CarClass> {CarClass.P1Gen2},               CarBrand.Sigma,             32000));
+        AddNewCar(new Car(P1_G58_NAME,                      CarType.Prototype,      new SerializableList<CarClass> {CarClass.P1Gen2},               CarBrand.Ginetta,           30000));
+        AddNewCar(new Car(P1_JS_NAME,                       CarType.Prototype,      new SerializableList<CarClass> {CarClass.P1Gen2},               CarBrand.Ligier,            30000));
+        AddNewCar(new Car(P1_AJR_CHEVROLET_NAME,            CarType.Prototype,      new SerializableList<CarClass> {CarClass.P1Gen2},               CarBrand.MetalMoro,         31000));
+        AddNewCar(new Car(P1_AJR_HONDA_NAME,                CarType.Prototype,      new SerializableList<CarClass> {CarClass.P1Gen2},               CarBrand.MetalMoro,         31000));
+        AddNewCar(new Car(P1_AJR_NISSAN_NAME,               CarType.Prototype,      new SerializableList<CarClass> {CarClass.P1Gen2},               CarBrand.MetalMoro,         31000));
+        AddNewCar(new Car(P1_G5_NAME,                       CarType.Prototype,      new SerializableList<CarClass> {CarClass.P1Gen2},               CarBrand.Sigma,             32000));
     }
 
     static Cars(){
@@ -412,12 +413,12 @@ public static class Cars
 
     public static void AddNewCar(Car carToAdd)
     {
-        CarType         carType                         = carToAdd.type;
-        List<CarClass>  carClasses                      = carToAdd.classes;
-        CarBrand        carBrand                        = carToAdd.brand;
-        string          carName                         = carToAdd.name;
+        CarType                     carType                         = carToAdd.type;
+        SerializableList<CarClass>  carClasses                      = carToAdd.classes;
+        CarBrand                    carBrand                        = carToAdd.brand;
+        string                      carName                         = carToAdd.productName;
         cars.Add(carToAdd);
-        nameToCar[carName]                              = carToAdd;
+        nameToCar[carName]                                          = carToAdd;
 
         // For each car class
         foreach(CarClass carClass in carClasses){
@@ -446,7 +447,7 @@ public static class Cars
             bool validBrand         = 0 == carBrands.Count;
 
             foreach(string carName in carNames){
-                if(car.name == carName){
+                if(car.productName == carName){
                     filteredCars.Add(car);
                     validName      = true;
                     break;

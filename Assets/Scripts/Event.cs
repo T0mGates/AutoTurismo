@@ -4,19 +4,20 @@ using System.Collections.Generic;
 using UnityEditor.PackageManager;
 using System.Linq;
 
-public class EventSeries
+[System.Serializable]
+public class EventSeries : UnityEngine.Object
 {
     // Name and tier together should make unique series
     public SeriesTier                       seriesTier;
-    public string                           name;
-    public List<Event>                      events;
+    public string                           seriesName;
+    public SerializableList<Event>          events;
     public Region.ClickableRegion           partOfRegion;
 
     public EventSeries(string nameParam, SeriesTier seriesTierParam, Region.ClickableRegion partOfRegionParam){
-        name            = nameParam;
+        seriesName      = nameParam;
         seriesTier      = seriesTierParam;
         partOfRegion    = partOfRegionParam;
-        events          = new List<Event>();
+        events          = new SerializableList<Event>();
 
         Region.regions[partOfRegion].AddNewSeries(this);
     }
@@ -29,13 +30,14 @@ public class EventSeries
         }
 
         EventSeries seriesToCompare = (EventSeries)obj;
-        return seriesToCompare.name == name && seriesToCompare.seriesTier == seriesTier;
+        return seriesToCompare.seriesName == seriesName && seriesToCompare.seriesTier == seriesTier;
     }
     public override int GetHashCode()
     {
-        return name.GetHashCode() + seriesTier.GetHashCode();
+        return seriesName.GetHashCode() + seriesTier.GetHashCode();
     }
 
+    [System.Serializable]
     public enum SeriesTier
     {
         Rookie          = 0,
@@ -118,35 +120,42 @@ public class EventSeries
     };
 }
 
-public class Event
+[System.Serializable]
+public class Event : UnityEngine.Object
 {
-    public string                   name;
-    public EventType                eventType;
-    public EventDuration            eventDuration;
-    public EventSeries              parentEventSeries;
+    public string                               eventName;
+    public EventType                            eventType;
+    public EventDuration                        eventDuration;
+    public EventSeries                          parentEventSeries;
 
-    public List<Cars.CarType>       typeWhitelist;
-    public List<Cars.CarClass>      classWhitelist;
-    public List<Cars.CarBrand>      brandWhitelist;
-    public List<string>             nameWhitelist;
+    public SerializableList<Cars.CarType>       typeWhitelist;
+    public SerializableList<Cars.CarClass>      classWhitelist;
+    public SerializableList<Cars.CarBrand>      brandWhitelist;
+    public SerializableList<string>             nameWhitelist;
 
-    private int                     topFameReward;
-    private int                     topMoneyReward;
-    private int                     finishPosition;
-    private int                     gridSize;
-    private bool                    completed;
+    [field:SerializeField]
+    private int                                 topFameReward;
+    [field:SerializeField]
+    private int                                 topMoneyReward;
+    [field:SerializeField]
+    private int                                 finishPosition;
+    [field:SerializeField]
+    private int                                 gridSize;
+    [field:SerializeField]
+    private bool                                completed;
 
-    private List<EventEntry>        eventEntries;
-    private Dictionary<string, int> champhionshipPoints;
+    [field:SerializeField]
+    private SerializableList<EventEntry>        eventEntries;
+    private SerializableDictionary<string, int> champhionshipPoints;
 
     public Event(
                 string nameParam, EventType eventTypeParam, EventDuration eventDurationParam, EventSeries parentEventSeriesParam,
-                List<Cars.CarType> allowedTypes, List<Cars.CarClass> allowedClasses, List<Cars.CarBrand> allowedBrands, List<string> allowedNames,
-                int topFameRewardParam, int topMoneyRewardParam
+                SerializableList<Cars.CarType> allowedTypes, SerializableList<Cars.CarClass> allowedClasses, SerializableList<Cars.CarBrand> allowedBrands,
+                SerializableList<string> allowedNames, int topFameRewardParam, int topMoneyRewardParam
                 ){
-        champhionshipPoints = new Dictionary<string, int>();
+        champhionshipPoints = new SerializableDictionary<string, int>();
 
-        name                = nameParam;
+        eventName           = nameParam;
         eventType           = eventTypeParam;
         eventDuration       = eventDurationParam;
         parentEventSeries   = parentEventSeriesParam;
@@ -162,7 +171,7 @@ public class Event
         gridSize            = -1;
 
         // Will be filled in by newly instantiated event entries
-        eventEntries        = new List<EventEntry>();
+        eventEntries        = new SerializableList<EventEntry>();
 
         parentEventSeries.events.Add(this);
     }
@@ -180,7 +189,7 @@ public class Event
         }
 
         if(nextUpIndex >= eventEntries.Count){
-            Debug.Log("Event: " + name + " is complete!");
+            Debug.Log("Event: " + eventName + " is complete!");
             // Depending on the event type, calculate final position
             switch(eventType){
                 case EventType.Race:
@@ -358,7 +367,7 @@ public class Event
 
     public string GetRewardInfo(){
         return
-            "You have finished the "    + GetPrintEventType()       + " event: " + name + "!" +
+            "You have finished the "    + GetPrintEventType()       + " event: " + eventName + "!" +
             "\n\nSeries Tier: "         + EventSeries.tierToString[parentEventSeries.seriesTier] +
             "\nTop Reward: "            + GetPrintTopMoneyReward()  + " and " + GetPrintTopFameReward() +
             "\n\nGrid Size: "           + gridSize.ToString()       +
@@ -401,14 +410,14 @@ public class Event
         return eventDurationToString[eventDuration] + " " + eventTypeToString[eventType];
     }
 
-    public List<EventEntry> GetEventEntries(){
+    public SerializableList<EventEntry> GetEventEntries(){
         return eventEntries;
     }
 
     public static Event GenerateNewEvent(
-                string eventName, EventType eventType, EventDuration duration, EventSeries parentEventSeriesParam, List<Tracks.Country> allowedCountries,
-                List<Cars.CarType> allowedTypes, List<Cars.CarClass> allowedClasses, List<Cars.CarBrand> allowedBrands, List<string> allowedNames,
-                bool useLaps = true, List<Track> blacklistedTracks = null
+                string eventName, EventType eventType, EventDuration duration, EventSeries parentEventSeriesParam, SerializableList<Tracks.Country> allowedCountries,
+                SerializableList<Cars.CarType> allowedTypes, SerializableList<Cars.CarClass> allowedClasses, SerializableList<Cars.CarBrand> allowedBrands,
+                SerializableList<string> allowedNames, bool useLaps = true, SerializableList<Track> blacklistedTracks = null
                 ){
         // First pick the track depending on the tier and country
         EventSeries.SeriesTier   tier                   = parentEventSeriesParam.seriesTier;

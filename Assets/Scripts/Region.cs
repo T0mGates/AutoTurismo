@@ -3,32 +3,33 @@ using UnityEngine;
 using System;
 using Unity.VisualScripting.Antlr3.Runtime;
 
-public class Region
+[System.Serializable]
+public class Region : UnityEngine.Object, IDataPersistence
 {
-    public static Dictionary<ClickableRegion, Region>               regions;
+    public static Dictionary<ClickableRegion, Region>                                       regions;
 
-    public List<EventSeries>                                        series;
-    public Dictionary<EventSeries.SeriesTier, List<EventSeries>>    tierToSeries;
-    public ClickableRegion                                          region;
+    public SerializableDictionary<EventSeries.SeriesTier, SerializableList<EventSeries>>    tierToSeries;
+    public ClickableRegion                                                                  region;
 
     static Region(){
-        regions             = new Dictionary<ClickableRegion, Region>();
-
+        // Data will be loaded in LoadData
+        regions = new Dictionary<ClickableRegion, Region>();
         foreach(ClickableRegion region in Enum.GetValues(typeof(ClickableRegion))){
             regions[region] = new Region(region);
+            // Now that region has been instantiated, update the DataPersistenceManager's objects
+            DataPersistenceManager.instance.AddDataPersistenceObject(regions[region]);
         }
     }
 
     public Region(ClickableRegion regionParam){
-        // Initializations
-        series          = new List<EventSeries>();
-        tierToSeries    = new Dictionary<EventSeries.SeriesTier, List<EventSeries>>();
         region          = regionParam;
+        tierToSeries    = new SerializableDictionary<EventSeries.SeriesTier, SerializableList<EventSeries>>();
+    }
 
-        // Initialize the lists within
-        foreach(EventSeries.SeriesTier tier in Enum.GetValues(typeof(EventSeries.SeriesTier))){
-            tierToSeries[tier]          = new List<EventSeries>();
-        }
+    public Region(ClickableRegion regionParam, SerializableDictionary<EventSeries.SeriesTier, SerializableList<EventSeries>> tierToSeriesParam){
+        // Initializations
+        region          = regionParam;
+        tierToSeries    = tierToSeriesParam;
     }
 
     // Returns the class the event series was created for
@@ -80,10 +81,10 @@ public class Region
             Event.EventDuration.Mini,
             newSeries,
             Tracks.GetCountries(region),
-            new List<Cars.CarType>(),
-            new List<Cars.CarClass>() { {classToUse} },
-            new List<Cars.CarBrand>(),
-            new List<string>(),
+            new SerializableList<Cars.CarType>(),
+            new SerializableList<Cars.CarClass>() { {classToUse} },
+            new SerializableList<Cars.CarBrand>(),
+            new SerializableList<string>(),
             useLaps:true
         );
 
@@ -92,7 +93,6 @@ public class Region
 
     // Called by EventSeries' constructor
     public void AddNewSeries(EventSeries seriesToAdd){
-        series.Add(seriesToAdd);
         tierToSeries[seriesToAdd.seriesTier].Add(seriesToAdd);
     }
 
@@ -255,4 +255,12 @@ public class Region
         {ClickableRegion.EuropeAfrica,                  "Central Regionals"},
         {ClickableRegion.International,                 "International"}
     };
+
+    public void LoadData(GameData data){
+        tierToSeries                        = data.regionTiersToSeries[region];
+    }
+
+    public void SaveData(GameData data){
+        data.regionTiersToSeries[region]    = tierToSeries;
+    }
 }

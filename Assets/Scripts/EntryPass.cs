@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System;
 
+[System.Serializable]
 public class EntryPass : Purchasable
 {
     public Cars.CarType                     carType;
@@ -72,11 +73,11 @@ public class EntryPass : Purchasable
         }
 
         EntryPass passToCompare = (EntryPass)obj;
-        return passToCompare.name == name && passToCompare.tier == tier;
+        return passToCompare.productName == productName && passToCompare.tier == tier;
     }
     public override int GetHashCode()
     {
-        return name.GetHashCode() + tier.GetHashCode();
+        return productName.GetHashCode() + tier.GetHashCode();
     }
 }
 
@@ -145,7 +146,7 @@ public static class EntryPasses
         Cars.CarClass   carClass        = passToAdd.carClass;
         Cars.CarBrand   carBrand        = passToAdd.carBrand;
         Cars.CarType    carType         = passToAdd.carType;
-        string          passName        = passToAdd.name;
+        string          passName        = passToAdd.productName;
 
         entryPasses.Add(passToAdd);
         nameToEntryPass[passName]       = passToAdd;
