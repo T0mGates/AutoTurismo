@@ -6,7 +6,7 @@ using System;
 
 public static class SaveSystem
 {
-    public static int                       MAX_PROFILES    = 6;
+    public static int                       MAX_PROFILES    = 8;
     public static string                    DEFAULT_NAME    = "New Profile";
     public static   List<string>            profileNames;
     public static   List<int>               profileLevels;

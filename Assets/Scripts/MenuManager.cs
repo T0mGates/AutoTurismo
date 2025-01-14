@@ -30,6 +30,7 @@ public class MenuManager : MonoBehaviour
     public GameObject   eventEntryCompleteMenu;
     public GameObject   earnRewardMenu;
     public GameObject   profileMenu;
+    public GameObject   settingsMenu;
 
     [Header("Player Info")]
     public Slider       fameSlider;
@@ -83,7 +84,7 @@ public class MenuManager : MonoBehaviour
 
         TurnAllOff();
 
-        introMenu.SetActive(true);
+        Profile();
     }
 
     public void TurnAllOff(){
@@ -107,6 +108,7 @@ public class MenuManager : MonoBehaviour
         eventEntryCompleteMenu.SetActive(false);
         earnRewardMenu.SetActive(false);
         profileMenu.SetActive(false);
+        settingsMenu.SetActive(false);
 
         // Destroy objects
         foreach(Transform child in dealershipContentTransform)
@@ -187,6 +189,12 @@ public class MenuManager : MonoBehaviour
         if(text.Length > 0){
             gameManager.MakeNewProfile(text);
             Home(false);
+
+            if(PlayerPrefs.GetString("JsonDir", "") == ""){
+                // If player hasn't set their JSON dir yet, alert them to do so
+            Notification("Important Alert",
+                        "You haven't set your SecondMonitor 'Reports' folder path yet, please make sure to visit the Settings page and fill it in!\n\nAlso a reminder that you need to have SecondMonitor installed and running while running this application so that your race results are able to be fetched.");
+            }
         }
         else{
             // Error
@@ -248,6 +256,12 @@ public class MenuManager : MonoBehaviour
         TurnAllOff();
         navigationMenu.SetActive(true);
         inventoryMenu.SetActive(true);
+    }
+
+    public void Settings(){
+        TurnAllOff();
+        navigationMenu.SetActive(true);
+        settingsMenu.SetActive(true);
     }
 
     public void Racing(){
@@ -1182,6 +1196,14 @@ public class MenuManager : MonoBehaviour
 
         ActivateNavButtons();
         Home(data == null);
+
+        if(data != null){
+            // If player hasn't set their JSON dir yet, alert them to do so
+            if(PlayerPrefs.GetString("JsonDir", "") == ""){
+            Notification("Important Alert",
+                        "You haven't set your SecondMonitor 'Reports' folder path yet, please make sure to visit the Settings page and fill it in!\n\nAlso a reminder that you need to have SecondMonitor installed and running while running this application so that your race results are able to be fetched.");
+            }
+        }
     }
 
     // Final click before actually 'racing'
@@ -1205,8 +1227,8 @@ public class MenuManager : MonoBehaviour
         }
 
         // At this point, safe to go race!
-        // TODO: Clear the json directory!!!
-        Debug.Log("Should clear JSON dir here");
+        // Clear the json dir to make sure old sessions aren't interfering
+        IOManager.ClearJsonDir();
         EventEntryRace(eventEntry, car);
     }
 

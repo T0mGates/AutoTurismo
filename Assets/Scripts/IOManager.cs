@@ -10,9 +10,40 @@ public static class IOManager
         PathToJsonDir = PathToJsonDirParam;
     }
 
-    static public RaceResult ReadInNewResult(){
+    static public string GetJsonDir(){
+        return PathToJsonDir;
+    }
 
-        string[] fileData = Directory.GetFiles(PathToJsonDir);
+    static public void ClearJsonDir(){
+        string[] fileData = new string[0];
+
+        try{
+            fileData = Directory.GetFiles(PathToJsonDir);
+        }
+        catch{
+            return;
+        }
+
+        // Go through the files one by one
+        foreach (string filePath in fileData)
+        {
+            if(filePath.Contains(".json")){
+              // Delete the json file
+              Debug.Log("Deleting file found at: " + filePath);
+              File.Delete(filePath);
+            }
+        }
+    }
+
+    static public RaceResult ReadInNewResult(){
+        string[] fileData = new string[0];
+
+        try{
+            fileData = Directory.GetFiles(PathToJsonDir);
+        }
+        catch{
+            return null;
+        }
 
         // Displaying the file paths one by one
         foreach (string filePath in fileData)

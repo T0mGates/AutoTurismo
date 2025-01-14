@@ -52,7 +52,7 @@ public class Profile
     }
 
     private void SetBaseValues(){
-        money               = 8000;
+        money               = 13000;
         fame                = 0;
         renown              = 1;
         level               = 1;

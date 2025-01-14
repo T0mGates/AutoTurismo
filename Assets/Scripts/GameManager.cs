@@ -8,7 +8,6 @@ using UnityEngine.UI;
 public class GameManager : MonoBehaviour
 {
     private MenuManager   menuManager;
-    private const string  PATH_TO_JSONS  = @"C:\Users\Vitaly\Documents\SecondMonitor\Reports";
     public Profile        curProfile;
     public int            curProfileSlot;
 
@@ -16,21 +15,16 @@ public class GameManager : MonoBehaviour
     void Start()
     {
       menuManager = GameObject.FindWithTag("MenuManager").GetComponent<MenuManager>();
-
-      IOManager.SetJsonDir(PATH_TO_JSONS);
-
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
     }
 
     void OnApplicationQuit(){
       if(curProfile != null){
         SaveSystem.SaveProfile(curProfile, curProfileSlot);
       }
+    }
+
+    public void SetPathToJsons(string pathToJsons){
+      IOManager.SetJsonDir(pathToJsons);
     }
 
     public void CheckRaceCompletion(EventEntry eventEntry, Car car, Button checkResultBtn){
@@ -61,7 +55,7 @@ public class GameManager : MonoBehaviour
       if(null == result){
         checkResultBtn.interactable = true;
         menuManager.Notification("Alert",
-          "Could not find an AMS 2 race session result that had a grid size (including the player) of " + eventEntry.gridSize.ToString() + " in directory: " + PATH_TO_JSONS +
+          "Could not find an AMS 2 race session result that had a grid size (including the player) of " + eventEntry.gridSize.ToString() + " in directory: " + IOManager.GetJsonDir() +
           ".\nMake sure Second Monitor is running before, during and after the race, and make sure the race settings shown in AutoTurismo match the in-game race settings!");
         return;
       }
