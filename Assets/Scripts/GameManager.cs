@@ -223,7 +223,10 @@ public class GameManager : MonoBehaviour
 
         else{
           curProfile.UnlockRegionTier(region, tier);
-          GenerateNewEventSeries(region, tier);
+          // Decided it is best to unlock 3 no matter what for a new tier so player has more choice
+          for(int i = 0; i < 3; i++){
+            GenerateNewEventSeries(region, tier);
+          }
         }
 
         menuManager.UpdateMainUI();

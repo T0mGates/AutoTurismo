@@ -42,9 +42,12 @@ public class Region
         Cars.CarClass   classToUse          = Cars.CarClass.None;
         bool            duplicate           = false;
 
+        Debug.Log("Possible classes length: " + possibleClasses.Count.ToString() + " for region: " + regionToString[region] + ", tier: " + EventSeries.tierToString[tier]);
+
         // Randomly select a class until we get a non-dupe
-        while(classToUse == Cars.CarClass.None){
-            classToUse                      = possibleClasses[UnityEngine.Random.Range(0, possibleClasses.Count)];
+        while(classToUse == Cars.CarClass.None && possibleClasses.Count > 0){
+            int randIndex                   = UnityEngine.Random.Range(0, possibleClasses.Count);
+            classToUse                      = possibleClasses[randIndex];
             duplicate                       = false;
             foreach(EventSeries eventSeries in tierToSeries[tier]){
                 if(eventSeries.events.Count > 0){
@@ -60,10 +63,6 @@ public class Region
                     classToUse              = Cars.CarClass.None;
                     break;
                 }
-            }
-
-            if(possibleClasses.Count == 0){
-                break;
             }
         }
 
@@ -118,6 +117,32 @@ public class Region
 
             case ClickableRegion.International:
                 return 5 * ((int)tier + 1);
+        }
+
+        return 0;
+    }
+
+    public static float GetAddedRewardMultiplierForRegion(ClickableRegion region){
+        switch(region){
+            case ClickableRegion.NorthAmerica:
+            case ClickableRegion.SouthAmerica:
+            case ClickableRegion.Europe:
+            case ClickableRegion.Africa:
+            case ClickableRegion.Asia:
+            case ClickableRegion.Australia:
+                return 0.0f;
+
+            case ClickableRegion.NorthAmericaSouthAmerica:
+            case ClickableRegion.SouthAmericaAfrica:
+            case ClickableRegion.AfricaAustralia:
+            case ClickableRegion.AustraliaAsia:
+            case ClickableRegion.AsiaEurope:
+            case ClickableRegion.EuropeNorthAmerica:
+            case ClickableRegion.EuropeAfrica:
+                return 0.2f;
+
+            case ClickableRegion.International:
+                return 0.5f;
         }
 
         return 0;

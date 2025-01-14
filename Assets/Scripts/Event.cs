@@ -2,6 +2,7 @@ using UnityEngine;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine.UIElements;
 
 public class EventSeries
 {
@@ -448,8 +449,8 @@ public class Event
         int                             numEntries      = GetNumEventEntries(eventType, duration);
         List<Track>                     tracksToUse     = new List<Track>();
 
-        int topFameReward                               = GenerateTopFameReward(duration, parentEventSeriesParam.seriesTier) * numEntries;
-        int topMoneyReward                              = GenerateTopMoneyReward(duration, parentEventSeriesParam.seriesTier) * numEntries;
+        int topFameReward                               = GenerateTopFameReward(duration, parentEventSeriesParam.seriesTier, parentEventSeriesParam.partOfRegion) * numEntries;
+        int topMoneyReward                              = GenerateTopMoneyReward(duration, parentEventSeriesParam.seriesTier, parentEventSeriesParam.partOfRegion) * numEntries;
 
         // Holds which countries have currently been used
         List<Tracks.Country> usedCountries              = new List<Tracks.Country>();
@@ -687,9 +688,9 @@ public class Event
     }
 
     // Generates a top fame reward given an event duration and tier
-    private static int GenerateTopFameReward(EventDuration duration, EventSeries.SeriesTier seriesTier){
+    private static int GenerateTopFameReward(EventDuration duration, EventSeries.SeriesTier seriesTier, Region.ClickableRegion region){
         int baseReward      = EventSeries.tierFameReward[seriesTier];
-        float multiplier    = 1.0f + ((float)duration/2.0f);
+        float multiplier    = 1.0f + ((float)duration/2.0f) + Region.GetAddedRewardMultiplierForRegion(region);
 
         int rangeNum        = baseReward/3;
 
@@ -698,9 +699,9 @@ public class Event
         return (int)((float)realReward * multiplier);
     }
     // Generates a top money reward given an event duration and tier
-    private static int GenerateTopMoneyReward(EventDuration duration, EventSeries.SeriesTier seriesTier){
+    private static int GenerateTopMoneyReward(EventDuration duration, EventSeries.SeriesTier seriesTier, Region.ClickableRegion region){
         int baseReward      = EventSeries.tierMoneyReward[seriesTier];
-        float multiplier    = 1.0f + ((float)duration/2.0f);
+        float multiplier    = 1.0f + ((float)duration/2.0f) + Region.GetAddedRewardMultiplierForRegion(region);
 
         int rangeNum        = baseReward/3;
 

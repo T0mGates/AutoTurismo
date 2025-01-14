@@ -406,7 +406,7 @@ public static class Cars
     }
 
     public static List<CarClass> GetClassesForTier(EventSeries.SeriesTier tier){
-        return tierToClasses[tier];
+        return new List<CarClass> (tierToClasses[tier]);
     }
 
     public static void AddNewCar(Car carToAdd)

@@ -168,17 +168,19 @@ public class MenuManager : MonoBehaviour
 
     public void Home(bool newPlayer = false){
         TurnAllOff();
-        mainMenu.SetActive(true);
         navigationMenu.SetActive(true);
         newPlayerMenu.SetActive(newPlayer);
 
+        // While the main menu is empty, just show the racing menu for a non-new profile
         if(newPlayer){
             BlockNavButtons();
+            mainMenu.SetActive(true);
         }
         else{
             // Re-activate buttons
             ActivateNavButtons();
             UpdateMainUI();
+            racingMenu.SetActive(true);
         }
     }
 
