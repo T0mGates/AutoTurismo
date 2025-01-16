@@ -12,7 +12,57 @@ public class RaceResult
     public string SessionRunDuration { get; set; }
     public ResultTrack TrackInfo { get; set; }
     public List<ResultDriver> Drivers { get; set; }
-    public string FuelConsumptionInformation { get; set; }
+    public bool IsMultiClass { get; set; }
+    public string SessionGuid { get; set; }
+    public ResultPitStop[] PitStops { get; set; }
+    public ResultFuelConsumption FuelConsumptionInformation { get; set; }
+}
+
+public class ResultPitStop
+{
+    public int EntryLapNumber { get; set; }
+    public string OverallDuration { get; set; }
+    public string StallDuration{ get; set; }
+    public bool WasDriverThrough{ get; set; }
+    public ResultConsumedFuelInLiters FuelTaken{ get; set; }
+    public string NewFrontCompound{ get; set; }
+    public string NewRearCompound{ get; set; }
+    public bool IsFrontTyresChanged{ get; set; }
+    public bool IsRearTyresChanged{ get; set; }
+}
+
+public class ResultFuelConsumption
+{
+    public bool IsWetSession{ get; set; }
+    public string Simulator{ get; set; }
+    public string TrackFullName{ get; set; }
+    public float LapDistance{ get; set; }
+    public string CarName{ get; set; }
+    public string SessionKind{ get; set; }
+    public float ElapsedSeconds{ get; set; }
+    public float TraveledDistanceMeters{ get; set; }
+    public ResultConsumedFuelInLiters ConsumedFuel{ get; set; }
+    public float VirtualEnergyFuelCoef{ get; set; }
+    public bool HasVirtualEnergyFuelCoef{ get; set; }
+    public string RecordDate{ get; set; }
+    public ResultConsumption Consumption{ get; set; }
+    public string RecordDateTime{ get; set; }
+}
+
+public class ResultConsumedFuelInLiters
+{
+    public float InLiters{ get; set; }
+}
+
+public class ResultConsumedFuelInMeters
+{
+    public float InMeters{ get; set; }
+}
+
+public class ResultConsumption
+{
+    public ResultConsumedFuelInLiters InVolumePer100Km{ get; set; }
+    public ResultConsumedFuelInMeters InDistancePerGallon{ get; set; }
 }
 
 public class ResultTrack
@@ -104,7 +154,7 @@ public class ResultLap
 }
 
 public enum FinishStatus
-    {
-        Finished,
-        Dnf
-    }
+{
+    Finished,
+    Dnf
+}

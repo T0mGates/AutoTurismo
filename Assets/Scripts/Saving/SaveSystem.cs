@@ -14,6 +14,7 @@ public static class SaveSystem
     public static   List<int>               profileMoney;
 
     private const string                    FILE_PREFIX     = "ProfileData";
+    private const string                    FILE_SUFFIX     = ".data";
 
     static SaveSystem(){
         profileNames            = new List<string>();
@@ -41,7 +42,7 @@ public static class SaveSystem
 
     public static void SaveProfile(Profile profile, int profileSlot){
         BinaryFormatter formatter   = new BinaryFormatter();
-        string path                 = Path.Combine(Application.persistentDataPath, FILE_PREFIX + profileSlot.ToString() + ".json");
+        string path                 = Path.Combine(Application.persistentDataPath, FILE_PREFIX + profileSlot.ToString() + FILE_SUFFIX);
 
         Debug.Log("Saving file: " + path);
 
@@ -54,7 +55,7 @@ public static class SaveSystem
     }
 
     public static PlayerData LoadPlayerData(int profileSlot){
-        string path                     = Path.Combine(Application.persistentDataPath, FILE_PREFIX + profileSlot.ToString() + ".json");
+        string path                     = Path.Combine(Application.persistentDataPath, FILE_PREFIX + profileSlot.ToString() + FILE_SUFFIX);
 
         if(File.Exists(path)){
             BinaryFormatter formatter   = new BinaryFormatter();
@@ -81,7 +82,7 @@ public static class SaveSystem
 
     // Profile slot can be 1 to MAX_PROFILES
     public static void DeleteProfile(int profileSlot){
-        string path             = Path.Combine(Application.persistentDataPath, FILE_PREFIX + profileSlot.ToString() + ".json");
+        string path             = Path.Combine(Application.persistentDataPath, FILE_PREFIX + profileSlot.ToString() + FILE_SUFFIX);
 
         if(File.Exists(path)){
             try{

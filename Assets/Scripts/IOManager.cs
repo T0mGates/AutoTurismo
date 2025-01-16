@@ -27,7 +27,7 @@ public static class IOManager
         // Go through the files one by one
         foreach (string filePath in fileData)
         {
-            if(filePath.Contains(".json")){
+            if(filePath.Contains(".json") || filePath.Contains(".xlsx")){
               // Delete the json file
               Debug.Log("Deleting file found at: " + filePath);
               File.Delete(filePath);
