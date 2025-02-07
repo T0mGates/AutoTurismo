@@ -525,6 +525,7 @@ public static class Cars
 
     // Adding an entry here requires you to add to:
     // classToString, classToTiers
+    // and a SeriesBackgrounds image
     [System.Serializable]
     public enum CarClass
     {

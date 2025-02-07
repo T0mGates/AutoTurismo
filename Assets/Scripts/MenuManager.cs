@@ -833,7 +833,8 @@ public class MenuManager : MonoBehaviour
         // These will be put before and after the series tier text
         const string        SERIES_TIER_PREFIX  = "Only for ";
         const string        SERIES_TIER_SUFFIX  = " Drivers";
-        // Don't forget image later on
+
+        Color               bgColor             = new Color(1.0f, 1.0f, 1.0f, 0.12f);
 
         GameObject          newObj;
         List<EventSeries>   seriesList          = Region.regions[region].tierToSeries[tier];
@@ -852,8 +853,9 @@ public class MenuManager : MonoBehaviour
 
             newObj                                                                              = (GameObject)Instantiate(regionSeriesPrefab, regionSeriesContentTransform);
 
-            //TODO: Change the image
-            //newObj.transform.Find(PRODUCT_IMAGE_NAME).GetComponent<Image>().sprite              = product.GetSprite();
+            // Change the image
+            newObj.transform.GetComponent<Image>().sprite                                       = series.GetSprite();
+            newObj.transform.GetComponent<Image>().color                                        = bgColor;
 
             // Change the series name
             newObj.transform.Find(SERIES_TITLE_NAME).GetComponent<TextMeshProUGUI>().text       = series.name;

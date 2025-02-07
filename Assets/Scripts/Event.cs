@@ -36,6 +36,11 @@ public class EventSeries
         return name.GetHashCode() + seriesTier.GetHashCode();
     }
 
+    public Sprite GetSprite(){
+        string imageName = name.Replace(" ", "").Replace("-", "").Replace("Showdown", "");
+        return Resources.Load<Sprite>("Images/SeriesBackgrounds/" + imageName);
+    }
+
     [System.Serializable]
     public enum SeriesTier
     {
