@@ -561,21 +561,6 @@ public class MenuManager : MonoBehaviour
         ActivateNavButtons();
     }
 
-    public void ConfirmClearResultDirectory(){
-        const string BUY_BTN_NAME   = "PurchaseConfirmation/YesBtn";
-
-        BlockNavButtons();
-
-        // Set the onclick event of the buy button on the notification screen
-        // Clear the result directory and clear the notification
-        notificationMenu.transform.Find(BUY_BTN_NAME).GetComponent<Button>().onClick.RemoveAllListeners();
-        notificationMenu.transform.Find(BUY_BTN_NAME).GetComponent<Button>().onClick.AddListener(() => { IOManager.ClearJsonDir(); });
-
-        string bodyText             = "Are you sure you want to clear the results directory?\n\nThis should be done if you have already attempted the race and have restarted (and are not happy with the result).\n\nIf you have completed your race and want that result to be read, use the 'Scan for Results' button instead.";
-
-        Notification("Delete Results?", bodyText, notificationType:NotificationType.PurchaseConfirmation);
-    }
-
     private void PopulateDealership(Type dealerType){
         const string TITLE_TEXT_NAME    = "DealershipTxt";
         const string BG_IMAGE_NAME      = "DealerBtn/BG";
@@ -904,8 +889,8 @@ public class MenuManager : MonoBehaviour
 
             newObj                                                                              = (GameObject)Instantiate(eventPrefab, seriesContentTransform);
 
-            //TODO: Change the image
-            //newObj.transform.Find(PRODUCT_IMAGE_NAME).GetComponent<Image>().sprite              = product.GetSprite();
+            // Change the background image - stuck on the object itself
+            newObj.transform.GetComponent<Image>().sprite                                       = seriesEvent.GetSprite();
 
             // Change the event name
             newObj.transform.Find(EVENT_TITLE_NAME).GetComponent<TextMeshProUGUI>().text        = seriesEvent.name;
@@ -950,7 +935,14 @@ public class MenuManager : MonoBehaviour
 
             // If event entry has been attempted, add in the player's result
             if(eventEntry.attempted){
-                btnText.text                            = btnText.text + "\nResult: P" + eventEntry.playerResult.FinishingPositionInClass.ToString();
+                try{
+                    btnText.text                            = btnText.text + "\nResult: P" + eventEntry.playerResult.FinishingPositionInClass.ToString();
+                }
+                catch{
+                    Debug.Log("Error occured when filling in text for an attempted event entry.");
+                    btnText.text                            = btnText.text + "\nResult: P?";
+                }
+
             }
 
             if(foundNextUp){

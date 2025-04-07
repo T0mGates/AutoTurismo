@@ -9,6 +9,7 @@ public class RaceResult
     public string Simulator { get; set; }
     public string SessionLengthType { get; set; }
     public int TotalNumberOfLaps { get; set; }
+    public string SessionLength { get; set; }
     public string SessionRunDuration { get; set; }
     public ResultTrack TrackInfo { get; set; }
     public List<ResultDriver> Drivers { get; set; }
@@ -101,6 +102,8 @@ public class ResultDriver
     public string FinishStatus { get; set; }
     public float Rating { get; set; }
     public float RatingRelativeToPlayer { get; set; }
+    public int CarNumber { get; set; }
+    public string TeamName { get; set; }
     public string GapToPlayerByTiming { get; set; }
 
     public ResultDriver(){}
@@ -129,6 +132,8 @@ public class ResultDriver
         FinishStatus                = serDriver.FinishStatus;
         Rating                      = serDriver.Rating;
         RatingRelativeToPlayer      = serDriver.RatingRelativeToPlayer;
+        CarNumber                   = serDriver.CarNumber;
+        TeamName                    = serDriver.TeamName;
         GapToPlayerByTiming         = serDriver.GapToPlayerByTiming;
     }
 }

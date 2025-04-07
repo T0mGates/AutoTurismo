@@ -26,6 +26,8 @@ public class SerializableEventEntry
     // Car object
     public string                                       playerCarName;
 
+    public float                                        totalDistanceTraveled;
+
     public SerializableEventEntry(EventEntry entry, SerializableEvent serEvent){
         trackName                               = entry.track.name;
         trackLayout                             = entry.track.layout;
@@ -37,6 +39,7 @@ public class SerializableEventEntry
         nextUp                                  = entry.nextUp;
         parentEvent                             = serEvent;
         gridSize                                = entry.gridSize;
+        totalDistanceTraveled                   = entry.totalDistanceTraveled;
 
         driverResults                           = new SerializableList<SerializableResultDriver>();
         foreach(ResultDriver driver in entry.driverResults){

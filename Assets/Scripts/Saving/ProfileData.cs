@@ -156,33 +156,34 @@ public class PlayerData{
                                             newSeries, serEvent.typeWhitelist.GetList(), serEvent.classWhitelist.GetList(), serEvent.brandWhitelist.GetList(),
                                             serEvent.nameWhitelist.GetList(), serEvent.topFameReward, serEvent.topMoneyReward);
 
-                Dictionary<string, int> champDict = new Dictionary<string, int>();
+                Dictionary<string, int> champDict       = new Dictionary<string, int>();
                 for(int i = 0; i < serEvent.champhionshipNames.Count; i++){
                     champDict[serEvent.champhionshipNames[i]] = serEvent.championshipPoints[i];
                 }
-                newEvent.champhionshipPoints    = champDict;
-                newEvent.completed              = serEvent.completed;
-                newEvent.gridSize               = serEvent.gridSize;
-                newEvent.finishPosition         = serEvent.finishPosition;
+                newEvent.champhionshipPoints            = champDict;
+                newEvent.completed                      = serEvent.completed;
+                newEvent.gridSize                       = serEvent.gridSize;
+                newEvent.finishPosition                 = serEvent.finishPosition;
 
                 foreach(SerializableEventEntry serEventEntry in serEvent.eventEntries){
                     // Now add event entries to this vent (simply instantiating them will do it automatically)
-                    EventEntry newEventEntry    = new EventEntry(Tracks.GetTrack(serEventEntry.trackName, serEventEntry.trackLayout, serEventEntry.trackCountry),
-                                                        serEventEntry.gridSize, newEvent, minsParam:serEventEntry.mins, lapsParam:serEventEntry.laps);
-                    newEventEntry.attempted     = serEventEntry.attempted;
-                    newEventEntry.nextUp        = serEventEntry.nextUp;
+                    EventEntry newEventEntry            = new EventEntry(Tracks.GetTrack(serEventEntry.trackName, serEventEntry.trackLayout, serEventEntry.trackCountry),
+                                                                        serEventEntry.gridSize, newEvent, minsParam:serEventEntry.mins, lapsParam:serEventEntry.laps);
+                    newEventEntry.attempted             = serEventEntry.attempted;
+                    newEventEntry.nextUp                = serEventEntry.nextUp;
+                    newEventEntry.totalDistanceTraveled = serEventEntry.totalDistanceTraveled;
 
-                    List<ResultDriver> drivers  = new List<ResultDriver>();
+                    List<ResultDriver> drivers          = new List<ResultDriver>();
                     foreach(SerializableResultDriver serDriver in serEventEntry.driverResults){
-                        ResultDriver driver     = new ResultDriver(serDriver);
+                        ResultDriver driver             = new ResultDriver(serDriver);
                         drivers.Add(driver);
                         if(driver.IsPlayer){
                             newEventEntry.playerResult = driver;
                         }
                     }
-                    newEventEntry.driverResults = drivers;
+                    newEventEntry.driverResults         = drivers;
 
-                    newEventEntry.playerCar     = serEventEntry.playerCarName == "" ? null : Cars.GetCar(serEventEntry.playerCarName);
+                    newEventEntry.playerCar             = serEventEntry.playerCarName == "" ? null : Cars.GetCar(serEventEntry.playerCarName);
                 }
             }
 

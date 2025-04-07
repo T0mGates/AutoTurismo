@@ -397,6 +397,11 @@ public class Event
         return Mathf.Round(((float)(gridSize-finishPosition + 1))/(float)gridSize * 100f) / 100f;
     }
 
+    public Sprite GetSprite(){
+        string imageName = eventTypeToString[eventType] + "_Event";
+        return Resources.Load<Sprite>("Images/EventBackgrounds/" + imageName);
+    }
+
     public int GetMoneyReward(){
         return Mathf.CeilToInt(topMoneyReward * FinishPositionMultiplier());
     }
@@ -771,36 +776,55 @@ public class EventEntry
     public ResultDriver         playerResult;
     public Car                  playerCar;
 
-    public EventEntry(Track trackParam, int gridSizeParam, Event parentEventParam, int minsParam = -1, int lapsParam = -1){
-        track           = trackParam;
-        gridSize        = gridSizeParam;
-        mins            = minsParam;
-        laps            = lapsParam;
-        attempted       = false;
-        nextUp          = false;
-        parentEvent     = parentEventParam;
-        playerCar       = null;
+    // Will be used for rewards
+    public float                totalDistanceTraveled;
 
-        driverResults   = new List<ResultDriver>();
+    public EventEntry(Track trackParam, int gridSizeParam, Event parentEventParam, int minsParam = -1, int lapsParam = -1){
+        track                   = trackParam;
+        gridSize                = gridSizeParam;
+        mins                    = minsParam;
+        laps                    = lapsParam;
+        attempted               = false;
+        nextUp                  = false;
+        parentEvent             = parentEventParam;
+        playerCar               = null;
+        totalDistanceTraveled   = 0.0f;
+
+        driverResults           = new List<ResultDriver>();
 
         parentEvent.AddNewEventEntry(this);
     }
 
-    public void CompleteEventEntry(List<ResultDriver> driverResultsParam, Car playerCarParam){
+    public void CompleteEventEntry(List<RaceResult> resultsParam, Car playerCarParam){
         Debug.Log("EventEntry complete!");
-        playerCar   = playerCarParam;
-        attempted   = true;
-        nextUp      = false;
+        ResultDriver curDriver  = null;
+        playerCar               = playerCarParam;
 
-        driverResults   = driverResultsParam;
-        foreach(ResultDriver driver in driverResultsParam){
-            if(driver.IsPlayer){
-                // Found player
-                Debug.Log("Found player: " + driver.DriverLongName + ", driving a " + driver.CarName + " to P" + driver.FinishingPositionInClass.ToString());
-                playerResult = driver;
-                break;
+        int bestFinish          = -1;
+        foreach(RaceResult result in resultsParam){
+
+            // Look for the player within this result
+            foreach(ResultDriver driver in result.Drivers){
+                driverResults.Add(driver);
+
+                if(driver.IsPlayer){
+                    // Found player
+                    Debug.Log("Found player: " + driver.DriverLongName + ", driving a " + driver.CarName + " to P" + driver.FinishingPositionInClass.ToString());
+                    curDriver = driver;
+                    // In meters (as it comes in second monitor)
+                    totalDistanceTraveled += curDriver.TotalDistance;
+                }
+            }
+
+            // Check if this should be the stored result
+            if(curDriver.FinishingPositionInClass < bestFinish || -1 == bestFinish){
+                playerResult = curDriver;
+                bestFinish   = playerResult.FinishingPositionInClass;
             }
         }
+
+        attempted       = true;
+        nextUp          = false;
 
         // Notify the Event that this entry is done
         parentEvent.EventEntryCompleted(this);
@@ -811,7 +835,7 @@ public class EventEntry
         return Mathf.CeilToInt((GetDistanceFameBonus() + GetFinishStatusFameBonus()) * GetSeriesTierRewardMultiplier());
     }
     public int GetDistanceFameBonus(){
-        return (int) (playerResult.TotalDistance / 500);
+        return (int) (totalDistanceTraveled / 1500);
     }
     public int GetFinishStatusFameBonus(){
         // Finished the race
@@ -821,7 +845,7 @@ public class EventEntry
         if(playerResult.FinishStatus == FinishStatus.Dnf.ToString()){
             return 0;
         }
-        Debug.LogError("Detected unknown finish status: " + playerResult.FinishStatus);
+        Debug.LogWarning("Detected unknown finish status: " + playerResult.FinishStatus);
         return 25;
     }
 
@@ -830,7 +854,7 @@ public class EventEntry
         return Mathf.CeilToInt((GetDistanceMoneyBonus() + GetFinishStatusMoneyBonus()) * GetSeriesTierRewardMultiplier());
     }
     public int GetDistanceMoneyBonus(){
-        return (int) (playerResult.TotalDistance / 50);
+        return (int) (totalDistanceTraveled / 75);
     }
     public int GetFinishStatusMoneyBonus(){
         // Finished the race
@@ -840,7 +864,7 @@ public class EventEntry
         if(playerResult.FinishStatus == FinishStatus.Dnf.ToString()){
             return 0;
         }
-        Debug.LogError("Detected unknown finish status: " + playerResult.FinishStatus);
+        Debug.LogWarning("Detected unknown finish status: " + playerResult.FinishStatus);
         return 250;
 
     }
@@ -853,7 +877,7 @@ public class EventEntry
         return
             "Player's Finish Status: " + playerResult.FinishStatus + " = $" +
                 GetFinishStatusMoneyBonus().ToString("n0") + " and " + GetFinishStatusFameBonus().ToString("n0") + " Fame" +
-            "\nDistance (KM) Traveled: " + playerResult.TotalDistance / 1000 + " = $" +
+            "\nDistance (KM) Traveled (including restarts): " + totalDistanceTraveled / 1000 + " = $" +
                 GetDistanceMoneyBonus().ToString("n0") + " and " + GetDistanceFameBonus().ToString("n0") + " Fame"+
             "\n\nSeries Tier: " + EventSeries.tierToString[parentEvent.parentEventSeries.seriesTier] + " = " +
                 GetSeriesTierRewardMultiplier().ToString("n2") + "x Multiplier" +

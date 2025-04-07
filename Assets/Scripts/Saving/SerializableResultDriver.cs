@@ -25,6 +25,8 @@ public class SerializableResultDriver
     public string FinishStatus { get; set; }
     public float Rating { get; set; }
     public float RatingRelativeToPlayer { get; set; }
+    public int CarNumber { get; set; }
+    public string TeamName { get; set; }
     public string GapToPlayerByTiming { get; set; }
 
     public SerializableResultDriver(ResultDriver driver){
@@ -54,6 +56,8 @@ public class SerializableResultDriver
         FinishStatus                = driver.FinishStatus;
         Rating                      = driver.Rating;
         RatingRelativeToPlayer      = driver.RatingRelativeToPlayer;
+        CarNumber                   = driver.CarNumber;
+        TeamName                    = driver.TeamName;
         GapToPlayerByTiming         = driver.GapToPlayerByTiming;
     }
 }

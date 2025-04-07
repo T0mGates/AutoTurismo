@@ -33,16 +33,17 @@ public class GameManager : MonoBehaviour
       // Don't forget to re-enable the given checkResultBtn
       // checkResultBtn.interactable = true;
 
+      // Holds all json files
+      List<RaceResult> results = new List<RaceResult>();
+
+      // Will hold one json file
       RaceResult result;
       while(true){
         result = IOManager.ReadInNewResult();
         if(result != null){
-          // Check if this was an AMS 2 race session that has the same gridSize as our eventEntry, if yes, break out of the loop
+          // Check if this was an AMS 2 race session that has the same gridSize as our eventEntry, if yes, add it to our results
           if(result.Simulator == "AMS 2" && result.SessionType == "Race" && eventEntry.gridSize == result.Drivers.Count){
-            break;
-          }
-          else{
-            result = null;
+            results.Add(result);
           }
         }
         else{
@@ -51,8 +52,8 @@ public class GameManager : MonoBehaviour
         }
       }
 
-      // If result is null here, means we couldn't find a result
-      if(null == result){
+      // If results has no entries here, means we couldn't find a result
+      if(0 == results.Count){
         checkResultBtn.interactable = true;
         menuManager.Notification("Alert",
           "Could not find an AMS 2 race session result that had a grid size (including the player) of " + eventEntry.gridSize.ToString() + " in directory: " + IOManager.GetJsonDir() +
@@ -61,7 +62,7 @@ public class GameManager : MonoBehaviour
       }
 
       // At this point, we have a valid result
-      eventEntry.CompleteEventEntry(result.Drivers, car);
+      eventEntry.CompleteEventEntry(results, car);
       checkResultBtn.interactable   = true;
 
       menuManager.CompleteEventEntry(eventEntry);
