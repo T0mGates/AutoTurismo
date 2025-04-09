@@ -23,6 +23,26 @@ public class Track
     public string GetPrintName(){
         return name + " " + layout;
     }
+
+    public Sprite GetTrackMapSprite(){
+        string imageName = name.Replace(" ", "").Replace("-", "").Replace(".", "");
+        if("" != layout){
+            imageName += "_" + layout.Replace(" ", "").Replace("-", "").Replace(".", "");
+        }
+        return Resources.Load<Sprite>("Images/TrackMaps/" + imageName);
+    }
+
+    public Sprite GetTrackImageSprite(){
+        string imageName = name.Replace(" ", "").Replace("-", "").Replace(".", "");
+
+        return Resources.Load<Sprite>("Images/TrackImages/" + imageName);
+    }
+
+    public Sprite GetCountryFlagSprite(){
+        string imageName = Tracks.countryToString[country].Replace(" ", "").Replace("-", "").Replace(".", "");
+
+        return Resources.Load<Sprite>("Images/CountryImages/" + imageName);
+    }
 }
 
 public static class Tracks
@@ -282,16 +302,6 @@ public static class Tracks
             {
                 new Track(
                     "Buenos Aires Circuito",
-                    "No. 12",
-                    32,
-                    4.31f,
-                    Grade.Two,
-                    Country.Argentina
-                )
-            },
-            {
-                new Track(
-                    "Buenos Aires Circuito",
                     "No. 6 S",
                     32,
                     2.60f,
@@ -333,6 +343,16 @@ public static class Tracks
                 new Track(
                     "Córdoba",
                     "No. 2",
+                    26,
+                    2.06f,
+                    Grade.Three,
+                    Country.Argentina
+                )
+            },
+            {
+                new Track(
+                    "Córdoba",
+                    "No. 4",
                     26,
                     4.06f,
                     Grade.Three,
@@ -1094,7 +1114,7 @@ public static class Tracks
             {
                 new Track(
                     "Imola",
-                    "",
+                    "GP",
                     48,
                     4.90f,
                     Grade.One,
@@ -1376,7 +1396,7 @@ public static class Tracks
             {
                 new Track(
                     "VIRginia International Raceway",
-                    "Pariot",
+                    "Patriot",
                     14,
                     1.77f,
                     Grade.Four,

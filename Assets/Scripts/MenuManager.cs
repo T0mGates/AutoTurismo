@@ -1081,12 +1081,19 @@ public class MenuManager : MonoBehaviour
         const string        GRID_SIZE_TEXT_NAME         = "GridSizeTxt";
         const string        LAPS_MINS_TEXT_NAME         = "LapsMinsTxt";
         const string        WHITELIST_TEXT_NAME         = "WhitelistTxt";
-        const string        BG_IMAGE_NAME               = "BG";
         const string        BACK_BTN_NAME               = "BackBtn";
+        const string        BG_IMAGE_NAME               = "BG";
+        const string        MAP_IMAGE_NAME              = "TrackMap";
+        const string        FLAG_IMAGE_NAME             = "CountryFlag";
 
         // Multi-eventEntry related
         const string        RESULTS_TITLE_TXT_NAME      = "ChampionshipStandingsTitleTxt";
         const string        RESULTS_STANDINGS_TXT_NAME  = "ChampionshipStandingsTxt";
+
+        // Change track image, track map image, flag image
+        menuToEdit.transform.Find(BG_IMAGE_NAME).GetComponent<Image>().sprite                   = eventEntry.track.GetTrackImageSprite();
+        menuToEdit.transform.Find(MAP_IMAGE_NAME).GetComponent<Image>().sprite                  = eventEntry.track.GetTrackMapSprite();
+        menuToEdit.transform.Find(FLAG_IMAGE_NAME).GetComponent<Image>().sprite                 = eventEntry.track.GetCountryFlagSprite();
 
         // Change all the text
         menuToEdit.transform.Find(ENTRY_TITLE_NAME).GetComponent<TextMeshProUGUI>().text        = eventEntry.parentEvent.name;
