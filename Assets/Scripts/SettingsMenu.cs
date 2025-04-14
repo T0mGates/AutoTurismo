@@ -54,6 +54,11 @@ public class SettingsMenu : MonoBehaviour {
             resolutionToggle.isOn   = isFullscreen == 1 ? true : false;
             Screen.fullScreen       = resolutionToggle.isOn;
         }
+        else{
+            // Default
+            resolutionToggle.isOn   = false;
+            Screen.fullScreen       = resolutionToggle.isOn;
+        }
 
         string jsonPath             = PlayerPrefs.GetString("JsonDir", "NEEDS_TO_BE_SET_IN_SETTINGS");
         if("NEEDS_TO_BE_SET_IN_SETTINGS" != jsonPath){

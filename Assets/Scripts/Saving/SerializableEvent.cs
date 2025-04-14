@@ -8,6 +8,8 @@ using UnityEngine;
 public class SerializableEvent
 {
     public string                                   name;
+    public string                                   prefix;
+    public string                                   suffix;
     public Event.EventType                          eventType;
     public Event.EventDuration                      eventDuration;
     public SerializableEventSeries                  parentEventSeries;
@@ -31,6 +33,9 @@ public class SerializableEvent
 
     public SerializableEvent(Event eventObj, SerializableEventSeries serEventSeries){
         name                    = eventObj.name;
+        suffix                  = eventObj.suffix;
+        prefix                  = eventObj.prefix;
+
         eventType               = eventObj.eventType;
         eventDuration           = eventObj.eventDuration;
         parentEventSeries       = serEventSeries;

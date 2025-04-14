@@ -186,8 +186,33 @@ public class GameManager : MonoBehaviour
       return false;
     }
 
-    public void GenerateNewEventSeries(Region.ClickableRegion region, EventSeries.SeriesTier tier){
-      Cars.CarClass carClass = Region.regions[region].GenerateNewEventSeries(tier);
+    public void GenerateNewEventSeries(Region.ClickableRegion region, EventSeries.SeriesTier tier)
+    {
+      EventSeries.SeriesTheme theme = EventSeries.SeriesTheme.Normal;
+
+      int randNum             = UnityEngine.Random.Range(1, 101);
+      if(randNum <= 88)
+      {
+        theme = EventSeries.SeriesTheme.Normal;
+      }
+      else if(randNum <= 91)
+      {
+        theme = EventSeries.SeriesTheme.Stormy;
+      }
+      else if(randNum <= 94)
+      {
+        theme = EventSeries.SeriesTheme.Foggy;
+      }
+      else if(randNum <= 97)
+      {
+        theme = EventSeries.SeriesTheme.Rainy;
+      }
+      else
+      {
+        theme = EventSeries.SeriesTheme.Night;
+      }
+
+      Cars.CarClass carClass = Region.regions[region].GenerateNewEventSeries(tier, theme);
       curProfile.UnlockDealer(Dealers.GetDealer(Cars.classToString[carClass],   typeof(CarDealer)));
       curProfile.UnlockDealer(Dealers.GetDealer(Cars.classToString[carClass],   typeof(EntryPassDealer)));
     }

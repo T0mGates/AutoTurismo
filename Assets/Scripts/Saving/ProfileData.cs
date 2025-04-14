@@ -148,11 +148,11 @@ public class PlayerData{
         // Series
         foreach(SerializableEventSeries serEventSeries in series){
 
-            EventSeries  newSeries              = new EventSeries(serEventSeries.name, serEventSeries.seriesTier, serEventSeries.partOfRegion);
+            EventSeries  newSeries = new EventSeries(serEventSeries.name, serEventSeries.prefix, serEventSeries.suffix, serEventSeries.seriesTier, serEventSeries.partOfRegion, serEventSeries.seriesTheme);
 
             // Now add events to this series (simply instantiating them will do it automatically)
             foreach(SerializableEvent serEvent in serEventSeries.events){
-                Event newEvent = new Event( serEvent.name, serEvent.eventType, serEvent.eventDuration,
+                Event newEvent = new Event( serEvent.name, serEvent.prefix, serEvent.suffix, serEvent.eventType, serEvent.eventDuration,
                                             newSeries, serEvent.typeWhitelist.GetList(), serEvent.classWhitelist.GetList(), serEvent.brandWhitelist.GetList(),
                                             serEvent.nameWhitelist.GetList(), serEvent.topFameReward, serEvent.topMoneyReward);
 
@@ -166,9 +166,15 @@ public class PlayerData{
                 newEvent.finishPosition                 = serEvent.finishPosition;
 
                 foreach(SerializableEventEntry serEventEntry in serEvent.eventEntries){
-                    // Now add event entries to this vent (simply instantiating them will do it automatically)
-                    EventEntry newEventEntry            = new EventEntry(Tracks.GetTrack(serEventEntry.trackName, serEventEntry.trackLayout, serEventEntry.trackCountry),
-                                                                        serEventEntry.gridSize, newEvent, minsParam:serEventEntry.mins, lapsParam:serEventEntry.laps);
+                    // Now add event entries to this event (simply instantiating them will do it automatically)
+                    EventEntry newEventEntry            = new EventEntry(
+                                                            Tracks.GetTrack(serEventEntry.trackName, serEventEntry.trackLayout, serEventEntry.trackCountry),
+                                                            serEventEntry.gridSize, newEvent, minsParam:serEventEntry.mins, lapsParam:serEventEntry.laps,
+                                                            startTimeParam:serEventEntry.startTime, timeProgressionParam:serEventEntry.timeProgression,
+                                                            standingStartParam:serEventEntry.standingStart, weatherForecastParam:serEventEntry.weatherForecast.GetList(),
+                                                            mandatoryPitStopParam:serEventEntry.mandatoryPitStop, pitStopMinTyresParam:serEventEntry.pitStopMinTyres,
+                                                            fieldTypeParam:serEventEntry.fieldType
+                                                        );
                     newEventEntry.attempted             = serEventEntry.attempted;
                     newEventEntry.nextUp                = serEventEntry.nextUp;
                     newEventEntry.totalDistanceTraveled = serEventEntry.totalDistanceTraveled;

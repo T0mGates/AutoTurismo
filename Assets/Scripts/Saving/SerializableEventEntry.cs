@@ -19,6 +19,21 @@ public class SerializableEventEntry
 
     public int                                          gridSize;
 
+    public string                                       startTime;
+
+    public int                                          timeProgression;
+
+    public bool                                         standingStart;
+
+    public int                                          weatherSlots;
+
+    public SerializableList<string>                     weatherForecast;
+
+    public bool                                         mandatoryPitStop;
+
+    public int                                          pitStopMinTyres;
+
+    public EventEntry.OpponentFieldType                 fieldType;
 
     public SerializableList<SerializableResultDriver>   driverResults;
     public SerializableResultDriver                     playerResult;
@@ -39,6 +54,24 @@ public class SerializableEventEntry
         nextUp                                  = entry.nextUp;
         parentEvent                             = serEvent;
         gridSize                                = entry.gridSize;
+
+        startTime                               = entry.startTime;
+
+        timeProgression                         = entry.timeProgression;
+
+        standingStart                           = entry.standingStart;
+
+        weatherSlots                            = entry.weatherSlots;
+
+        weatherForecast                         = new SerializableList<string>();
+        weatherForecast.SetList(entry.weatherForecast);
+
+        mandatoryPitStop                        = entry.mandatoryPitStop;
+
+        pitStopMinTyres                         = entry.pitStopMinTyres;
+
+        fieldType                               = entry.fieldType;
+
         totalDistanceTraveled                   = entry.totalDistanceTraveled;
 
         driverResults                           = new SerializableList<SerializableResultDriver>();

@@ -84,14 +84,14 @@ public static class EntryPasses
     public const int                                                CAR_BASE_COST       = 1500;
     public const int                                                CAR_COST_PER_TIER   = 2500;
 
-    public const int                                                TYPE_BASE_COST      = 10000;
-    public const int                                                TYPE_COST_PER_TIER  = 13500;
+    public const int                                                TYPE_BASE_COST      = 8000;
+    public const int                                                TYPE_COST_PER_TIER  = 11500;
 
-    public const int                                                CLASS_BASE_COST     = 5000;
-    public const int                                                CLASS_COST_PER_TIER = 8500;
+    public const int                                                CLASS_BASE_COST     = 3700;
+    public const int                                                CLASS_COST_PER_TIER = 6900;
 
-    public const int                                                BRAND_BASE_COST     = 8500;
-    public const int                                                BRAND_COST_PER_TIER = 11750;
+    public const int                                                BRAND_BASE_COST     = 6900;
+    public const int                                                BRAND_COST_PER_TIER = 10250;
 
     // Holds ALL entry passes in the database
     private static List<EntryPass>                                  entryPasses {get; set;}

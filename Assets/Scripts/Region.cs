@@ -33,7 +33,7 @@ public class Region
     }
 
     // Returns the class the event series was created for
-    public Cars.CarClass GenerateNewEventSeries(EventSeries.SeriesTier tier){
+    public Cars.CarClass GenerateNewEventSeries(EventSeries.SeriesTier tier, EventSeries.SeriesTheme theme){
         // First, choose a class
         // Make sure we aren't making dupes
         List<Cars.CarClass> possibleClasses = Cars.GetClassesForTier(tier);
@@ -71,13 +71,13 @@ public class Region
             return classToUse;
         }
 
-        EventSeries  newSeries              = new EventSeries(Cars.classToString[classToUse] + " Showdown", tier, region);
+        EventSeries  newSeries              = new EventSeries(Cars.classToString[classToUse], tier, region, theme);
 
-        // First event will always be a mini race
+        // First event duration will be a default value
         Event.GenerateNewEvent(
-            "Weekend Race - " + Cars.classToString[classToUse],
+            Cars.classToString[classToUse],
             Event.EventType.Race,
-            Event.EventDuration.Mini,
+            EventSeries.tierDefaultDuration[tier],
             newSeries,
             Tracks.GetCountries(region),
             new List<Cars.CarType>(),

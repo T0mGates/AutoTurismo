@@ -1,0 +1,17 @@
+[1.1 - April 13th, 2025]
+    - (Tentative) Fix for some resolutions (1440p mainly)
+
+    - Added in more images (specifically track images, track maps, country flags) to 'beautify' the app a bit more, have less empty space
+
+    - Added procedurally generated (but in a smart way!) race parameters which will allow for unique experiences for every event entry
+
+    - Added themed series, making it so all events that are a part of the series have some distinct parameters (ie, a night theme that makes all events occur at night)
+
+    - Couple bugfixes related to championships
+
+    - Default to windowed mode in hopes the app launches better on first launch
+
+    - Tweaked rewards and event entry passes' costs to speed up progression
+
+[1.0 - April 8th, 2025]
+    - Initial Release

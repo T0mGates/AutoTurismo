@@ -3,22 +3,83 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine.UIElements;
+using System.Collections;
 
 public class EventSeries
 {
     // Name and tier together should make unique series
     public SeriesTier                       seriesTier;
     public string                           name;
+    public string                           prefix;
+    public string                           suffix;
     public List<Event>                      events;
     public Region.ClickableRegion           partOfRegion;
+    public SeriesTheme                      seriesTheme;
 
-    public EventSeries(string nameParam, SeriesTier seriesTierParam, Region.ClickableRegion partOfRegionParam){
+
+    public void ConstructorCommonFunction
+                        (
+                            string nameParam, string prefixParam, string suffixParam, SeriesTier seriesTierParam, Region.ClickableRegion partOfRegionParam, SeriesTheme seriesThemeParam
+                        )
+    {
         name            = nameParam;
+        prefix          = prefixParam;
+        suffix          = suffixParam;
+
         seriesTier      = seriesTierParam;
         partOfRegion    = partOfRegionParam;
         events          = new List<Event>();
+        seriesTheme     = seriesThemeParam;
 
         Region.regions[partOfRegion].AddNewSeries(this);
+    }
+
+    public EventSeries  (
+                            string nameParam, SeriesTier seriesTierParam, Region.ClickableRegion partOfRegionParam, SeriesTheme seriesThemeParam
+                        )
+    {
+
+        // For the name
+        List<string> possiblePrefixes   = themeToSeriesPrefixes[seriesThemeParam];
+        List<string> possibleSuffixes   = themeToSeriesSuffixes[seriesThemeParam];
+
+        string prefix   = "";
+        string suffix   = "";
+
+        int prefixIndex = UnityEngine.Random.Range(0, possiblePrefixes.Count);
+        int suffixIndex = UnityEngine.Random.Range(0, possibleSuffixes.Count);
+
+        // For now, either have a suffix or a prefix
+        if(prefixIndex < possiblePrefixes.Count && suffixIndex < possibleSuffixes.Count){
+            // Both are valid indices, now make sure they are both 'non empty strings' so that we only choose one or the other when they both have a value
+            if("" != possiblePrefixes[prefixIndex] && "" != possibleSuffixes[suffixIndex]){
+                if(0 == UnityEngine.Random.Range(0, 2)){
+                    prefixIndex = -1;
+                }
+                else{
+                    suffixIndex = -1;
+                }
+            }
+        }
+
+        if(prefixIndex < possiblePrefixes.Count && prefixIndex >= 0)
+        {
+            prefix = possiblePrefixes[prefixIndex];
+        }
+        if(suffixIndex < possibleSuffixes.Count && suffixIndex >= 0)
+        {
+            suffix = possibleSuffixes[suffixIndex];
+        }
+
+        ConstructorCommonFunction(nameParam, prefix, suffix, seriesTierParam, partOfRegionParam, seriesThemeParam);
+    }
+
+    public EventSeries  (
+                            string nameParam, string prefixParam, string suffixParam, SeriesTier seriesTierParam, Region.ClickableRegion partOfRegionParam,
+                            SeriesTheme seriesThemeParam
+                        )
+    {
+        ConstructorCommonFunction(nameParam, prefixParam, suffixParam, seriesTierParam, partOfRegionParam, seriesThemeParam);
     }
 
     // Override the equals method
@@ -36,8 +97,15 @@ public class EventSeries
         return name.GetHashCode() + seriesTier.GetHashCode();
     }
 
-    public Sprite GetSprite(){
-        string imageName = name.Replace(" ", "").Replace("-", "").Replace("Showdown", "");
+    public string GetFullName()
+    {
+        return prefix + " " + name + " " + suffix;
+    }
+
+    public Sprite GetSprite()
+    {
+        string imageName = name.Replace(" ", "").Replace("-", "");
+        Debug.Log("Looking for Series Background: " + imageName);
         return Resources.Load<Sprite>("Images/SeriesBackgrounds/" + imageName);
     }
 
@@ -53,9 +121,9 @@ public class EventSeries
         Prodigy         = 6,
         Legend          = 7,
         WorldRenowned   = 8
-    }
+    };
 
-    public static Dictionary<SeriesTier, string> tierToString = new Dictionary<SeriesTier, string>
+    public static Dictionary<SeriesTier, string> tierToString                               = new Dictionary<SeriesTier, string>
     {
         {SeriesTier.Rookie,             "Rookie"},
         {SeriesTier.Novice,             "Novice"},
@@ -68,7 +136,21 @@ public class EventSeries
         {SeriesTier.WorldRenowned,      "World-Renowned"}
     };
 
-    public static Dictionary<SeriesTier, List<Event.EventDuration>> tierDurationWhitelist = new Dictionary<SeriesTier, List<Event.EventDuration>>
+    // Holds the default duration of an event for the given tier
+    public static Dictionary<SeriesTier, Event.EventDuration>    tierDefaultDuration        = new Dictionary<SeriesTier, Event.EventDuration>
+    {
+        {SeriesTier.Rookie,             Event.EventDuration.Mini},
+        {SeriesTier.Novice,             Event.EventDuration.Mini},
+        {SeriesTier.Amateur,            Event.EventDuration.Short},
+        {SeriesTier.Professional,       Event.EventDuration.Short},
+        {SeriesTier.Elite,              Event.EventDuration.Average},
+        {SeriesTier.Master,             Event.EventDuration.Average},
+        {SeriesTier.Prodigy,            Event.EventDuration.FairlyLong},
+        {SeriesTier.Legend,             Event.EventDuration.FairlyLong},
+        {SeriesTier.WorldRenowned,      Event.EventDuration.Long}
+    };
+
+    public static Dictionary<SeriesTier, List<Event.EventDuration>> tierDurationWhitelist   = new Dictionary<SeriesTier, List<Event.EventDuration>>
     {
         {SeriesTier.Rookie,             new List<Event.EventDuration>() { {Event.EventDuration.Mini}, {Event.EventDuration.Short}, {Event.EventDuration.Average} } },
         {SeriesTier.Novice,             new List<Event.EventDuration>() { {Event.EventDuration.Mini}, {Event.EventDuration.Short}, {Event.EventDuration.Average} } },
@@ -109,37 +191,149 @@ public class EventSeries
         {SeriesTier.WorldRenowned,      new List<Tracks.Grade>() { {Tracks.Grade.One}, {Tracks.Grade.Historic}}}
     };
 
-    // Set base fame pay for each tier
+    // Set base fame pay for each tier (assume a single race event)
     public static Dictionary<SeriesTier, int> tierFameReward = new Dictionary<SeriesTier, int>
     {
-        {SeriesTier.Rookie,             10},
-        {SeriesTier.Novice,             15},
-        {SeriesTier.Amateur,            20},
-        {SeriesTier.Professional,       30},
-        {SeriesTier.Elite,              35},
-        {SeriesTier.Master,             40},
-        {SeriesTier.Prodigy,            50},
-        {SeriesTier.Legend,             60},
-        {SeriesTier.WorldRenowned,      80},
+        {SeriesTier.Rookie,             18},
+        {SeriesTier.Novice,             23},
+        {SeriesTier.Amateur,            31},
+        {SeriesTier.Professional,       41},
+        {SeriesTier.Elite,              50},
+        {SeriesTier.Master,             58},
+        {SeriesTier.Prodigy,            66},
+        {SeriesTier.Legend,             75},
+        {SeriesTier.WorldRenowned,      90},
     };
-    // Set base money pay for each tier
+    // Set base money pay for each tier (assume a single race event)
     public static Dictionary<SeriesTier, int> tierMoneyReward = new Dictionary<SeriesTier, int>
     {
-        {SeriesTier.Rookie,             500},
-        {SeriesTier.Novice,             700},
-        {SeriesTier.Amateur,            1000},
-        {SeriesTier.Professional,       1250},
-        {SeriesTier.Elite,              1500},
-        {SeriesTier.Master,             1700},
-        {SeriesTier.Prodigy,            1850},
-        {SeriesTier.Legend,             2150},
-        {SeriesTier.WorldRenowned,      2400},
+        {SeriesTier.Rookie,             1150},
+        {SeriesTier.Novice,             1400},
+        {SeriesTier.Amateur,            1620},
+        {SeriesTier.Professional,       1975},
+        {SeriesTier.Elite,              2150},
+        {SeriesTier.Master,             2400},
+        {SeriesTier.Prodigy,            2725},
+        {SeriesTier.Legend,             3100},
+        {SeriesTier.WorldRenowned,      3550},
+    };
+
+    // When you add a theme here, make sure to edit logic in GenerateNewEventEntry to add in logic for this theme (what kind of entries it produces)
+    // Also update the below dictionaries
+    [System.Serializable]
+    public enum SeriesTheme
+    {
+        Normal      = 0,
+        Rainy       = 1,
+        Foggy       = 2,
+        Stormy      = 3,
+        Night       = 4
+    };
+
+    // Prefix lists for each theme (for series)
+    public static Dictionary<SeriesTheme, List<string>> themeToSeriesPrefixes   = new Dictionary<SeriesTheme, List<string>>
+    {
+        {SeriesTheme.Normal,        new List<string> { "" } },
+        {SeriesTheme.Rainy,         new List<string> { "In the Rain with", "Rainy", "Drizzled", "Soaked Streets" } },
+        {SeriesTheme.Foggy,         new List<string> { "Foggy", "Shrouded" } },
+        {SeriesTheme.Stormy,        new List<string> { "Thunderous" } },
+        {SeriesTheme.Night,         new List<string> { "Pitch Black", "Under the Moon" } }
+    };
+
+    // Suffix lists for each theme (for series)
+    public static Dictionary<SeriesTheme, List<string>> themeToSeriesSuffixes   = new Dictionary<SeriesTheme, List<string>>
+    {
+        {SeriesTheme.Normal,        new List<string> { "Showdown", "Madness", "Face-Off", "Wrangle", "Warfare", "Contest" } },
+        {SeriesTheme.Rainy,         new List<string> { "Rainfest", "Rainmasters" } },
+        {SeriesTheme.Foggy,         new List<string> { "in the Fog", "Through Fog" } },
+        {SeriesTheme.Stormy,        new List<string> { "Stormfest", "Maelstrom" } },
+        {SeriesTheme.Night,         new List<string> { "at Night", "In the Dark", "After Hours" } }
+    };
+
+    // Prefix lists for each theme (for events)
+    public static Dictionary<SeriesTheme, Dictionary<Event.EventType, List<string>>> themeToEventPrefixes   = new Dictionary<SeriesTheme, Dictionary<Event.EventType, List<string>>>
+    {
+        {SeriesTheme.Normal,        new Dictionary<Event.EventType, List<string>>
+            {
+                { Event.EventType.Race,             new List<string> { "Weekend Race -", "Trackday Competition -", "Sprint Clash -", "Trackday Throwdown -", "Weekend Burnout -" } },
+                { Event.EventType.Championship,     new List<string> { "Weekend Championship -", "Contender's Circuit -", "Apex Cup -", "Driving Series -", "Burning Rubber League -", "Full Throttle Championship -" } }
+            }
+        },
+
+        {SeriesTheme.Foggy,         new Dictionary<Event.EventType, List<string>>
+            {
+                { Event.EventType.Race,             new List<string> { "Foggy Race -", "Race in the Fog -" } },
+                { Event.EventType.Championship,     new List<string> { "Foggy Championship -", "Championship in the Fog -", "Masters of the Mist -", "Haze Championship -" } }
+            }
+        },
+
+        {SeriesTheme.Night,         new Dictionary<Event.EventType, List<string>>
+            {
+                { Event.EventType.Race,             new List<string> { "Race at Night -", "Midnight Sprint -" } },
+                { Event.EventType.Championship,     new List<string> { "Dark Championship -", "Obscure Championship -", "Championship at Night -", "Nightfall Series -", "Lunar League -" } }
+            }
+        },
+
+        {SeriesTheme.Rainy,         new Dictionary<Event.EventType, List<string>>
+            {
+                { Event.EventType.Race,             new List<string> { "Slippery Race -", "Rainy Race -", "Wet Road Challenge -" } },
+                { Event.EventType.Championship,     new List<string> { "In the Rain Championship -", "Championship in the Wet -", "Rainmasters Series -", "Cascade Cup -" } }
+            }
+        },
+
+        {SeriesTheme.Stormy,        new Dictionary<Event.EventType, List<string>>
+            {
+                { Event.EventType.Race,             new List<string> { "Stormy Race -", "Race in the Storms -", "Lightning Clash -", "Electric Sprint -" } },
+                { Event.EventType.Championship,     new List<string> { "Stormy Championship -", "Championship in the Storms -", "Shockwave Series -" } }
+            }
+        },
+    };
+
+    // Suffix lists for each theme (for events)
+    public static Dictionary<SeriesTheme, Dictionary<Event.EventType, List<string>>> themeToEventSuffixes   = new Dictionary<SeriesTheme, Dictionary<Event.EventType, List<string>>>
+    {
+        {SeriesTheme.Normal,        new Dictionary<Event.EventType, List<string>>
+            {
+                { Event.EventType.Race,             new List<string> { "" } },
+                { Event.EventType.Championship,     new List<string> { "" } }
+            }
+        },
+
+        {SeriesTheme.Foggy,         new Dictionary<Event.EventType, List<string>>
+            {
+                { Event.EventType.Race,             new List<string> { "Through the Drizzle" } },
+                { Event.EventType.Championship,     new List<string> { "" } }
+            }
+        },
+
+        {SeriesTheme.Night,         new Dictionary<Event.EventType, List<string>>
+            {
+                { Event.EventType.Race,             new List<string> { "Under the Moonlight" } },
+                { Event.EventType.Championship,     new List<string> { "Night Championship" } }
+            }
+        },
+
+        {SeriesTheme.Rainy,         new Dictionary<Event.EventType, List<string>>
+            {
+                { Event.EventType.Race,             new List<string> { "" } },
+                { Event.EventType.Championship,     new List<string> { "" } }
+            }
+        },
+
+        {SeriesTheme.Stormy,        new Dictionary<Event.EventType, List<string>>
+            {
+                { Event.EventType.Race,             new List<string> { "" } },
+                { Event.EventType.Championship,     new List<string> { "" } }
+            }
+        },
     };
 }
 
 public class Event
 {
     public string                   name;
+    public string                   prefix;
+    public string                   suffix;
     public EventType                eventType;
     public EventDuration            eventDuration;
     public EventSeries              parentEventSeries;
@@ -158,14 +352,19 @@ public class Event
     public List<EventEntry>         eventEntries;
     public Dictionary<string, int>  champhionshipPoints;
 
-    public Event(
-                string nameParam, EventType eventTypeParam, EventDuration eventDurationParam, EventSeries parentEventSeriesParam,
-                List<Cars.CarType> allowedTypes, List<Cars.CarClass> allowedClasses, List<Cars.CarBrand> allowedBrands, List<string> allowedNames,
-                int topFameRewardParam, int topMoneyRewardParam
-                ){
+    private void ConstructorCommonFunction
+                (
+                    string nameParam, string prefixParam, string suffixParam, EventType eventTypeParam, EventDuration eventDurationParam, EventSeries parentEventSeriesParam,
+                    List<Cars.CarType> allowedTypesParam, List<Cars.CarClass> allowedClassesParam, List<Cars.CarBrand> allowedBrandsParam, List<string> allowedNamesParam,
+                    int topFameRewardParam, int topMoneyRewardParam
+                )
+    {
         champhionshipPoints = new Dictionary<string, int>();
 
         name                = nameParam;
+        prefix              = prefixParam;
+        suffix              = suffixParam;
+
         eventType           = eventTypeParam;
         eventDuration       = eventDurationParam;
         parentEventSeries   = parentEventSeriesParam;
@@ -173,10 +372,10 @@ public class Event
         topFameReward       = topFameRewardParam;
         topMoneyReward      = topMoneyRewardParam;
 
-        typeWhitelist       = allowedTypes;
-        classWhitelist      = allowedClasses;
-        brandWhitelist      = allowedBrands;
-        nameWhitelist       = allowedNames;
+        typeWhitelist       = allowedTypesParam;
+        classWhitelist      = allowedClassesParam;
+        brandWhitelist      = allowedBrandsParam;
+        nameWhitelist       = allowedNamesParam;
         completed           = false;
         gridSize            = -1;
 
@@ -184,6 +383,63 @@ public class Event
         eventEntries        = new List<EventEntry>();
 
         parentEventSeries.events.Add(this);
+    }
+
+    public Event(
+                    string nameParam, string prefixParam, string suffixParam, EventType eventTypeParam, EventDuration eventDurationParam, EventSeries parentEventSeriesParam,
+                    List<Cars.CarType> allowedTypesParam, List<Cars.CarClass> allowedClassesParam, List<Cars.CarBrand> allowedBrandsParam, List<string> allowedNamesParam,
+                    int topFameRewardParam, int topMoneyRewardParam
+                ){
+        ConstructorCommonFunction   (   nameParam, prefixParam, suffixParam, eventTypeParam, eventDurationParam, parentEventSeriesParam,
+                                        allowedTypesParam, allowedClassesParam, allowedBrandsParam, allowedNamesParam, topFameRewardParam, topMoneyRewardParam
+                                    );
+    }
+
+    public Event(
+                    string nameParam, EventType eventTypeParam, EventDuration eventDurationParam, EventSeries parentEventSeriesParam,
+                    List<Cars.CarType> allowedTypesParam, List<Cars.CarClass> allowedClassesParam, List<Cars.CarBrand> allowedBrandsParam, List<string> allowedNamesParam,
+                    int topFameRewardParam, int topMoneyRewardParam
+                ){
+        // For the name
+        List<string> possiblePrefixes   = EventSeries.themeToEventPrefixes[parentEventSeriesParam.seriesTheme][eventTypeParam];
+        List<string> possibleSuffixes   = EventSeries.themeToEventSuffixes[parentEventSeriesParam.seriesTheme][eventTypeParam];
+
+        string prefix   = "";
+        string suffix   = "";
+
+        int prefixIndex = UnityEngine.Random.Range(0, possiblePrefixes.Count);
+        int suffixIndex = UnityEngine.Random.Range(0, possibleSuffixes.Count);
+
+        // For now, either have a suffix or a prefix
+        if(prefixIndex < possiblePrefixes.Count && suffixIndex < possibleSuffixes.Count){
+            // Both are valid indices, now make sure they are both 'non empty strings' so that we only choose one or the other when they both have a value
+            if("" != possiblePrefixes[prefixIndex] && "" != possibleSuffixes[suffixIndex]){
+                if(0 == UnityEngine.Random.Range(0, 2)){
+                    prefixIndex = -1;
+                }
+                else{
+                    suffixIndex = -1;
+                }
+            }
+        }
+
+        if(prefixIndex < possiblePrefixes.Count && prefixIndex >= 0)
+        {
+            prefix = possiblePrefixes[prefixIndex];
+        }
+        if(suffixIndex < possibleSuffixes.Count && suffixIndex >= 0)
+        {
+            suffix = possibleSuffixes[suffixIndex];
+        }
+
+        ConstructorCommonFunction   (   nameParam, prefix, suffix, eventTypeParam, eventDurationParam, parentEventSeriesParam,
+                                        allowedTypesParam, allowedClassesParam, allowedBrandsParam, allowedNamesParam, topFameRewardParam, topMoneyRewardParam
+                                    );
+    }
+
+    public string GetFullName()
+    {
+        return prefix + " " + name + " " + suffix;
     }
 
     public void EventEntryCompleted(EventEntry eventEntryParam){
@@ -399,6 +655,7 @@ public class Event
 
     public Sprite GetSprite(){
         string imageName = eventTypeToString[eventType] + "_Event";
+        Debug.Log("Looking for Event Background: " + imageName);
         return Resources.Load<Sprite>("Images/EventBackgrounds/" + imageName);
     }
 
@@ -595,11 +852,15 @@ public class Event
         // filled up our tracksToUse
         }
 
-        Event newEvent = new Event(eventName, eventType, duration, parentEventSeriesParam, allowedTypes, allowedClasses, allowedBrands, allowedNames, topFameReward, topMoneyReward);
+        Event newEvent = new Event
+                                (
+                                    eventName, eventType, duration, parentEventSeriesParam, allowedTypes, allowedClasses,
+                                    allowedBrands, allowedNames, topFameReward, topMoneyReward
+                                );
 
         // For each track, make an event entry
         foreach(Track track in tracksToUse){
-            eventEntries.Add(EventEntry.GenerateNewEventEntry(track, duration, tier, newEvent, useLaps));
+            eventEntries.Add(EventEntry.GenerateNewEventEntry(track, duration, tier, newEvent, useLaps, parentEventSeriesParam.seriesTheme));
         }
 
         return newEvent;
@@ -636,13 +897,14 @@ public class Event
         {EventDuration.Endurance,       "Endurance"}
     };
 
+    // Whenever you add a new type, edit the "themeToEvent..." dictionaries for suffixes and prefixes
     public enum EventType
     {
         Race,
         Challenge,
         Special,
         Championship
-    }
+    };
 
     public static Dictionary<EventType, string> eventTypeToString = new Dictionary<EventType, string>
     {
@@ -771,6 +1033,33 @@ public class EventEntry
     // Probably want AI levels and whatnot
     public int                  gridSize;
 
+    // More race settings
+    public string               startTime;
+
+    // Can be 1, 2, 5, 10, 15, 20, 25, 30, 40, 50, 60
+    public int                  timeProgression;
+
+    // False == rolling start
+    public bool                 standingStart;
+
+    // Weather slots == 0 means Real Weather
+    public int                  weatherSlots;
+
+    // Length of weatherForecast should match weatherSlots
+    // Current weatherForecast options:
+    //Clear, light cloud, medium cloud, heavy cloud, overcast
+    //light rain, rain, storm, thunderstorm, fog with rain, heavy fog with rain
+    //fog, heavy fog, hazy
+    public List<string>         weatherForecast;
+
+    // Whether a pit stop is mandatory
+    public bool                 mandatoryPitStop;
+
+    // 0 - 4
+    public int                  pitStopMinTyres;
+
+    public OpponentFieldType    fieldType;
+
     // Will be filled in once the event entry is done
     public List<ResultDriver>   driverResults;
     public ResultDriver         playerResult;
@@ -779,7 +1068,11 @@ public class EventEntry
     // Will be used for rewards
     public float                totalDistanceTraveled;
 
-    public EventEntry(Track trackParam, int gridSizeParam, Event parentEventParam, int minsParam = -1, int lapsParam = -1){
+
+    public EventEntry(  Track trackParam, int gridSizeParam, Event parentEventParam, string startTimeParam, int timeProgressionParam, bool standingStartParam,
+                        List<string> weatherForecastParam, bool mandatoryPitStopParam, int pitStopMinTyresParam, OpponentFieldType fieldTypeParam,
+                        int minsParam = -1, int lapsParam = -1 )
+    {
         track                   = trackParam;
         gridSize                = gridSizeParam;
         mins                    = minsParam;
@@ -791,6 +1084,15 @@ public class EventEntry
         totalDistanceTraveled   = 0.0f;
 
         driverResults           = new List<ResultDriver>();
+
+        startTime               = startTimeParam;
+        timeProgression         = timeProgressionParam;
+        standingStart           = standingStartParam;
+        weatherForecast         = weatherForecastParam;
+        weatherSlots            = weatherForecast.Count;
+        mandatoryPitStop        = mandatoryPitStopParam;
+        pitStopMinTyres         = pitStopMinTyresParam;
+        fieldType               = fieldTypeParam;
 
         parentEvent.AddNewEventEntry(this);
     }
@@ -835,7 +1137,7 @@ public class EventEntry
         return Mathf.CeilToInt((GetDistanceFameBonus() + GetFinishStatusFameBonus()) * GetSeriesTierRewardMultiplier());
     }
     public int GetDistanceFameBonus(){
-        return (int) (totalDistanceTraveled / 1500);
+        return (int) (totalDistanceTraveled / 1250);
     }
     public int GetFinishStatusFameBonus(){
         // Finished the race
@@ -854,7 +1156,7 @@ public class EventEntry
         return Mathf.CeilToInt((GetDistanceMoneyBonus() + GetFinishStatusMoneyBonus()) * GetSeriesTierRewardMultiplier());
     }
     public int GetDistanceMoneyBonus(){
-        return (int) (totalDistanceTraveled / 75);
+        return (int) (totalDistanceTraveled / 60);
     }
     public int GetFinishStatusMoneyBonus(){
         // Finished the race
@@ -907,21 +1209,43 @@ public class EventEntry
                 foreach(ResultDriver driver in driverResults){
                     // First, need a sorted list of all finishing positions (need to account for dupes (multiclass))
                     posToAdd                            = driver.FinishingPositionInClass == 0 ? ZERO : driver.FinishingPositionInClass;
-                    finishingPositions.Add(posToAdd);
-                    if(!posToName.ContainsKey(posToAdd)){
+
+                    // Add finishing pos if not already in our list
+                    if(!finishingPositions.Contains(posToAdd))
+                    {
+                        finishingPositions.Add(posToAdd);
+                    }
+
+                    if(!posToName.ContainsKey(posToAdd))
+                    {
                         posToName[posToAdd] = new List<string>();
                     }
                     posToName[posToAdd].Add(driver.DriverLongName);
                 }
                 // Sort in ascending order
-                finishingPositions = finishingPositions.OrderBy(i => i).ToList();
+                finishingPositions  = finishingPositions.OrderBy(i => i).ToList();
 
-                foreach(int finishPos in finishingPositions){
-                    foreach(string driverName in posToName[finishPos]){
+                int driverNum       = 0;
+                foreach(int finishPos in finishingPositions)
+                {
+                    foreach(string driverName in posToName[finishPos])
+                    {
+                        driverNum++;
+
                         // If this is the player, add a (You) suffix
                         string suffix       = driverName == playerResult.DriverLongName ? " (You)" : "";
                         int gainedPoints    = finishPos > 10 ? 0 : Event.pointsDict[finishPos];
-                        toReturn += "P" + finishPos.ToString() + ": " + driverName + suffix + " = " + gainedPoints.ToString() + " Points\n";
+                        toReturn            += "P" + finishPos.ToString() + ": " + driverName + suffix + " = " + gainedPoints.ToString() + " Points";
+
+                        // To save space, alternate newline and separator if gridSize is too high
+                        if((0 == driverNum % 2) && gridSize >= 30)
+                        {
+                            toReturn        += " | ";
+                        }
+                        else
+                        {
+                            toReturn        += "\n";
+                        }
                     }
                 }
                 return toReturn;
@@ -931,11 +1255,276 @@ public class EventEntry
         }
     }
 
-    public static EventEntry GenerateNewEventEntry(Track track, Event.EventDuration duration, EventSeries.SeriesTier tier, Event parentEventParam, bool useLaps){
+    public static EventEntry GenerateNewEventEntry(Track track, Event.EventDuration duration, EventSeries.SeriesTier tier, Event parentEventParam, bool useLaps, EventSeries.SeriesTheme theme){
         const int MIN_LAPS                  = 3;
 
-        // Get the grid size we shall use, minimum of 10
+        // Get the grid size we shall use, minimum of 12, except if the maxGridSize is lower
         int gridSize                        = Mathf.Max((int)(track.maxGridSize / 2.50f) + UnityEngine.Random.Range(1, 6), 12);
+        if(gridSize > track.maxGridSize){
+            gridSize = track.maxGridSize;
+        }
+
+        // Calculate the race parameters: startTime, timeProgression, standingStart, weatherSlots, weatherForecast, mandatoryPitStop, pitStopMinTyres, fieldType
+        // Set some defaults
+        string              startTime           = "10:00";
+        int                 timeProgression     = 1;
+        bool                standingStart       = true;
+        int                 weatherSlots        = 1;
+        List<string>        weatherForecast     = new List<string>();
+        bool                mandatoryPitStop    = false;
+        int                 pitStopMinTyres     = 0;
+
+        // Special value to be used if we need to override weather (if a theme requires special weather and weatherSlots == 0)
+        int                 specialWeatherSlots = weatherSlots;
+
+        // For now, have same class opponents
+        // TODO: With later updates when new events are in and multiclassing is in, will have to update how this is decided
+        OpponentFieldType   fieldType           = OpponentFieldType.SameClass;
+
+
+        int choice  = UnityEngine.Random.Range(1, 101);
+
+        // startTime
+        int intTime = 0;
+        if(choice <= 80){
+            // Normal
+            intTime = UnityEngine.Random.Range(11, 17);
+        }
+        else if(choice <= 85){
+            // Early morning
+            intTime = UnityEngine.Random.Range(3, 7);
+        }
+        else if(choice <= 90){
+            // Morning
+            intTime = UnityEngine.Random.Range(6, 10);
+        }
+        else if(choice <= 95){
+            // Evening
+            intTime = UnityEngine.Random.Range(17, 21);
+        }
+        else{
+            // Night
+            intTime = UnityEngine.Random.Range(22, 27);
+        }
+
+        // timeProgression
+        switch(duration){
+            case Event.EventDuration.Mini:
+            case Event.EventDuration.Short:
+                // 75% chance for 'Real Weather', meaning set weatherSlots to 0
+                choice                      = UnityEngine.Random.Range(1, 101);
+
+                if(choice > 25){
+                    weatherSlots            = 0;
+                }
+                break;
+
+            case Event.EventDuration.Average:
+                choice                      = UnityEngine.Random.Range(1, 101);
+
+                if(choice > 90){
+                    // 10% chance for a pit stop race
+                    timeProgression         = 10;
+                    weatherSlots            = 2;
+                    mandatoryPitStop        = true;
+                }
+
+                // 15% chance for a rolling start
+                choice                      = UnityEngine.Random.Range(1, 101);
+                if(choice > 85){
+                    standingStart           = false;
+                }
+
+                // 70% chance for 'Real Weather', meaning set weatherSlots to 0
+                choice                      = UnityEngine.Random.Range(1, 101);
+
+                if(choice > 30){
+                    weatherSlots            = 0;
+                }
+
+                break;
+
+            case Event.EventDuration.FairlyLong:
+                choice                      = UnityEngine.Random.Range(1, 101);
+
+                if(choice > 65){
+                    // 35% chance for a pit stop race
+
+                    choice                  = UnityEngine.Random.Range(1, 101);
+                    timeProgression         = 10;
+
+                    if(choice > 50){
+                        timeProgression     = 5;
+                    }
+
+                    weatherSlots            = 2;
+                    mandatoryPitStop        = true;
+                }
+
+                // 35% chance for a rolling start
+                choice                      = UnityEngine.Random.Range(1, 101);
+                if(choice > 65){
+                    standingStart           = false;
+                }
+
+                // 65% chance for 'Real Weather', meaning set weatherSlots to 0
+                choice                      = UnityEngine.Random.Range(1, 101);
+
+                if(choice > 35){
+                    weatherSlots            = 0;
+                    specialWeatherSlots     = 2;
+                }
+
+                break;
+
+            case Event.EventDuration.Long:
+                choice                  = UnityEngine.Random.Range(1, 101);
+
+                if(choice > 20){
+                    // 80% chance for a pit stop race
+
+                    choice                  = UnityEngine.Random.Range(1, 101);
+                    timeProgression         = 10;
+
+                    if(choice > 50){
+                        timeProgression     = 15;
+                    }
+
+                    weatherSlots            = UnityEngine.Random.Range(2, 4);
+                    mandatoryPitStop        = true;
+                }
+
+                // 80% chance for a rolling start
+                choice                      = UnityEngine.Random.Range(1, 101);
+                if(choice > 20){
+                    standingStart           = false;
+                }
+
+                // 65% chance for 'Real Weather', meaning set weatherSlots to 0
+                choice                      = UnityEngine.Random.Range(1, 101);
+
+                if(choice > 35){
+                    weatherSlots            = 0;
+                    specialWeatherSlots     = UnityEngine.Random.Range(2, 4);
+                }
+
+                break;
+
+            case Event.EventDuration.Endurance:
+                choice                  = UnityEngine.Random.Range(1, 101);
+
+                // 100% chance for a pit stop race
+                choice                  = UnityEngine.Random.Range(1, 101);
+                timeProgression         = 15;
+
+                if(choice > 50){
+                    timeProgression     = 20;
+                }
+
+                weatherSlots            = UnityEngine.Random.Range(3, 5);
+                mandatoryPitStop        = true;
+
+                // 100% chance for a rolling start
+                standingStart           = false;
+
+                // 60% chance for 'Real Weather', meaning set weatherSlots to 0
+                choice                  = UnityEngine.Random.Range(1, 101);
+
+                if(choice > 40){
+                    weatherSlots        = 0;
+                    specialWeatherSlots = UnityEngine.Random.Range(3, 5);
+                }
+                break;
+
+            default:
+                Debug.LogError("Duration: " + Event.eventDurationToString[duration] + " still needs an implementation.");
+                break;
+        }
+
+        // Done setting values, now calculate weatherForecast and pitStopMinTyres
+
+        // 50% chance for all tyres required to be changed on pit
+        choice                          = UnityEngine.Random.Range(1, 3);
+        if(1 == choice && mandatoryPitStop){
+            pitStopMinTyres             = 4;
+        }
+
+        List<string> clearWeather       = new List<string> { "Clear", "Light Cloud", "Medium Cloud", "Heavy Cloud", "Overcast" };
+        List<string> rainWeather        = new List<string> { "Light Rain", "Rain", "Fog with Rain", "Heavy Fog with Rain" };
+        List<string> stormWeather       = new List<string> { "Storm", "Thunderstorm" };
+        List<string> fogWeather         = new List<string> { "Fog", "Heavy Fog", "Hazy" };
+
+        // Check the theme and set values accordingly
+        switch(theme)
+        {
+            case EventSeries.SeriesTheme.Foggy:
+                weatherSlots    = specialWeatherSlots;
+
+                for(int i = 0; i < weatherSlots; i++)
+                {
+                    weatherForecast.Add(fogWeather[UnityEngine.Random.Range(0, fogWeather.Count)]);
+                }
+                break;
+
+            case EventSeries.SeriesTheme.Night:
+                intTime         = UnityEngine.Random.Range(22, 27);
+                break;
+
+            case EventSeries.SeriesTheme.Rainy:
+                weatherSlots    = specialWeatherSlots;
+
+                for(int i = 0; i < weatherSlots; i++)
+                {
+                    weatherForecast.Add(rainWeather[UnityEngine.Random.Range(0, rainWeather.Count)]);
+                }
+                break;
+
+            case EventSeries.SeriesTheme.Stormy:
+                weatherSlots    = specialWeatherSlots;
+
+                for(int i = 0; i < weatherSlots; i++)
+                {
+                    weatherForecast.Add(stormWeather[UnityEngine.Random.Range(0, stormWeather.Count)]);
+                }
+                break;
+
+            default:
+                Debug.LogWarning("SeriesTheme: " + theme.ToString() + "'s special cases has not been implemented yet.");
+                break;
+        }
+
+        if(0 == weatherForecast.Count && weatherSlots > 0)
+        {
+            for(int i = 0; i < weatherSlots; i++)
+            {
+                // Each slot has a 75% chance to be clear weather
+                // Each slot has a 8% chance to be rainy weather
+                // Each slot has a 6% chance to be rainy weather
+                // Each slot has a 11% chance to be fog weather
+                choice                      = UnityEngine.Random.Range(1, 101);
+                if(choice <= 75){
+                    weatherForecast.Add(clearWeather[UnityEngine.Random.Range(0, clearWeather.Count)]);
+                }
+                else if(choice <= 83){
+                    weatherForecast.Add(rainWeather[UnityEngine.Random.Range(0, rainWeather.Count)]);
+                }
+                else if(choice <= 89){
+                    weatherForecast.Add(stormWeather[UnityEngine.Random.Range(0, stormWeather.Count)]);
+                }
+                else{
+                    weatherForecast.Add(fogWeather[UnityEngine.Random.Range(0, fogWeather.Count)]);
+                }
+            }
+        }
+
+        // Make sure intTime is in the 24 hour mark (so, if it's 27 it should be 3)
+        intTime         %= 24;
+        startTime       = intTime.ToString();
+        // Make sure to add a '0' if it is a single digit
+        if(1 == startTime.Length){
+            startTime   = "0" + startTime;
+        }
+        startTime       += ":00";
 
         // Either use laps or mins, depending on if useLaps is true or not
         if(useLaps){
@@ -946,12 +1535,30 @@ public class EventEntry
                 numLaps = MIN_LAPS;
             }
 
-            return new EventEntry(track, gridSize, parentEventParam, minsParam:-1, lapsParam:numLaps);
+            return new EventEntry(  track, gridSize, parentEventParam, minsParam:-1, lapsParam:numLaps,
+                                    startTimeParam:startTime, timeProgressionParam:timeProgression, standingStartParam:standingStart, weatherForecastParam:weatherForecast,
+                                    mandatoryPitStopParam:mandatoryPitStop, pitStopMinTyresParam:pitStopMinTyres, fieldTypeParam:fieldType );
         }
         else{
             // In minutes
             int             numMins         = Event.eventDurationToExpectedMins[duration];
-            return new EventEntry(track, gridSize, parentEventParam, minsParam:numMins, lapsParam:-1);
+            return new EventEntry(  track, gridSize, parentEventParam, minsParam:numMins, lapsParam:-1,
+                                    startTimeParam:startTime, timeProgressionParam:timeProgression, standingStartParam:standingStart, weatherForecastParam:weatherForecast,
+                                    mandatoryPitStopParam:mandatoryPitStop, pitStopMinTyresParam:pitStopMinTyres, fieldTypeParam:fieldType );
         }
     }
+
+    [System.Serializable]
+    public enum OpponentFieldType
+    {
+        Identical   = 0,
+        SameClass   = 1,
+        MultiClass  = 2
+    };
+    public static Dictionary<OpponentFieldType, string> opponentFieldTypeToString = new Dictionary<OpponentFieldType, string>
+    {
+        {OpponentFieldType.Identical,       "Identical"},
+        {OpponentFieldType.SameClass,       "Same Class"},
+        {OpponentFieldType.MultiClass,      "Multi-Class"}
+    };
 }

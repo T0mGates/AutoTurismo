@@ -308,7 +308,7 @@ public class MenuManager : MonoBehaviour
     }
 
     // Event entry screen, show all info for an event entry
-    public void EventEntry(EventEntry eventEntry){
+    public void EventEntryMenu(EventEntry eventEntry){
         TurnAllOff();
         navigationMenu.SetActive(true);
         eventEntryMenu.SetActive(true);
@@ -843,7 +843,7 @@ public class MenuManager : MonoBehaviour
             newObj.transform.GetComponent<Image>().color                                        = bgColor;
 
             // Change the series name
-            newObj.transform.Find(SERIES_TITLE_NAME).GetComponent<TextMeshProUGUI>().text       = series.name;
+            newObj.transform.Find(SERIES_TITLE_NAME).GetComponent<TextMeshProUGUI>().text       = series.GetFullName();
 
             // Change the tier text
             newObj.transform.Find(SERIES_TIER_NAME).GetComponent<TextMeshProUGUI>().text        = SERIES_TIER_PREFIX + EventSeries.tierToString[series.seriesTier] + SERIES_TIER_SUFFIX;
@@ -877,7 +877,7 @@ public class MenuManager : MonoBehaviour
         GameObject          newObj;
 
         // Change the series title
-        seriesMenu.transform.Find(SERIES_TITLE_NAME).GetComponent<TextMeshProUGUI>().text       = series.name;
+        seriesMenu.transform.Find(SERIES_TITLE_NAME).GetComponent<TextMeshProUGUI>().text       = series.GetFullName();
         // Change the series tier
         seriesMenu.transform.Find(SERIES_TIER_NAME).GetComponent<TextMeshProUGUI>().text        = EventSeries.tierToString[series.seriesTier] + " Drivers Only";
 
@@ -893,7 +893,7 @@ public class MenuManager : MonoBehaviour
             newObj.transform.GetComponent<Image>().sprite                                       = seriesEvent.GetSprite();
 
             // Change the event name
-            newObj.transform.Find(EVENT_TITLE_NAME).GetComponent<TextMeshProUGUI>().text        = seriesEvent.name;
+            newObj.transform.Find(EVENT_TITLE_NAME).GetComponent<TextMeshProUGUI>().text        = seriesEvent.GetFullName();
 
             // Change the event type text
             newObj.transform.Find(EVENT_TYPE_NAME).GetComponent<TextMeshProUGUI>().text         = seriesEvent.GetPrintEventType();
@@ -963,7 +963,7 @@ public class MenuManager : MonoBehaviour
             Button eventEntryBtn                        = newObj.GetComponent<Button>();
 
             eventEntryBtn.onClick.RemoveAllListeners();
-            eventEntryBtn.onClick.AddListener(()        => { EventEntry(eventEntry); });
+            eventEntryBtn.onClick.AddListener(()        => { EventEntryMenu(eventEntry); });
         }
     }
 
@@ -991,9 +991,9 @@ public class MenuManager : MonoBehaviour
 
         const string                    BACK_BTN_NAME           = "BackBtn";
 
-        GameObject          newObj;
+        GameObject                      newObj;
 
-        EventSeries.SeriesTier   seriesTier                     = eventEntry.parentEvent.parentEventSeries.seriesTier;
+        EventSeries.SeriesTier          seriesTier              = eventEntry.parentEvent.parentEventSeries.seriesTier;
         List<Cars.CarType>              allowedCarTypes         = eventEntry.parentEvent.typeWhitelist;
         List<Cars.CarClass>             allowedCarClasses       = eventEntry.parentEvent.classWhitelist;
         List<Cars.CarBrand>             allowedCarBrands        = eventEntry.parentEvent.brandWhitelist;
@@ -1003,7 +1003,7 @@ public class MenuManager : MonoBehaviour
         Button backBtn = chooseCarMenu.transform.Find(BACK_BTN_NAME).GetComponent<Button>();
 
         backBtn.onClick.RemoveAllListeners();
-        backBtn.onClick.AddListener(() => { EventEntry(eventEntry); });
+        backBtn.onClick.AddListener(() => { EventEntryMenu(eventEntry); });
 
         // Get your owned cars that you can race in this event entry
         // These are the cars you own that fit in this event (but you may or may not have the proper entry pass)
@@ -1075,11 +1075,8 @@ public class MenuManager : MonoBehaviour
     private void PopulateEventEntryCommonFunction(EventEntry eventEntry, GameObject menuToEdit){
         const string        ENTRY_TITLE_NAME            = "TitleTxt";
         const string        ENTRY_NUM_TEXT_NAME         = "EventEntryNumTxt";
-        const string        TRACK_TEXT_NAME             = "TrackTxt";
-        const string        COUNTRY_TEXT_NAME           = "CountryTxt";
-        const string        GRADE_TEXT_NAME             = "GradeTxt";
-        const string        GRID_SIZE_TEXT_NAME         = "GridSizeTxt";
-        const string        LAPS_MINS_TEXT_NAME         = "LapsMinsTxt";
+        const string        TRACK_TEXT_NAME             = "TrackSettings/TrackTxt";
+        const string        RACE_TEXT_NAME              = "RaceSettings/RaceTxt";
         const string        WHITELIST_TEXT_NAME         = "WhitelistTxt";
         const string        BACK_BTN_NAME               = "BackBtn";
         const string        BG_IMAGE_NAME               = "BG";
@@ -1096,14 +1093,52 @@ public class MenuManager : MonoBehaviour
         menuToEdit.transform.Find(FLAG_IMAGE_NAME).GetComponent<Image>().sprite                 = eventEntry.track.GetCountryFlagSprite();
 
         // Change all the text
-        menuToEdit.transform.Find(ENTRY_TITLE_NAME).GetComponent<TextMeshProUGUI>().text        = eventEntry.parentEvent.name;
-        menuToEdit.transform.Find(ENTRY_NUM_TEXT_NAME).GetComponent<TextMeshProUGUI>().text     = "Race "                           + eventEntry.parentEvent.GetEventEntryPosition(eventEntry).ToString() + " of " + eventEntry.parentEvent.GetEventEntries().Count.ToString();
-        menuToEdit.transform.Find(TRACK_TEXT_NAME).GetComponent<TextMeshProUGUI>().text         = "Name: "                          + eventEntry.track.GetPrintName();
-        menuToEdit.transform.Find(COUNTRY_TEXT_NAME).GetComponent<TextMeshProUGUI>().text       = "Country: "                       + Tracks.countryToString[eventEntry.track.country];
-        menuToEdit.transform.Find(GRADE_TEXT_NAME).GetComponent<TextMeshProUGUI>().text         = "Grade: "                         + Tracks.gradeToString[eventEntry.track.grade];
-        menuToEdit.transform.Find(GRID_SIZE_TEXT_NAME).GetComponent<TextMeshProUGUI>().text     = "Grid Size (includes Player): "   + eventEntry.gridSize.ToString();
-        menuToEdit.transform.Find(LAPS_MINS_TEXT_NAME).GetComponent<TextMeshProUGUI>().text     = eventEntry.laps != -1 ? "Laps: "  + eventEntry.laps.ToString() : "Mins: " + eventEntry.mins.ToString();
-        menuToEdit.transform.Find(WHITELIST_TEXT_NAME).GetComponent<TextMeshProUGUI>().text     = "Entry Pass Tier: "               + eventEntry.parentEvent.parentEventSeries.seriesTier.ToString() + "\n\n" + eventEntry.parentEvent.GetPrintWhitelist();
+        menuToEdit.transform.Find(ENTRY_TITLE_NAME).GetComponent<TextMeshProUGUI>().text        = eventEntry.parentEvent.GetFullName();
+        menuToEdit.transform.Find(ENTRY_NUM_TEXT_NAME).GetComponent<TextMeshProUGUI>().text     = "Race "                               + eventEntry.parentEvent.GetEventEntryPosition(eventEntry).ToString() + " of " + eventEntry.parentEvent.GetEventEntries().Count.ToString();
+
+        // Track Settings
+        menuToEdit.transform.Find(TRACK_TEXT_NAME).GetComponent<TextMeshProUGUI>().text         = "Name: "                              + eventEntry.track.GetPrintName();
+        menuToEdit.transform.Find(TRACK_TEXT_NAME).GetComponent<TextMeshProUGUI>().text         += "\nCountry: "                        + Tracks.countryToString[eventEntry.track.country];
+        menuToEdit.transform.Find(TRACK_TEXT_NAME).GetComponent<TextMeshProUGUI>().text         += "\nGrade: "                          + Tracks.gradeToString[eventEntry.track.grade];
+        menuToEdit.transform.Find(TRACK_TEXT_NAME).GetComponent<TextMeshProUGUI>().text         += "\nGrid Size (includes Player): "    + eventEntry.gridSize.ToString();
+        menuToEdit.transform.Find(TRACK_TEXT_NAME).GetComponent<TextMeshProUGUI>().text         += eventEntry.laps != -1 ? "\nLaps: "   + eventEntry.laps.ToString() : "\nMins: " + eventEntry.mins.ToString();
+
+        // Race Settings
+        menuToEdit.transform.Find(RACE_TEXT_NAME).GetComponent<TextMeshProUGUI>().text          = "Time: "                              + eventEntry.startTime + ", " + eventEntry.timeProgression.ToString() + "x";
+        menuToEdit.transform.Find(RACE_TEXT_NAME).GetComponent<TextMeshProUGUI>().text          += "\nWeather: ";
+
+        if(0 == eventEntry.weatherSlots){
+            menuToEdit.transform.Find(RACE_TEXT_NAME).GetComponent<TextMeshProUGUI>().text      += "Real Weather";
+        }
+        else{
+            string WEATHER_DELIMITER = " -> ";
+            for(int i = 0; i < eventEntry.weatherForecast.Count; i++){
+                menuToEdit.transform.Find(RACE_TEXT_NAME).GetComponent<TextMeshProUGUI>().text  += eventEntry.weatherForecast[i] + WEATHER_DELIMITER;
+            }
+            // Remove the trailing delimiter
+            menuToEdit.transform.Find(RACE_TEXT_NAME).GetComponent<TextMeshProUGUI>().text      =
+                menuToEdit.transform.Find(RACE_TEXT_NAME).GetComponent<TextMeshProUGUI>().text
+                .Substring(
+                    0, menuToEdit.transform.Find(RACE_TEXT_NAME).GetComponent<TextMeshProUGUI>().text.Length - WEATHER_DELIMITER.Length
+                );
+        }
+
+        menuToEdit.transform.Find(RACE_TEXT_NAME).GetComponent<TextMeshProUGUI>().text          += "\nMandatory Pitstop: ";
+        if(eventEntry.mandatoryPitStop){
+            menuToEdit.transform.Find(RACE_TEXT_NAME).GetComponent<TextMeshProUGUI>().text      += "Yes, " + eventEntry.pitStopMinTyres.ToString() + " tyres minimum";
+        }
+        else{
+            menuToEdit.transform.Find(RACE_TEXT_NAME).GetComponent<TextMeshProUGUI>().text      += "No";
+        }
+
+        menuToEdit.transform.Find(RACE_TEXT_NAME).GetComponent<TextMeshProUGUI>().text          += "\nField Type: ";
+        menuToEdit.transform.Find(RACE_TEXT_NAME).GetComponent<TextMeshProUGUI>().text          += EventEntry.opponentFieldTypeToString[eventEntry.fieldType];
+
+        menuToEdit.transform.Find(RACE_TEXT_NAME).GetComponent<TextMeshProUGUI>().text          += eventEntry.standingStart ? "\nStart: Standing" : "\nStart: Rolling";
+
+
+        // Whitelist
+        menuToEdit.transform.Find(WHITELIST_TEXT_NAME).GetComponent<TextMeshProUGUI>().text     = "Entry Pass Tier: "                   + eventEntry.parentEvent.parentEventSeries.seriesTier.ToString() + "\n\n" + eventEntry.parentEvent.GetPrintWhitelist();
 
         // Show the event entry's results, and if this is a championship and this not an attempted event entry, show the standings (if it is not the first event entry of the championship)
         GameObject resultObj                                        = menuToEdit.transform.Find(RESULTS_STANDINGS_TXT_NAME).gameObject;
@@ -1240,7 +1275,7 @@ public class MenuManager : MonoBehaviour
         if(!eventEntry.nextUp){
             // Alert the user
             Notification("Alert",
-            "This event entry is not the next one up in the " + eventEntry.parentEvent.name + " event.\nMake sure to complete the event in sequential order!");
+            "This event entry is not the next one up in the " + eventEntry.parentEvent.GetFullName() + " event.\nMake sure to complete the event in sequential order!");
             return;
         }
 
