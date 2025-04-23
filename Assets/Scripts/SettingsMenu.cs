@@ -14,39 +14,70 @@ public class SettingsMenu : MonoBehaviour {
     public TMP_InputField   pathToJsonInput;
 
     private GameManager     gameManager;
+    private CanvasScaler    canvasScaler;
 
     void Start(){
         gameManager             = GameObject.FindWithTag("GameManager").GetComponent<GameManager>();
+        canvasScaler            = GameObject.FindWithTag("MainCanvas").GetComponent<CanvasScaler>();
 
         resolutions             = Screen.resolutions;
         resolutionDropdown.ClearOptions();
 
         List<string> options    = new List<string>();
 
-        int currentResIndex     = 0;
-        int overrideResIndex    = -1;
+        int resIndex            = -1;
 
         int savedWidth          = PlayerPrefs.GetInt("ResolutionWidth", 0);
         int savedHeight         = PlayerPrefs.GetInt("ResolutionHeight", 0);
         float savedHz           = PlayerPrefs.GetFloat("ResolutionHz", 0);
 
-        for(int i = 0; i < resolutions.Length; i++){
+        double highestHz        = -1;
+
+        for(int i = 0; i < resolutions.Length; i++)
+        {
             Resolution resolution = resolutions[i];
 
-            string option       = resolution.width.ToString() + " x " + resolution.height.ToString() + " " + resolution.refreshRateRatio.value.ToString() + "Hz";
+            string option           = resolution.width.ToString() + " x " + resolution.height.ToString() + " " + resolution.refreshRateRatio.value.ToString() + "Hz";
             options.Add(option);
 
-            if(resolution.width == Screen.currentResolution.width && resolution.height == Screen.currentResolution.height){
-                currentResIndex = i;
+            if(resolution.width == savedWidth && resolution.height == savedHeight && (float)resolution.refreshRateRatio.value == savedHz)
+            {
+                resIndex            = i;
             }
 
-            if(resolution.width == savedWidth && resolution.height == savedHeight && (float)resolution.refreshRateRatio.value == savedHz){
-                overrideResIndex = i;
+            // For default resolution (want half of screen)
+            if(resolution.refreshRateRatio.value > highestHz)
+            {
+                highestHz           = resolution.refreshRateRatio.value;
             }
         }
 
+        if(-1 == resIndex)
+        {
+            // Means no resolution was saved, so fetch a default one
+            Resolution targetRes        = resolutions[resolutions.Length/2];
+
+            for(int i = 0; i < resolutions.Length; i++)
+            {
+                Resolution resolution   = resolutions[i];
+
+                if(resolution.width == targetRes.width && resolution.height == targetRes.height && resolution.refreshRateRatio.value == highestHz)
+                {
+                    // Found it
+                    resIndex        = i;
+                }
+            }
+        }
+
+        if(-1 == resIndex)
+        {
+            // Means something has gone wrong
+            Debug.LogError("Could not get a default resolution.");
+            resIndex                = resolutions.Length / 2;
+        }
+
         resolutionDropdown.AddOptions(options);
-        resolutionDropdown.value = overrideResIndex == -1 ? currentResIndex : overrideResIndex;
+        resolutionDropdown.value    = resIndex;
         resolutionDropdown.RefreshShownValue();
 
         int isFullscreen            = PlayerPrefs.GetInt("IsFullscreen", -1);
@@ -65,6 +96,14 @@ public class SettingsMenu : MonoBehaviour {
             pathToJsonInput.text    = jsonPath;
         }
         gameManager.SetPathToJsons(jsonPath);
+
+        // Set canvasScaler's match mode depending on the aspect ratio
+        // float screenAspect          = (float)resolutions[resIndex].width / (float)resolutions[resIndex].height;
+        float screenAspect          = (float)Screen.width / (float)Screen.height;
+        float referenceAspect       = canvasScaler.referenceResolution.x / canvasScaler.referenceResolution.y;
+
+        // If the screen is wider than the reference, prioritize height; otherwise width (so, 16:10 will match width, 32:9 will match height)
+        canvasScaler.matchWidthOrHeight = screenAspect >= referenceAspect ? 1 : 0;
     }
 
     public void SetResolution(int resolutionIndex){
