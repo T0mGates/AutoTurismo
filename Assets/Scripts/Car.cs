@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System;
+using Unity.VisualScripting;
 
 public class Car : Purchasable
 {
@@ -103,18 +104,8 @@ public static class Cars
     public const string                     STREET_LANCER_RS_NAME                   = "Lancer RS";
 
     // Street: Super Cars
-    public const string                     SUPER_CORVETTE_NAME                     = "Corvette C8 Z06";
     public const string                     SUPER_F1_NAME                           = "F1 LM";
     public const string                     SUPER_GTR_NAME                          = "GTR";
-
-    // Street: Hyper Cars
-    public const string                     HYPER_BT62_NAME                         = "BT62";
-    public const string                     HYPER_SENNA_NAME                        = "Senna";
-
-    // GTE
-    public const string                     GTE_C8R_NAME                            = "Corvette C8.R";
-    public const string                     GTE_911_NAME                            = "911 RSR-19";
-    public const string                     GTE_M8_NAME                             = "M8 GTE";
 
     // GT5
     public const string                     GTO_G55_NAME                            = "G55 GT3";
@@ -219,22 +210,38 @@ public static class Cars
     public const string                     P1_AJR_NISSAN_NAME                      = "AJR Gen2 Nissan";
     public const string                     P1_G5_NAME                              = "P1 G5";
 
+    // DLC
+    // ==============================================================================================================
+
+    // Supercars 1
+    public const string                     SUPER_CORVETTE_C8_NAME                  = "Corvette C8 Z06";
+    public const string                     HYPER_BT62_NAME                         = "BT62";
+    public const string                     HYPER_SENNA_NAME                        = "Senna";
+
+    // Racin' USA 1
+    public const string                     GTE_C8R_NAME                            = "Corvette C8.R";
+    public const string                     GTE_M8_NAME                             = "M8 GTE";
+    public const string                     GTE_911_NAME                            = "911 RSR-19";
+    public const string                     DPI_CADILLAC                            = "DPi V.R";
+
 
     // Holds ALL cars in the database
-    private static List<Car>                                            cars {get; set;}
+    private static  List<Car>                                               cars {get; set;}
     // Will match unique name to car
-    private static Dictionary<string, Car>                              nameToCar {get; set;}
+    private static  Dictionary<string, Car>                                 nameToCar {get; set;}
     // Will match type to list of cars who are that type
-    private static Dictionary<CarType, List<Car>>                       typeToCars {get; set;}
+    private static  Dictionary<CarType, List<Car>>                          typeToCars {get; set;}
     // Will match class to list of cars who are that class
-    private static Dictionary<CarClass, List<Car>>                      classToCars {get; set;}
+    private static  Dictionary<CarClass, List<Car>>                         classToCars {get; set;}
     // Will match brand to list of cars who are that brand
-    private static Dictionary<CarBrand, List<Car>>                      brandToCars {get; set;}
+    private static  Dictionary<CarBrand, List<Car>>                         brandToCars {get; set;}
 
     // Holds tiers to classes
-    private static Dictionary<EventSeries.SeriesTier, List<CarClass>>  tierToClasses;
+    private static  Dictionary<EventSeries.SeriesTier, List<CarClass>>      tierToClasses;
+    public static   Dictionary<SettingsMenu.DLC, List<Car>>                 DLCCars;
 
-    private static void InitializeCars(){
+    private static void InitializeCars()
+    {
         // Init, add ALL of the game's cars here
 
         // Karts
@@ -283,22 +290,12 @@ public static class Cars
         AddNewCar(new Car(STREET_LANCER_RS_NAME,            CarType.Road,           new List<CarClass> {CarClass.Lancer},               CarBrand.Mitsubishi,        14000));
 
         // Street: Super cars
-        AddNewCar(new Car(SUPER_CORVETTE_NAME,              CarType.Road,           new List<CarClass> {CarClass.SuperCars},            CarBrand.Chevrolet,         16000));
         AddNewCar(new Car(SUPER_F1_NAME,                    CarType.Road,           new List<CarClass> {CarClass.SuperCars},            CarBrand.McLaren,           16500));
         AddNewCar(new Car(SUPER_GTR_NAME,                   CarType.Road,           new List<CarClass> {CarClass.SuperCars},            CarBrand.Ultima,            17000));
-
-        // Street: Hyper cars
-        AddNewCar(new Car(HYPER_BT62_NAME,                  CarType.Road,           new List<CarClass> {CarClass.HyperCars},            CarBrand.Brabham,           50000));
-        AddNewCar(new Car(HYPER_SENNA_NAME,                 CarType.Road,           new List<CarClass> {CarClass.HyperCars},            CarBrand.McLaren,           55000));
 
         // GT Open
         AddNewCar(new Car(GTO_G55_NAME,                     CarType.GT,             new List<CarClass> {CarClass.GTOpen},               CarBrand.Ginetta,           16000));
         AddNewCar(new Car(GTO_GTR_NAME,                     CarType.GT,             new List<CarClass> {CarClass.GTOpen},               CarBrand.Ultima,            20000));
-
-        // GTE
-        AddNewCar(new Car(GTE_C8R_NAME,                     CarType.GT,             new List<CarClass> {CarClass.GTE},                  CarBrand.Chevrolet,         15000));
-        AddNewCar(new Car(GTE_911_NAME,                     CarType.GT,             new List<CarClass> {CarClass.GTE},                  CarBrand.Porsche,           15000));
-        AddNewCar(new Car(GTE_M8_NAME,                      CarType.GT,             new List<CarClass> {CarClass.GTE},                  CarBrand.BMW,               15000));
 
         // GT5
         AddNewCar(new Car(GT5_G40_NAME,                     CarType.GT,             new List<CarClass> {CarClass.GT5},                  CarBrand.Ginetta,           8500));
@@ -380,6 +377,20 @@ public static class Cars
         AddNewCar(new Car(P1_AJR_HONDA_NAME,                CarType.Prototype,      new List<CarClass> {CarClass.P1Gen2},               CarBrand.MetalMoro,         31000));
         AddNewCar(new Car(P1_AJR_NISSAN_NAME,               CarType.Prototype,      new List<CarClass> {CarClass.P1Gen2},               CarBrand.MetalMoro,         31000));
         AddNewCar(new Car(P1_G5_NAME,                       CarType.Prototype,      new List<CarClass> {CarClass.P1Gen2},               CarBrand.Sigma,             32000));
+
+        // DLC
+        // ============================================================================================================
+
+        // Supercars 1
+        AddNewCar(new Car(HYPER_BT62_NAME,                  CarType.Road,           new List<CarClass> {CarClass.HyperCars},            CarBrand.Brabham,           50000), SettingsMenu.DLC.SupercarsOne);
+        AddNewCar(new Car(HYPER_SENNA_NAME,                 CarType.Road,           new List<CarClass> {CarClass.HyperCars},            CarBrand.McLaren,           55000), SettingsMenu.DLC.SupercarsOne);
+        AddNewCar(new Car(SUPER_CORVETTE_C8_NAME,           CarType.Road,           new List<CarClass> {CarClass.SuperCars},            CarBrand.Chevrolet,         17250), SettingsMenu.DLC.SupercarsOne);
+
+        // Racin' USA 1
+        // GTE
+        AddNewCar(new Car(GTE_C8R_NAME,                     CarType.GT,             new List<CarClass> {CarClass.GTE},                  CarBrand.Chevrolet,         15000), SettingsMenu.DLC.RacinUSAOne);
+        AddNewCar(new Car(GTE_911_NAME,                     CarType.GT,             new List<CarClass> {CarClass.GTE},                  CarBrand.Porsche,           15500), SettingsMenu.DLC.RacinUSAOne);
+        AddNewCar(new Car(GTE_M8_NAME,                      CarType.GT,             new List<CarClass> {CarClass.GTE},                  CarBrand.BMW,               16000), SettingsMenu.DLC.RacinUSAOne);
     }
 
     static Cars(){
@@ -389,16 +400,20 @@ public static class Cars
         classToCars     = new Dictionary<CarClass, List<Car>>();
         brandToCars     = new Dictionary<CarBrand, List<Car>>();
         tierToClasses   = new Dictionary<EventSeries.SeriesTier, List<CarClass>>();
+        DLCCars         = new Dictionary<SettingsMenu.DLC, List<Car>>();
 
         // Init our dicts with empty lists
         foreach(CarType carType in Enum.GetValues(typeof(CarType))){
-            typeToCars[carType] = new List<Car>();
+            typeToCars[carType]     = new List<Car>();
         }
         foreach(CarClass carClass in Enum.GetValues(typeof(CarClass))){
-            classToCars[carClass] = new List<Car>();
+            classToCars[carClass]   = new List<Car>();
         }
         foreach(CarBrand carBrand in Enum.GetValues(typeof(CarBrand))){
-            brandToCars[carBrand] = new List<Car>();
+            brandToCars[carBrand]   = new List<Car>();
+        }
+        foreach(SettingsMenu.DLC dlc in Enum.GetValues(typeof(SettingsMenu.DLC))){
+            DLCCars[dlc]            = new List<Car>();
         }
 
         InitializeCars();
@@ -409,7 +424,7 @@ public static class Cars
         return new List<CarClass> (tierToClasses[tier]);
     }
 
-    public static void AddNewCar(Car carToAdd)
+    private static void AddNewCar(Car carToAdd, SettingsMenu.DLC partOfDLC = 0)
     {
         CarType         carType                         = carToAdd.type;
         List<CarClass>  carClasses                      = carToAdd.classes;
@@ -418,19 +433,84 @@ public static class Cars
         cars.Add(carToAdd);
         nameToCar[carName]                              = carToAdd;
 
-        // For each car class
-        foreach(CarClass carClass in carClasses){
+        // If not part of a DLC
+        if(0 == partOfDLC)
+        {
+            // For each car class
+            foreach(CarClass carClass in carClasses)
+            {
+                // Add the car to the list
+                classToCars[carClass].Add(carToAdd);
+            }
+
+            // For the car type
             // Add the car to the list
-            classToCars[carClass].Add(carToAdd);
+            typeToCars[carType].Add(carToAdd);
+
+            // For the car brand
+            // Add the car to the list
+            brandToCars[carBrand].Add(carToAdd);
+        }
+        else
+        {
+            // If part of a DLC, add to the DLC cars dict
+            DLCCars[partOfDLC].Add(carToAdd);
+        }
+    }
+
+    public static void SetDLCState(SettingsMenu.DLC dlc, bool state)
+    {
+        foreach(Car car in DLCCars[dlc])
+        {
+            SetDLCCarState(car, state);
+        }
+    }
+
+    // Adds or removes the car from important lists depending on the given state
+    public static void SetDLCCarState(Car car, bool state)
+    {
+        CarType         carType                         = car.type;
+        List<CarClass>  carClasses                      = car.classes;
+        CarBrand        carBrand                        = car.brand;
+
+        foreach(CarClass carClass in carClasses)
+        {
+            // Add/Remove the car from the list
+            if(state)
+            {
+                classToCars[carClass].Add(car);
+            }
+            else if(classToCars[carClass].Contains(car))
+            {
+                classToCars[carClass].Remove(car);
+            }
         }
 
         // For the car type
         // Add the car to the list
-        typeToCars[carType].Add(carToAdd);
+        if(state)
+        {
+            typeToCars[carType].Add(car);
+            brandToCars[carBrand].Add(car);
 
+            // Add the car to necessary dealers
+        }
         // For the car brand
         // Add the car to the list
-        brandToCars[carBrand].Add(carToAdd);
+        else
+        {
+            if (typeToCars[carType].Contains(car))
+            {
+                typeToCars[carType].Remove(car);
+            }
+
+            if (brandToCars[carBrand].Contains(car))
+            {
+                brandToCars[carBrand].Remove(car);
+            }
+        }
+
+        Dealers.SetDLCCarState(car, state);
     }
 
     public static List<Car> FilterCars(List<Car> toFilter, List<string> carNames, List<CarType> carTypes, List<CarClass> carClasses, List<CarBrand> carBrands){
@@ -562,7 +642,8 @@ public static class Cars
         P4,
         P3,
         P2,
-        P1Gen2
+        P1Gen2,
+        DPi
     }
 
     public static Dictionary<CarClass, string> classToString = new Dictionary<CarClass, string>
@@ -600,7 +681,8 @@ public static class Cars
         {CarClass.P4,                   "P4"},
         {CarClass.P3,                   "P3"},
         {CarClass.P2,                   "P2"},
-        {CarClass.P1Gen2,               "P1 Generation 2"}
+        {CarClass.P1Gen2,               "P1 Generation 2"},
+        {CarClass.DPi,                  "DPi"}
     };
 
     public static Dictionary<CarClass, List<EventSeries.SeriesTier>> classToTiers = new Dictionary<CarClass, List<EventSeries.SeriesTier>>
@@ -706,6 +788,9 @@ public static class Cars
         {CarClass.P1Gen2,               new List<EventSeries.SeriesTier> {
             {EventSeries.SeriesTier.Prodigy}, {EventSeries.SeriesTier.Legend}, {EventSeries.SeriesTier.WorldRenowned}
         }},
+        {CarClass.DPi,                  new List<EventSeries.SeriesTier> {
+            {EventSeries.SeriesTier.Prodigy}, {EventSeries.SeriesTier.Legend}, {EventSeries.SeriesTier.WorldRenowned}
+        }}
     };
 
     public enum CarBrand

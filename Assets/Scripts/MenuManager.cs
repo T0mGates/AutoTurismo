@@ -77,7 +77,12 @@ public class MenuManager : MonoBehaviour
     public GameObject       profileObjPrefab;
     public Transform        profileObjContentTransform;
 
-    void Start(){
+    [Header("Settings")]
+    public GameObject       DLCObjPrefab;
+    public Transform        DLCContentTransform;
+
+    void Start()
+    {
         eventContentTransforms  = new List<Transform>();
 
         gameManager             = GameObject.FindWithTag("GameManager").GetComponent<GameManager>();
@@ -150,6 +155,10 @@ public class MenuManager : MonoBehaviour
         {
             Destroy(child.gameObject);
         }
+        foreach(Transform child in DLCContentTransform)
+        {
+            Destroy(child.gameObject);
+        }
     }
 
     public void BlockNavButtons(){
@@ -184,7 +193,8 @@ public class MenuManager : MonoBehaviour
         }
     }
 
-    public void SubmitName(GameObject inputField){
+    public void SubmitName(GameObject inputField)
+    {
         string text = inputField.GetComponent<TMP_InputField>().text;
 
         // Validate name
@@ -192,13 +202,15 @@ public class MenuManager : MonoBehaviour
             gameManager.MakeNewProfile(text);
             Home(false);
 
-            if(PlayerPrefs.GetString("JsonDir", "") == ""){
+            if(PlayerPrefs.GetString("JsonDir", "") == "")
+            {
                 // If player hasn't set their JSON dir yet, alert them to do so
             Notification("Important Alert",
                         "You haven't set your SecondMonitor 'Reports' folder path yet, please make sure to visit the Settings page and fill it in!\n\nAlso a reminder that you need to have SecondMonitor installed and running while running this application so that your race results are able to be fetched.");
             }
         }
-        else{
+        else
+        {
             // Error
         }
     }
@@ -261,9 +273,24 @@ public class MenuManager : MonoBehaviour
     }
 
     public void Settings(){
+        const string DLC_TXT_NAME           = "DLCNameTxt";
+        const string DLC_TOGGLE_NAME        = "DLCToggle";
+
         TurnAllOff();
         navigationMenu.SetActive(true);
         settingsMenu.SetActive(true);
+
+        // Populate the DLC scroll view
+        GameObject newObj;
+        foreach(SettingsMenu.DLC dlc in Enum.GetValues(typeof(SettingsMenu.DLC)))
+        {
+            newObj          = (GameObject)Instantiate(DLCObjPrefab, DLCContentTransform);
+            newObj.transform.Find(DLC_TXT_NAME).GetComponent<TextMeshProUGUI>().text        = SettingsMenu.DLCToName[dlc];
+            newObj.transform.Find(DLC_TOGGLE_NAME).GetComponent<Toggle>().isOn              = SettingsMenu.GetDLCState(dlc);
+
+            newObj.transform.Find(DLC_TOGGLE_NAME).GetComponent<Toggle>().onValueChanged.RemoveAllListeners();
+            newObj.transform.Find(DLC_TOGGLE_NAME).GetComponent<Toggle>().onValueChanged.AddListener((bool newValue) => { SettingsMenu.SetDLCState(dlc, newValue); });
+        }
     }
 
     public void Racing(){
@@ -1186,7 +1213,8 @@ public class MenuManager : MonoBehaviour
         List<string>    profileNames    =  SaveSystem.profileNames;
 
         // For every profile, make a profile obj prefab
-        for(int i = 1; i <= profileNames.Count; i++){
+        for(int i = 1; i <= profileNames.Count; i++)
+        {
             string  profileName     = profileNames[i-1];
             int     profileLevel    = SaveSystem.profileLevels[i-1];
             int     profileRenown   = SaveSystem.profileRenown[i-1];
@@ -1217,7 +1245,8 @@ public class MenuManager : MonoBehaviour
         }
     }
 
-    private void ConfirmDeleteProfile(int profileSlot, string profileName){
+    private void ConfirmDeleteProfile(int profileSlot, string profileName)
+    {
         const string BUY_BTN_NAME   = "PurchaseConfirmation/YesBtn";
 
         BlockNavButtons();
@@ -1232,25 +1261,40 @@ public class MenuManager : MonoBehaviour
         Notification("Delete the Profile?", bodyText, notificationType:NotificationType.PurchaseConfirmation);
     }
 
-    private void DeleteProfileSlot(int profileSlot){
+    private void DeleteProfileSlot(int profileSlot)
+    {
         // Delete the profile and refresh the profile page
         SaveSystem.DeleteProfile(profileSlot);
         Profile();
     }
 
-    private void SelectProfileSlot(int profileSlot){
+    // Called when a profile is created or loaded
+    private void SelectProfileSlot(int profileSlot)
+    {
+        // Set DLC states
+        bool state;
+        foreach(SettingsMenu.DLC dlc in Enum.GetValues(typeof(SettingsMenu.DLC)))
+        {
+            state = SettingsMenu.GetDLCState(dlc);
+            Debug.Log("Setting DLC: " + SettingsMenu.DLCToName[dlc] + " to " + state.ToString());
+            SettingsMenu.SetDLCState(dlc, state);
+        }
+
         PlayerData data = SaveSystem.LoadPlayerData(profileSlot);
-        if(data != null){
+        if(data != null)
+        {
             gameManager.SetProfile(data.MakeProfile(), profileSlot);
         }
-        else{
+        else
+        {
             gameManager.SetProfileSlot(profileSlot);
         }
 
         ActivateNavButtons();
         Home(data == null);
 
-        if(data != null){
+        if(data != null)
+        {
             // If player hasn't set their JSON dir yet, alert them to do so
             if(PlayerPrefs.GetString("JsonDir", "") == ""){
             Notification("Important Alert",

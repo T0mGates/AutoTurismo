@@ -43,6 +43,7 @@ public class Profile
         SetBaseValues();
     }
 
+    // Called when a saved profile is loaded
     public void SetValues(int moneyParam, int fameParam, int renownParam, int levelParam){
         money               = moneyParam;
         fame                = fameParam;

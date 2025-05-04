@@ -66,7 +66,8 @@ public class Region
             }
         }
 
-        if(classToUse == Cars.CarClass.None){
+        if(classToUse == Cars.CarClass.None)
+        {
             Debug.Log("No valid car classes were found, perhaps due to already exhasuting all duplicates.");
             return classToUse;
         }
@@ -79,7 +80,6 @@ public class Region
             Event.EventType.Race,
             EventSeries.tierDefaultDuration[tier],
             newSeries,
-            Tracks.GetCountries(region),
             new List<Cars.CarType>(),
             new List<Cars.CarClass>() { {classToUse} },
             new List<Cars.CarBrand>(),

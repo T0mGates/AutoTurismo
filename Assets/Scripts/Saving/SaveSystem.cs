@@ -54,7 +54,8 @@ public static class SaveSystem
         stream.Close();
     }
 
-    public static PlayerData LoadPlayerData(int profileSlot){
+    public static PlayerData LoadPlayerData(int profileSlot)
+    {
         string path                     = Path.Combine(Application.persistentDataPath, FILE_PREFIX + profileSlot.ToString() + FILE_SUFFIX);
 
         if(File.Exists(path)){

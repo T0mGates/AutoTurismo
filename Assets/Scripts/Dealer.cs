@@ -17,14 +17,23 @@ public abstract class Dealer
         products        = new List<Purchasable>();
     }
 
-    public Sprite GetSprite(){
+    public Sprite GetSprite()
+    {
         string imageName = name.Replace(" ", "") + "_Dealer";
         return Resources.Load<Sprite>("Images/Dealers/" + imageName);
     }
 
-    public void AddProduct(Purchasable product){
+    public void AddProduct(Purchasable product)
+    {
         if(!products.Contains(product)){
             products.Add(product);
+        }
+    }
+
+    public void RemoveProduct(Purchasable product)
+    {
+        if(products.Contains(product)){
+            products.Remove(product);
         }
     }
 }
@@ -90,7 +99,8 @@ public static class Dealers
 
     private static Dictionary<Type, Dictionary<string, dynamic>>    dealerDict {get; set;}
 
-    static Dealers(){
+    static Dealers()
+    {
         dealerDict                                          = new Dictionary<Type, Dictionary<string, dynamic>>();
 
         foreach(Type dealerType in dealerTypes){
@@ -109,12 +119,14 @@ public static class Dealers
             // Init, add ALL of the game's dealers here
             // Dealers may sell brands of cars, classes of cars
 
-            foreach(Cars.CarClass carClass in Enum.GetValues(typeof(Cars.CarClass))){
+            foreach(Cars.CarClass carClass in Enum.GetValues(typeof(Cars.CarClass)))
+            {
                 dealerDict[dealerType][CLASS_TO_DEALERS_KEY][carClass] = new List<Dealer>();
                 AddNewDealer((Dealer)Activator.CreateInstance(dealerType, new object[]
                     { Cars.classToString[carClass],    new List<Cars.CarClass> {carClass},              new List<Cars.CarBrand> {Cars.CarBrand.None} } ));
             }
-            foreach(Cars.CarBrand carBrand in Enum.GetValues(typeof(Cars.CarBrand))){
+            foreach(Cars.CarBrand carBrand in Enum.GetValues(typeof(Cars.CarBrand)))
+            {
                 dealerDict[dealerType][BRAND_TO_DEALERS_KEY][carBrand] = new List<Dealer>();
                 AddNewDealer((Dealer)Activator.CreateInstance(dealerType, new object[]
                     { carBrand.ToString(),    new List<Cars.CarClass> {Cars.CarClass.None},    new List<Cars.CarBrand> {carBrand} } ));
@@ -122,8 +134,29 @@ public static class Dealers
         }
     }
 
+    // Called by "SetDLCCarState" function from Car.cs
+    public static void SetDLCCarState(Car car, bool state)
+    {
+        // For now, only brands/classes for car dealers
+        foreach(Cars.CarClass carClass in car.classes)
+        {
+            foreach(CarDealer dealer in dealerDict[typeof(CarDealer)][CLASS_TO_DEALERS_KEY][carClass])
+            {
+                if(state)
+                {
+                    dealer.AddProduct(car);
+                }
+                else
+                {
+                    dealer.RemoveProduct(car);
+                }
+            }
+        }
+    }
+
     // Adds a new dealer to the 'database'
-    public static void AddNewDealer(Dealer dealerToAdd){
+    public static void AddNewDealer(Dealer dealerToAdd)
+    {
         List<Cars.CarClass> dealerClasses                       = dealerToAdd.carClasses;
         List<Cars.CarBrand> dealerBrands                        = dealerToAdd.carBrands;
         string              dealerName                          = dealerToAdd.name;
@@ -151,11 +184,13 @@ public static class Dealers
         }
     }
 
-    public static Dealer GetDealer(string name, Type dealerType){
+    public static Dealer GetDealer(string name, Type dealerType)
+    {
         return dealerDict[dealerType][NAME_TO_DEALER_KEY][name];
     }
 
-    public static List<Dealer> GetDealersForClass(Cars.CarClass dealerClass, Type dealerType){
+    public static List<Dealer> GetDealersForClass(Cars.CarClass dealerClass, Type dealerType)
+    {
         return dealerDict[dealerType][CLASS_TO_DEALERS_KEY][dealerClass];
     }
 }

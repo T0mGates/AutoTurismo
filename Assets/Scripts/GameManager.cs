@@ -114,7 +114,6 @@ public class GameManager : MonoBehaviour
             eventType,
             durationToUse,
             eventObj.parentEventSeries,
-            Tracks.GetCountries(eventObj.parentEventSeries.partOfRegion),
             eventObj.typeWhitelist,
             eventObj.classWhitelist,
             eventObj.brandWhitelist,
@@ -123,21 +122,24 @@ public class GameManager : MonoBehaviour
       );
     }
 
-    public void MakeNewProfile(string profileName){
-      // Check if profile exists, if it does, load it, else create a new profile
+    public void MakeNewProfile(string profileName)
+    {
       curProfile      = new Profile(profileName);
     }
 
-    public void SetProfile(Profile profile, int newProfileSlot){
+    public void SetProfile(Profile profile, int newProfileSlot)
+    {
       curProfile      = profile;
       SetProfileSlot(newProfileSlot);
     }
 
-    public void SetProfileSlot(int newProfileSlot){
+    public void SetProfileSlot(int newProfileSlot)
+    {
       curProfileSlot  = newProfileSlot;
     }
 
-    public void BuyProduct(Purchasable product, Dealer dealer){
+    public void BuyProduct(Purchasable product, Dealer dealer)
+    {
       // Check if we have enough
       if(CanAfford(product, dealer)){
         curProfile.LoseMoney(product.price);
@@ -162,7 +164,8 @@ public class GameManager : MonoBehaviour
       }
     }
 
-    public void SellProduct(Purchasable product, int sellPrice){
+    public void SellProduct(Purchasable product, int sellPrice)
+    {
       curProfile.GainMoney(sellPrice);
       // Remove the car from our owned cars and update the UI
       curProfile.RemoveOwnedProduct(product);

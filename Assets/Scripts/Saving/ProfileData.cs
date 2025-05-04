@@ -34,7 +34,8 @@ public class PlayerData{
     //public Dictionary<Type, List<Purchasable>>                                  ownedProductsDict;
     //public Dictionary<Region.ClickableRegion, List<EventSeries.SeriesTier>>     unlockedRegionTiers;
 
-    public PlayerData(Profile profile){
+    public PlayerData(Profile profile)
+    {
         unlockedCarDealers                  = new List<string>();
         unlockedEntryPassDealers            = new List<string>();
 
@@ -89,8 +90,10 @@ public class PlayerData{
         }
     }
 
-    public Profile MakeProfile(){
+    public Profile MakeProfile()
+    {
         Debug.Log("Making and returning a loaded profile");
+
         if(unlockedCarDealers == null){
             unlockedCarDealers          = new List<string>();
         }

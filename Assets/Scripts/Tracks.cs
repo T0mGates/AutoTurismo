@@ -1,6 +1,7 @@
 using UnityEngine;
 using System;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 
 public class Track
 {
@@ -11,7 +12,8 @@ public class Track
     public int                  maxGridSize;
     public float                kmLength;
 
-    public Track(string nameParam, string layoutParam, int maxGridSizeParam, float kmLengthParam, Tracks.Grade gradeParam, Tracks.Country countryParam){
+    public Track(string nameParam, string layoutParam, int maxGridSizeParam, float kmLengthParam, Tracks.Grade gradeParam, Tracks.Country countryParam)
+    {
         name        = nameParam;
         layout      = layoutParam;
         maxGridSize = maxGridSizeParam;
@@ -20,11 +22,13 @@ public class Track
         country     = countryParam;
     }
 
-    public string GetPrintName(){
+    public string GetPrintName()
+    {
         return name + " " + layout;
     }
 
-    public Sprite GetTrackMapSprite(){
+    public Sprite GetTrackMapSprite()
+    {
         string imageName = name.Replace(" ", "").Replace("-", "").Replace(".", "");
         if("" != layout){
             imageName += "_" + layout.Replace(" ", "").Replace("-", "").Replace(".", "");
@@ -32,16 +36,33 @@ public class Track
         return Resources.Load<Sprite>("Images/TrackMaps/" + imageName);
     }
 
-    public Sprite GetTrackImageSprite(){
+    public Sprite GetTrackImageSprite()
+    {
         string imageName = name.Replace(" ", "").Replace("-", "").Replace(".", "");
 
         return Resources.Load<Sprite>("Images/TrackImages/" + imageName);
     }
 
-    public Sprite GetCountryFlagSprite(){
+    public Sprite GetCountryFlagSprite()
+    {
         string imageName = Tracks.countryToString[country].Replace(" ", "").Replace("-", "").Replace(".", "");
 
         return Resources.Load<Sprite>("Images/CountryImages/" + imageName);
+    }
+
+    public override bool Equals(object obj)
+    {
+        if(obj == null || GetType() != obj.GetType()){
+            return false;
+        }
+
+        Track trackToCompare = (Track)obj;
+        return trackToCompare.name == name && trackToCompare.layout == layout;
+    }
+
+    public override int GetHashCode()
+    {
+        return (name + layout).GetHashCode();
     }
 }
 
@@ -50,15 +71,18 @@ public static class Tracks
     private static Dictionary<Country, List<Track>>                     countryTracks;
     private static Dictionary<Region.ClickableRegion, List<Country>>    regionToCountries;
 
-    static Tracks(){
+    static Tracks()
+    {
         // Initialize our Tracks DB
         countryTracks       = new Dictionary<Country, List<Track>>();
         regionToCountries   = new Dictionary<Region.ClickableRegion, List<Country>>();
 
-        foreach(Country country in Enum.GetValues(typeof(Country))){
+        foreach(Country country in Enum.GetValues(typeof(Country)))
+        {
             countryTracks[country]      = new List<Track>();
         }
-        foreach(Region.ClickableRegion region in Enum.GetValues(typeof(Region.ClickableRegion))){
+        foreach(Region.ClickableRegion region in Enum.GetValues(typeof(Region.ClickableRegion)))
+        {
             regionToCountries[region]   = new List<Country>();
         }
 
@@ -80,33 +104,55 @@ public static class Tracks
         countryTracks[Country.USA]                                  = GetUSATracks();
 
         // (Clickable) Regions setup
-        foreach(Region.ClickableRegion region in Enum.GetValues(typeof(Region.ClickableRegion))){
+        foreach(Region.ClickableRegion region in Enum.GetValues(typeof(Region.ClickableRegion)))
+        {
             regionToCountries[region]                               = GetCountries(region);
         }
     }
 
-    public static Track GetTrack(string trackName, string trackLayout, Country trackCountry){
+    public static Track GetTrack(string trackName, string trackLayout, Country trackCountry)
+    {
         List<Track> tracks = GetTracks(trackCountry);
 
-        foreach(Track track in tracks){
-            if(track.name == trackName && track.layout == trackLayout){
+        foreach(Track track in tracks)
+        {
+            if(track.name == trackName && track.layout == trackLayout)
+            {
                 return track;
             }
         }
 
+        Debug.LogWarning("Couldn't find track: " + trackName + " - " + trackLayout + ", looking into DLC tracks that aren't activated.");
+
+        foreach(SettingsMenu.DLC dlc in Enum.GetValues(typeof(SettingsMenu.DLC)))
+        {
+            foreach(Track track in GetDLCTracks(dlc))
+            {
+                if(track.name == trackName && track.layout == trackLayout)
+                {
+                    return track;
+                }
+            }
+        }
+
+        Debug.LogError("Still couldn't find track.");
         return null;
     }
 
-    public static List<Track> GetTracks(Country country){
+    public static List<Track>   GetTracks(Country country)
+    {
         return countryTracks[country];
     }
 
-    public static List<Track> GetTracks(Country country, Grade grade){
+    public static List<Track>   GetTracks(Country country, Grade grade)
+    {
         List<Track> tracks = new List<Track>();
 
-        foreach(Track track in countryTracks[country]){
+        foreach(Track track in GetTracks(country))
+        {
             // If the track is the wanted grade, add it to our return list
-            if(track.grade.Equals(grade)){
+            if(track.grade.Equals(grade))
+            {
                 tracks.Add(track);
             }
         }
@@ -114,7 +160,8 @@ public static class Tracks
         return tracks;
     }
 
-    public static List<Track> GetTracks(Region.ClickableRegion region){
+    public static List<Track> GetTracks(Region.ClickableRegion region)
+    {
         List<Track> tracks              = new List<Track>();
 
         foreach(Country country in regionToCountries[region]){
@@ -124,7 +171,8 @@ public static class Tracks
         return tracks;
     }
 
-    public static List<Track> GetTracks(Region.ClickableRegion region, Grade grade){
+    public static List<Track> GetTracks(Region.ClickableRegion region, Grade grade)
+    {
         List<Track> tracks              = new List<Track>();
 
         foreach(Country country in regionToCountries[region]){
@@ -132,6 +180,72 @@ public static class Tracks
         }
 
         return tracks;
+    }
+
+    public static void SetDLCState(SettingsMenu.DLC dlc, bool state)
+    {
+        List<Track> tracks    = GetDLCTracks(dlc);
+        foreach(Track track in tracks)
+        {
+            if(state)
+            {
+                countryTracks[track.country].Add(track);
+            }
+            else if(countryTracks[track.country].Contains(track))
+            {
+                countryTracks[track.country].Remove(track);
+            }
+        }
+    }
+
+    private static List<Track> GetDLCTracks(SettingsMenu.DLC dlc)
+    {
+        List<Track> trackList = new List<Track>();
+        switch(dlc)
+        {
+            case SettingsMenu.DLC.RacinUSAOne:
+                trackList.Add(new Track(
+                        "Daytona",
+                        "Sports Car Course",
+                        32,
+                        5.729f,
+                        Grade.Three,
+                        Country.USA
+                    ));
+                trackList.Add(new Track(
+                        "Daytona",
+                        "NASCAR Road Course",
+                        32,
+                        5.729f,
+                        Grade.Three,
+                        Country.USA
+                    ));
+                trackList.Add(new Track(
+                        "Laguna Seca",
+                        "2020",
+                        30,
+                        3.602f,
+                        Grade.Two,
+                        Country.USA
+                    ));
+                trackList.Add(new Track(
+                        "Long Beach",
+                        "",
+                        32,
+                        3.167f,
+                        Grade.Three,
+                        Country.USA
+                    ));
+                break;
+
+            case SettingsMenu.DLC.SupercarsOne:
+                break;
+
+            default:
+                break;
+        }
+
+        return trackList;
     }
 
     [System.Serializable]
@@ -199,10 +313,12 @@ public static class Tracks
         {Grade.Kart,                "Kart"}
     };
 
-    public static List<Country> GetCountries(Region.ClickableRegion region){
+    public static List<Country> GetCountries(Region.ClickableRegion region)
+    {
         List<Country> countries;
 
-        switch(region){
+        switch(region)
+        {
             case Region.ClickableRegion.NorthAmerica:
                 return new List<Country>() { {Country.USA}, {Country.Canada} };
             case Region.ClickableRegion.SouthAmerica:
@@ -266,7 +382,8 @@ public static class Tracks
         }
     }
 
-    private static List<Track> GetArgentinaTracks(){
+    private static List<Track> GetArgentinaTracks()
+    {
         return new List<Track>()
         {
             {
@@ -382,7 +499,8 @@ public static class Tracks
         };
     }
 
-    private static List<Track> GetAustraliaTracks(){
+    private static List<Track> GetAustraliaTracks()
+    {
         return new List<Track>()
         {
             {
@@ -418,7 +536,8 @@ public static class Tracks
         };
     }
 
-    private static List<Track> GetAustriaTracks(){
+    private static List<Track> GetAustriaTracks()
+    {
         return new List<Track>()
         {
             {
@@ -464,7 +583,8 @@ public static class Tracks
         };
     }
 
-    private static List<Track> GetBrazilTracks(){
+    private static List<Track> GetBrazilTracks()
+    {
         return new List<Track>()
         {
             {
@@ -930,7 +1050,8 @@ public static class Tracks
         };
     }
 
-    private static List<Track> GetCanadaTracks(){
+    private static List<Track> GetCanadaTracks()
+    {
         return new List<Track>()
         {
             {
@@ -956,7 +1077,8 @@ public static class Tracks
         };
     }
 
-    private static List<Track> GetEcuadorTracks(){
+    private static List<Track> GetEcuadorTracks()
+    {
         return new List<Track>()
         {
             {
@@ -982,7 +1104,8 @@ public static class Tracks
         };
     }
 
-    private static List<Track> GetEnglandTracks(){
+    private static List<Track> GetEnglandTracks()
+    {
         return new List<Track>()
         {
             {
@@ -1108,7 +1231,8 @@ public static class Tracks
         };
     }
 
-    private static List<Track> GetItalyTracks(){
+    private static List<Track> GetItalyTracks()
+    {
         return new List<Track>()
         {
             {
@@ -1194,7 +1318,8 @@ public static class Tracks
         };
     }
 
-    private static List<Track> GetJapanTracks(){
+    private static List<Track> GetJapanTracks()
+    {
         return new List<Track>()
         {
             {
@@ -1240,7 +1365,8 @@ public static class Tracks
         };
     }
 
-    private static List<Track> GetMonacoTracks(){
+    private static List<Track> GetMonacoTracks()
+    {
         return new List<Track>()
         {
             {
@@ -1256,7 +1382,8 @@ public static class Tracks
         };
     }
 
-    private static List<Track> GetNorwayTracks(){
+    private static List<Track> GetNorwayTracks()
+    {
         return new List<Track>()
         {
             {
@@ -1282,7 +1409,8 @@ public static class Tracks
         };
     }
 
-    private static List<Track> GetPortugalTracks(){
+    private static List<Track> GetPortugalTracks()
+    {
         return new List<Track>()
         {
             {
@@ -1308,7 +1436,8 @@ public static class Tracks
         };
     }
 
-    private static List<Track> GetSouthAfricaTracks(){
+    private static List<Track> GetSouthAfricaTracks()
+    {
         return new List<Track>()
         {
             {
@@ -1334,7 +1463,8 @@ public static class Tracks
         };
     }
 
-    private static List<Track> GetSpainTracks(){
+    private static List<Track> GetSpainTracks()
+    {
         return new List<Track>()
         {
             {
@@ -1360,7 +1490,8 @@ public static class Tracks
         };
     }
 
-    private static List<Track> GetUSATracks(){
+    private static List<Track> GetUSATracks()
+    {
         return new List<Track>()
         {
             {

@@ -688,14 +688,15 @@ public class Event
     }
 
     public static Event GenerateNewEvent(
-                string eventName, EventType eventType, EventDuration duration, EventSeries parentEventSeriesParam, List<Tracks.Country> allowedCountries,
+                string eventName, EventType eventType, EventDuration duration, EventSeries parentEventSeriesParam,
                 List<Cars.CarType> allowedTypes, List<Cars.CarClass> allowedClasses, List<Cars.CarBrand> allowedBrands, List<string> allowedNames,
                 bool useLaps = true, List<Track> blacklistedTracks = null
                 ){
         // First pick the track depending on the tier and country
-        EventSeries.SeriesTier          tier            = parentEventSeriesParam.seriesTier;
-        Track                           trackToUse      = null;
-        List<Tracks.Grade>              allowedGrades   = EventSeries.tierAllowedOnGrade[tier];
+        EventSeries.SeriesTier          tier                = parentEventSeriesParam.seriesTier;
+        Track                           trackToUse          = null;
+        List<Tracks.Grade>              allowedGrades       = EventSeries.tierAllowedOnGrade[tier];
+        List<Tracks.Country>            allowedCountries    = Tracks.GetCountries(parentEventSeriesParam.partOfRegion);
 
         // If any kart is in the event, only kart tracks can be raced
         if(allowedClasses.Contains(Cars.CarClass.Kart125cc) || allowedClasses.Contains(Cars.CarClass.KartGX390) || allowedClasses.Contains(Cars.CarClass.KartRental) || allowedClasses.Contains(Cars.CarClass.KartShifter) || allowedClasses.Contains(Cars.CarClass.KartSuper) || allowedBrands.Contains(Cars.CarBrand.Kart)){
@@ -735,9 +736,9 @@ public class Event
             }
 
             triedGrades.Clear();
-            trackToUse = null;
+            trackToUse      = null;
             validTracks.Clear();
-            triedAllGrades = false;
+            triedAllGrades  = false;
 
             // While we haven't tried every grade and we haven't honed in on a track for this iteration
             while(triedGrades.Count < allowedGrades.Count && null == trackToUse){

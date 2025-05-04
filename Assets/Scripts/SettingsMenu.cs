@@ -5,7 +5,8 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class SettingsMenu : MonoBehaviour {
+public class SettingsMenu : MonoBehaviour
+{
 
     public TMP_Dropdown     resolutionDropdown;
     public Resolution[]     resolutions;
@@ -16,7 +17,8 @@ public class SettingsMenu : MonoBehaviour {
     private GameManager     gameManager;
     private CanvasScaler    canvasScaler;
 
-    void Start(){
+    void Start()
+    {
         gameManager             = GameObject.FindWithTag("GameManager").GetComponent<GameManager>();
         canvasScaler            = GameObject.FindWithTag("MainCanvas").GetComponent<CanvasScaler>();
 
@@ -106,7 +108,8 @@ public class SettingsMenu : MonoBehaviour {
         canvasScaler.matchWidthOrHeight = screenAspect >= referenceAspect ? 1 : 0;
     }
 
-    public void SetResolution(int resolutionIndex){
+    public void SetResolution(int resolutionIndex)
+    {
         Resolution resolution = resolutions[resolutionIndex];
         Screen.SetResolution(resolution.width, resolution.height, Screen.fullScreen);
 
@@ -115,13 +118,45 @@ public class SettingsMenu : MonoBehaviour {
         PlayerPrefs.SetFloat("ResolutionHz", (float)resolution.refreshRateRatio.value);
     }
 
-    public void SetFullscreen(bool isFullscreen){
+    public void SetFullscreen(bool isFullscreen)
+    {
         Screen.fullScreen       = isFullscreen;
         PlayerPrefs.SetInt("IsFullscreen", isFullscreen ? 1 : 0);
     }
 
-    public void JsonInputEditFinished(string newJsonDir){
+    public void JsonInputEditFinished(string newJsonDir)
+    {
         PlayerPrefs.SetString("JsonDir", newJsonDir);
         gameManager.SetPathToJsons(newJsonDir);
     }
+
+    static public void SetDLCState(DLC dlc, bool state)
+    {
+        PlayerPrefs.SetInt(DLCToName[dlc], state ? 1 : 0);
+
+        Cars.SetDLCState(dlc, state);
+        Tracks.SetDLCState(dlc, state);
+    }
+
+    static public bool GetDLCState(DLC dlc)
+    {
+        return 1 == PlayerPrefs.GetInt(DLCToName[dlc], 0);
+    }
+
+    // When you add a new DLC, make sure to edit Track's "GetDLCTracks()" and Car's "InitializeCars()"
+    // Remember to add SeriesBackground picture, Car picture, Track image and map picture
+    [System.Serializable]
+    public enum DLC
+    {
+        // Enum value CANNOT be 0 due to logic reasons in other scripts
+        RacinUSAOne             = 1,
+        SupercarsOne            = 2
+    };
+
+    static public Dictionary<DLC, string> DLCToName    = new Dictionary<DLC, string>()
+    {
+        {DLC.RacinUSAOne,               "Racin' USA 1"},
+        {DLC.SupercarsOne,              "Supercars 1"}
+    };
+
 }
