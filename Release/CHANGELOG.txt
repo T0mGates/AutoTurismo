@@ -1,3 +1,8 @@
+[1.2 - May 4th, 2025]
+    - Added in support for 2 DLCs, "Racin' USA Pack Pt1" and "Supercars Pack Pt1"
+
+    - Fix for all aspect ratios. Graphical anomalies, be gone!
+
 [1.1 - April 13th, 2025]
     - (Tentative) Fix for some resolutions (1440p mainly)
 
